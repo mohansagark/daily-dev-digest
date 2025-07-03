@@ -1,0 +1,51 @@
+name: Generate Daily Dev Digest
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # Runs daily at 6:00 AM UTC (adjust to your timezone)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Daily Dev Digest Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate Digest
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          FEED_SOURCES: ${{ secrets.FEED_SOURCES }}
+        run: python generate_digest.py
+
+      - name: Clone Blog Repo
+        run: |
+          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/YOUR_USERNAME/next-gen-portfolio.git blog
+
+      - name: Copy MDX files to blog
+        run: |
+          cp -v digests/*.mdx blog/content/blog/
+
+      - name: Commit and Push to Blog Repo
+        run: |
+          cd blog
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add content/blog/*.mdx
+          git commit -m "🔁 daily dev digest $(date '+%Y-%m-%d')" || echo "No changes to commit"
+          git push
+
+      - name: Trigger Vercel Rebuild
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
