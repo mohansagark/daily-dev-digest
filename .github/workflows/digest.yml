@@ -28,7 +28,6 @@ jobs:
 
       - name: Generate Digest
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           FEED_SOURCES: ${{ secrets.FEED_SOURCES }}
         run: python generate_digest.py
 
@@ -36,17 +35,21 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/next-gen-portfolio.git blog
 
+      - name: Ensure blog/src/blog/posts folder exists
+        run: |
+          mkdir -p blog/src/blog/posts/
+
       - name: Copy MDX files to blog
         run: |
-          cp -v digests/*.mdx blog/content/blog/
+          cp -v digests/*.mdx blog/src/blog/posts/ || echo "⚠️ No .mdx files to copy"
 
       - name: Commit and Push to Blog Repo
         run: |
           cd blog
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add content/blog/*.mdx
-          git commit -m "🔁 daily dev digest $(date '+%Y-%m-%d')" || echo "No changes to commit"
+          git add src/blog/posts/*.mdx
+          git commit -m "🔁 daily dev digest $(date '+%Y-%m-%d %H:%M')" || echo "⚠️ Nothing to commit"
           git push
 
       - name: Trigger Vercel Rebuild
