@@ -31,7 +31,7 @@ jobs:
 
       - name: Clone Blog Repo
         run: |
-          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/YOUR_USERNAME/next-gen-portfolio.git blog
+          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/next-gen-portfolio.git blog
 
       - name: Copy MDX files to blog
         run: |
