@@ -312,7 +312,7 @@ def create_mdx_content(article, strategy, slug):
     subtitle = subtitle_templates.get(strategy_key, "Professional insights for developers")
     
     # Create frontmatter
-frontmatter = f"""---
+    frontmatter = f"""---
 title: {yaml_safe_value(article['title'])}
 subtitle: {yaml_safe_value(subtitle)}
 summary: {yaml_safe_value(summary)}
@@ -321,7 +321,7 @@ date: {yaml_safe_value(current_date)}
 time: {yaml_safe_value(current_time)}
 content_strategy: {yaml_safe_value(strategy['description'])}
 writing_style: {yaml_safe_value(strategy['style'])}
-tags: {json.dumps(tags)}  # tags is a list, JSON is safe!
+tags: {json.dumps(tags)}
 image_suggestion: {yaml_safe_value(f'Professional illustration representing {article["title"]}')}
 source_url: {yaml_safe_value(article['link'])}
 published_date: {yaml_safe_value(article['published'])}
