@@ -1,3 +1,4 @@
 .env
 venv/
 digests/
+__pycache__/
