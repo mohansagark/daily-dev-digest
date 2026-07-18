@@ -1,1 +1,9 @@
-{}
+{
+  "5ba1aba81127c39896d1e59c9305f4be": {
+    "title": "Build an ESP32 energy meter with a live dashboard",
+    "link": "https://dev.to/decoded_cipher/build-an-esp32-energy-meter-with-a-live-dashboard-1m1g",
+    "processed_date": "2026-07-18T14:47:55.123087",
+    "strategy_used": "Backend, cloud, and systems engineering",
+    "content_sample": "most esp32 energy-meter tutorials you'll find are built on platforms that have since changed out from under them — deprecated app flows, retired tokens, code that no longer compiles as written. this build has no such dependency. a pzem-004t does the metering, the esp32 reports over plain https/websocket, and the dashboard, history, and alerts run in nodrix on your own cloudflare account — nothing in the path can be discontinued on you. what you get: live volts, amps, watts, and a lifetime kwh counter on a dashboard you can open from anywhere, a 24-hour load curve, and a telegram message when something draws more than it should. safety first this project meters mains electricity. the esp32 side is all low-voltage, but the pzem's input terminals connect to live line and neutral: de-energize "
+  }
+}
