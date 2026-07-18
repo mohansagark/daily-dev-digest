@@ -48,7 +48,7 @@ MAX_PER_FEED = 5
 MAX_TOTAL = 1  # exactly one post per day (single best candidate)
 OUTPUT_DIR = "digests"
 DUPLICATES_FILE = "processed_articles.json"
-AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Daily Dev Digest")
+AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Mohan Sagar")
 
 # Near-duplicate content guard: if a new article's cleaned text is >= this
 # similarity ratio to a recently-processed article, treat it as a duplicate.
@@ -488,7 +488,7 @@ tags: {json.dumps(tags)}
 image_suggestion: {yaml_safe_value(f"Professional illustration representing {generated['headline']}")}
 source_url: {yaml_safe_value(article['link'])}
 published_date: {yaml_safe_value(article['published'])}
-author: {yaml_safe_value(article.get('author') or AUTHOR_NAME)}
+author: {yaml_safe_value(AUTHOR_NAME)}
 ---
 """
     return f"{frontmatter}\n{body}\n"
