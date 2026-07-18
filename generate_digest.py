@@ -320,10 +320,14 @@ Rewrite the following source material into an original technical blog post.
 Requirements:
 - Genuinely rewrite and restructure — do NOT reproduce the source's wording.
 - Keep it technically accurate; do not invent facts not in the source.
-- Structure the body with a short intro, 2-4 `##` sections, and a takeaways list.
+- Structure the body with a short intro, 4-6 `##` sections (each 2-4 substantial
+  paragraphs with concrete detail, reasoning, and a short example), and a
+  takeaways list.
 - Tone/style: {style}. Audience: professional developers.
 - Near the end, attribute the original with a Markdown link to the source URL.
-- 700-1100 words in body_markdown. Do NOT include an H1 title (front-matter owns it).
+- LENGTH IS A HARD REQUIREMENT: body_markdown MUST be 800-1200 words. If a draft
+  is shorter, expand each section with more depth rather than adding filler.
+  Do NOT include an H1 title (front-matter owns it).
 - tags: 3-6 short lowercase topic tags.
 - meta_description: <= 160 chars, SEO-friendly.
 
