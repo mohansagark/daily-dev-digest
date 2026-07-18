@@ -66,19 +66,26 @@ def extract_json(text):
     if not text:
         raise ValueError("Empty LLM response, cannot parse JSON")
 
-    # Strip markdown code fences if present.
-    fenced = re.search(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)
-    candidate = fenced.group(1).strip() if fenced else text.strip()
+    candidate = text.strip()
 
-    try:
-        return json.loads(candidate)
-    except json.JSONDecodeError:
-        pass
+    # Only unwrap a fence if the WHOLE response is fenced (anchored at start),
+    # so we don't accidentally grab a ```code``` block inside body_markdown.
+    if candidate.startswith("```"):
+        m = re.match(r"```(?:json)?\s*(.*?)```\s*$", candidate, re.DOTALL)
+        if m:
+            candidate = m.group(1).strip()
 
-    # Fall back to the first '{' ... matching last '}' slice.
+    # Isolate the outermost {...} object (drops any prose before/after it).
     start = candidate.find("{")
     end = candidate.rfind("}")
     if start != -1 and end != -1 and end > start:
-        return json.loads(candidate[start : end + 1])
+        candidate = candidate[start : end + 1]
 
-    raise ValueError(f"Could not parse JSON from LLM response: {text[:200]}...")
+    # strict=False tolerates literal newlines/tabs inside string values, which
+    # LLMs routinely emit inside a long markdown field (strict JSON forbids them).
+    try:
+        return json.loads(candidate, strict=False)
+    except json.JSONDecodeError as e:
+        raise ValueError(
+            f"Could not parse JSON from LLM response: {text[:200]}..."
+        ) from e
