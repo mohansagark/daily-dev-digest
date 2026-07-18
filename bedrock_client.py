@@ -1,0 +1,84 @@
+"""
+Thin wrapper around the Amazon Bedrock Runtime `converse` API.
+
+Kept model-agnostic on purpose: everything goes through `converse`, so swapping
+BEDROCK_MODEL_ID to any Converse-capable model works without code changes.
+
+boto3 is imported lazily so the deterministic pipeline (and `--dry-run`) can run
+in environments where boto3 / AWS credentials are not available.
+"""
+
+import os
+import json
+import re
+
+# Base model id vs. cross-region inference profile:
+#   - amazon.nova-pro-v1:0      -> base model id
+#   - us.amazon.nova-pro-v1:0   -> US cross-region inference profile (usually
+#                                  required for on-demand Nova Pro in us-east-1)
+# Default to the inference profile; override with BEDROCK_MODEL_ID if needed.
+DEFAULT_MODEL_ID = "us.amazon.nova-pro-v1:0"
+
+
+def get_model_id():
+    return os.getenv("BEDROCK_MODEL_ID", DEFAULT_MODEL_ID)
+
+
+def get_region():
+    return os.getenv("AWS_REGION", "us-east-1")
+
+
+def _client():
+    """Create a bedrock-runtime client. Imported lazily (see module docstring)."""
+    import boto3  # noqa: WPS433 (intentional lazy import)
+
+    return boto3.client("bedrock-runtime", region_name=get_region())
+
+
+def converse(system_prompt, user_prompt, max_tokens=3000, temperature=0.4):
+    """
+    Single-turn call to the Bedrock `converse` API.
+
+    Returns the raw assistant text. Raises on transport/API errors so the caller
+    can decide how to handle failures (we fail the run rather than push garbage).
+    """
+    client = _client()
+    response = client.converse(
+        modelId=get_model_id(),
+        system=[{"text": system_prompt}],
+        messages=[{"role": "user", "content": [{"text": user_prompt}]}],
+        inferenceConfig={
+            "maxTokens": max_tokens,
+            "temperature": temperature,
+            "topP": 0.9,
+        },
+    )
+    return response["output"]["message"]["content"][0]["text"]
+
+
+def extract_json(text):
+    """
+    Best-effort extraction of a single JSON object from an LLM response.
+
+    Models sometimes wrap JSON in ```json fences or add a sentence before/after,
+    so we strip fences and fall back to the first balanced {...} block.
+    """
+    if not text:
+        raise ValueError("Empty LLM response, cannot parse JSON")
+
+    # Strip markdown code fences if present.
+    fenced = re.search(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)
+    candidate = fenced.group(1).strip() if fenced else text.strip()
+
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError:
+        pass
+
+    # Fall back to the first '{' ... matching last '}' slice.
+    start = candidate.find("{")
+    end = candidate.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        return json.loads(candidate[start : end + 1])
+
+    raise ValueError(f"Could not parse JSON from LLM response: {text[:200]}...")

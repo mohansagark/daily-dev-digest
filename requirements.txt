@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 anyio==4.9.0
 beautifulsoup4==4.13.4
+boto3==1.43.51
 certifi==2025.6.15
 charset-normalizer==3.4.2
 distro==1.9.0
@@ -11,8 +12,8 @@ httpx==0.28.1
 idna==3.10
 jiter==0.10.0
 lxml==6.0.0
-openai==1.93.0
 pydantic==2.11.7
+trafilatura==1.12.2
 pydantic_core==2.33.2
 python-dotenv==1.1.1
 python-slugify==8.0.4

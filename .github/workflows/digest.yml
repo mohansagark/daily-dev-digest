@@ -2,11 +2,13 @@ name: Generate Daily Dev Digest
 
 on:
   schedule:
-    - cron: "30 2 * * *" # 8:00 AM IST
-    - cron: "30 7 * * *" # 1:00 PM IST
-    - cron: "30 11 * * *" # 5:00 PM IST
-    - cron: "30 15 * * *" # 9:00 PM IST
+    - cron: "30 2 * * *" # 8:00 AM IST — single daily run (throttled from 4x/day)
   workflow_dispatch:
+
+# Least-privilege by default; `id-token: write` is required for AWS OIDC.
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   build:
@@ -14,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout Daily Dev Digest Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -26,32 +28,48 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate Digest
+      # AWS auth for Bedrock via GitHub OIDC (preferred — no long-lived keys).
+      # The IAM role in AWS_ROLE_ARN must trust this repo's OIDC subject and
+      # allow bedrock:InvokeModel on the Nova Pro model / inference-profile ARN.
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+        # Fallback for static keys (comment out the block above and set
+        # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY as env on the step below).
+
+      - name: Generate Digest (scrape -> clean -> dedupe -> Bedrock LLM x2 -> mdx)
         env:
           FEED_SOURCES: ${{ secrets.FEED_SOURCES }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID || 'us.amazon.nova-pro-v1:0' }}
+          # Static-key fallback (only used if OIDC step above is disabled):
+          # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: python generate_digest.py
 
-      - name: Clone Blog Repo
+      # Repointed: push generated .mdx into the portfolio-blog repo (the single
+      # source of truth), NOT next-gen-portfolio.
+      - name: Clone portfolio-blog Repo
         run: |
-          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/next-gen-portfolio.git blog
+          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/portfolio-blog.git blog
 
-      - name: Ensure blog/src/blog/posts folder exists
+      - name: Ensure posts folder exists
+        run: mkdir -p blog/posts/
+
+      - name: Copy MDX files into portfolio-blog/posts
         run: |
-          mkdir -p blog/src/blog/posts/
+          cp -v digests/*.mdx blog/posts/ || echo "⚠️ No .mdx files to copy"
 
-      - name: Copy MDX files to blog
-        run: |
-          cp -v digests/*.mdx blog/src/blog/posts/ || echo "⚠️ No .mdx files to copy"
-
-      - name: Commit and Push to Blog Repo
+      - name: Commit and Push to portfolio-blog
         run: |
           cd blog
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add src/blog/posts/*.mdx
+          git add posts/*.mdx
           git commit -m "🔁 daily dev digest $(date '+%Y-%m-%d %H:%M')" || echo "⚠️ Nothing to commit"
-          git push
+          git push origin main
 
-      - name: Trigger Vercel Rebuild
-        run: |
-          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+      # NOTE: Vercel deploy hook removed. Deployment is now triggered by
+      # portfolio-blog's own CI after it rebuilds its generated/ artifacts.
