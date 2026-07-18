@@ -320,14 +320,13 @@ Rewrite the following source material into an original technical blog post.
 Requirements:
 - Genuinely rewrite and restructure — do NOT reproduce the source's wording.
 - Keep it technically accurate; do not invent facts not in the source.
-- Structure the body with a short intro, 4-6 `##` sections (each 2-4 substantial
-  paragraphs with concrete detail, reasoning, and a short example), and a
+- Structure the body with a short intro, 3-5 `##` sections (each 2-3 focused
+  paragraphs with concrete detail and a short example where useful), and a
   takeaways list.
 - Tone/style: {style}. Audience: professional developers.
 - Near the end, attribute the original with a Markdown link to the source URL.
-- LENGTH IS A HARD REQUIREMENT: body_markdown MUST be 800-1200 words. If a draft
-  is shorter, expand each section with more depth rather than adding filler.
-  Do NOT include an H1 title (front-matter owns it).
+- Target 700-1000 words in body_markdown (do not exceed 1100). Prefer depth over
+  filler. Do NOT include an H1 title (front-matter owns it).
 - tags: 3-6 short lowercase topic tags.
 - meta_description: <= 160 chars, SEO-friendly.
 
@@ -385,7 +384,7 @@ def generate_post(article, strategy, dry_run=False):
         source_title=article["title"],
         source_text=source_text,
     )
-    raw = bedrock_client.converse(GENERATE_SYSTEM_PROMPT, prompt, max_tokens=3500,
+    raw = bedrock_client.converse(GENERATE_SYSTEM_PROMPT, prompt, max_tokens=5000,
                                   temperature=0.6)
     data = bedrock_client.extract_json(raw)
 
@@ -453,7 +452,7 @@ def verify_post(article, generated, dry_run=False):
         source_text=article["content"][:8000],
         draft_body=generated["body_markdown"],
     )
-    raw = bedrock_client.converse(VERIFY_SYSTEM_PROMPT, prompt, max_tokens=3500,
+    raw = bedrock_client.converse(VERIFY_SYSTEM_PROMPT, prompt, max_tokens=5000,
                                   temperature=0.1)
     data = bedrock_client.extract_json(raw)
 
