@@ -23,7 +23,7 @@ all candidates are ranked and only the single best is kept.
 
 ## Tech stack
 
-`Python` · **Amazon Bedrock** (`boto3`) · `trafilatura` + `beautifulsoup4` + `lxml`
+`Python` · **Amazon Bedrock** (`boto3`) · **Cloudflare Workers AI** (FLUX schnell, cover images) · `trafilatura` + `beautifulsoup4` + `lxml`
 (scraping/cleaning) · `feedparser` (RSS) · `pydantic` (structured output) ·
 `python-slugify` · **GitHub Actions** (scheduled, AWS OIDC)
 
@@ -46,6 +46,16 @@ python generate_digest.py
 (`30 2 * * *` UTC ≈ 8:00 AM IST) and via **workflow_dispatch**. It authenticates to
 AWS with **OIDC** (`id-token: write`, least-privilege) — no long-lived AWS keys are
 stored.
+
+## Cover images
+
+Each post gets one best-effort cover image generated with
+[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) (FLUX schnell).
+Required environment variables: `CF_ACCOUNT_ID`, `CF_API_TOKEN`.
+Optional: `CF_IMAGE_MODEL` (default: `@cf/black-forest-labs/flux-1-schnell`),
+`IMAGE_STEPS` (default: `4`), `IMAGE_REQUIRED` (default: `false`).
+
+If image generation fails, the post is still published as text-only (no image front-matter field).
 
 ## Files
 
