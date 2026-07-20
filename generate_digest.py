@@ -340,7 +340,7 @@ Return ONLY this JSON object (no code fences, no commentary):
   "meta_description": "string",
   "tags": ["string"],
   "image_brief": {{
-    "subject": "the STRUCTURE of the system or idea this post describes, as abstract geometry a person could sketch — nodes, layers, pipelines, flows, boundaries, groupings. Describe the shape of how it works, NOT a metaphor for it. Banned as lazy and generic: roads, paths, highways, bridges, mountains, sunrises, horizons, lightbulbs, puzzle pieces, handshakes, rockets, chess pieces, icebergs. Never text, UI screenshots, or logos.",
+    "subject": "the STRUCTURE of the system or idea this post describes, as abstract geometry a person could sketch — nodes, layers, pipelines, flows, boundaries, groupings. Describe topology and relationships ONLY. Do NOT name screens, dashboards, panels, sidebars, charts, windows or any interface region; that produces a UI mockup, not a diagram. Do NOT name products, languages or their mascots. Do NOT use a metaphor. Banned as lazy and generic: roads, paths, highways, bridges, mountains, sunrises, horizons, lightbulbs, puzzle pieces, handshakes, rockets, chess pieces, icebergs.",
     "composition": "how it is framed — focal point and negative space",
     "mood": "2-4 word emotional tone",
     "palette": "2-3 dominant colors that fit the topic"
@@ -493,9 +493,14 @@ BRAND_STYLE = (
     "precise geometric forms, clean linework, layered depth, "
     "subtle grain, professional blog cover"
 )
-NEGATIVES = (
-    "no text, no words, no letters, no watermark, no logos, "
-    "no UI screenshots, no photorealistic faces"
+# flux-1-schnell takes ONLY prompt/steps/seed — there is no negative_prompt, so
+# everything here lands in the POSITIVE prompt. Diffusion text encoders do not
+# reliably parse negation, so "no text, no logos" injected those very concepts:
+# the first schematic cover came back covered in garbled signage and a Python
+# logo. State the desired surface treatment affirmatively instead.
+SURFACE_RULE = (
+    "all surfaces blank and unmarked, panels plain and untextured, "
+    "purely geometric abstract forms, empty smooth faces"
 )
 MAX_IMAGE_PROMPT_CHARS = 2048
 
@@ -560,7 +565,7 @@ def build_image_prompt(brief, headline, tags):
         f"Mood: {_clause(mood)}",
         f"Color palette: {_clause(palette)}",
         f"Style: {BRAND_STYLE}.",
-        f"Avoid: {NEGATIVES}.",
+        f"Surfaces: {SURFACE_RULE}.",
     ]
     prompt = " ".join(p for p in parts if p)
     return prompt[:MAX_IMAGE_PROMPT_CHARS]

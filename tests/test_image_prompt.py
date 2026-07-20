@@ -1,4 +1,4 @@
-from generate_digest import build_image_prompt, _slot, BRAND_STYLE, NEGATIVES
+from generate_digest import build_image_prompt, _slot, BRAND_STYLE, SURFACE_RULE
 
 FULL = {"subject": "a lighthouse over circuit-board waves",
         "composition": "centered hero, wide negative space",
@@ -13,16 +13,16 @@ def test_all_slots_present_and_ordered():
     assert "Mood: calm, precise" in p
     assert "Color palette: deep indigo, warm amber" in p
     assert BRAND_STYLE in p
-    assert f"Avoid: {NEGATIVES}" in p
+    assert f"Surfaces: {SURFACE_RULE}" in p
     # subject appears before style, style before avoid
-    assert p.index("lighthouse") < p.index(BRAND_STYLE) < p.index("Avoid:")
+    assert p.index("lighthouse") < p.index(BRAND_STYLE) < p.index("Surfaces:")
 
 
 def test_empty_slots_fall_back():
     p = build_image_prompt({}, "My Great Post", ["react"])
     assert "My Great Post" in p           # subject fallback uses headline
     assert BRAND_STYLE in p
-    assert "Avoid:" in p
+    assert "Surfaces:" in p
 
 
 def test_non_string_slots_are_ignored():
@@ -53,6 +53,14 @@ def test_other_trailing_punctuation_is_preserved():
     # Only a trailing '.' is redundant; '?' / '!' carry meaning and stay put.
     p = build_image_prompt({"subject": "what if code could fly?"}, "H", [])
     assert "what if code could fly? Composition:" in p
+
+
+def test_prompt_states_constraints_positively_not_as_negation():
+    # flux-1-schnell has no negative_prompt; negated words land in the POSITIVE
+    # prompt and get drawn. Guard against anyone reintroducing them.
+    p = build_image_prompt(FULL, "H", ["css"])
+    for banned in ("no text", "no words", "no letters", "no logos", "Avoid:"):
+        assert banned not in p, f"negation leaked back into the prompt: {banned}"
 
 
 def test_tags_become_a_domain_anchor():

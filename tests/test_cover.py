@@ -27,7 +27,7 @@ def test_success_returns_cover_dict(monkeypatch):
     cover = gd.maybe_generate_cover(GEN, "slug")
     assert cover["image"] == "/blog-images/slug.jpg"
     assert cover["alt"] == "a glowing prism"      # subject slot
-    assert "prism" in cover["prompt"] and "Avoid:" in cover["prompt"]
+    assert "prism" in cover["prompt"] and "Surfaces:" in cover["prompt"]
 
 
 def test_failure_soft_returns_none(monkeypatch):
