@@ -35,6 +35,26 @@ def test_truncates_to_2048():
     assert len(build_image_prompt(brief, "H", [])) <= 2048
 
 
+def test_slots_ending_in_a_period_do_not_double_up():
+    # The LLM usually returns slots as full sentences ending in '.', and the
+    # joiner used to append its own — producing "platform.. Composition:".
+    brief = {"subject": "a paved highway stretching into the horizon.",
+             "composition": "highway is the focal point.",
+             "mood": "empowering, streamlined.",
+             "palette": "muted modern tech palette."}
+    p = build_image_prompt(brief, "H", [])
+    assert ".." not in p
+    assert "horizon. Composition:" in p
+    assert "focal point. Mood:" in p
+    assert "streamlined. Color palette:" in p
+
+
+def test_other_trailing_punctuation_is_preserved():
+    # Only a trailing '.' is redundant; '?' / '!' carry meaning and stay put.
+    p = build_image_prompt({"subject": "what if code could fly?"}, "H", [])
+    assert "what if code could fly? Composition:" in p
+
+
 def test_slot_trims_and_guards():
     assert _slot({"a": "  hi  "}, "a") == "hi"
     assert _slot({"a": ""}, "a") == ""

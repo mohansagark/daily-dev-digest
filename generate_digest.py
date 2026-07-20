@@ -505,6 +505,19 @@ def _slot(brief, key):
     return val.strip() if isinstance(val, str) and val.strip() else ""
 
 
+def _clause(text):
+    """Terminate a brief slot with exactly one sentence-ending mark.
+
+    The LLM usually returns slots as full sentences ending in '.', so appending
+    our own separator produced "…platform.. Composition:". Strip any trailing
+    period first; '?' and '!' carry meaning, so they stand as the terminator.
+    """
+    text = text.rstrip().rstrip(".").rstrip()
+    if not text:
+        return ""
+    return text if text.endswith(("?", "!")) else f"{text}."
+
+
 def build_image_prompt(brief, headline, tags):
     """Assemble a structured image brief into one ordered FLUX prompt.
 
@@ -524,10 +537,10 @@ def build_image_prompt(brief, headline, tags):
     mood = _slot(brief, "mood") or "modern, precise"
     palette = _slot(brief, "palette") or "muted modern tech palette"
     prompt = (
-        f"{subject}. "
-        f"Composition: {composition}. "
-        f"Mood: {mood}. "
-        f"Color palette: {palette}. "
+        f"{_clause(subject)} "
+        f"Composition: {_clause(composition)} "
+        f"Mood: {_clause(mood)} "
+        f"Color palette: {_clause(palette)} "
         f"Style: {BRAND_STYLE}. "
         f"Avoid: {NEGATIVES}."
     )
