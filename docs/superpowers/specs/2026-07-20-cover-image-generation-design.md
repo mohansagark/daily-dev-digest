@@ -116,35 +116,81 @@ def generate(prompt: str, *, steps: int = 4) -> bytes:
   raise `RuntimeError` with the CF error payload.
 - No retries in v1 (single daily run; a failure degrades gracefully per §6.4).
 
-### 6.2 Image concept from LLM #1 (no extra call)
+### 6.2 Structured image brief from LLM #1 (no extra call)
 
-Extend the **existing** `generate_post` structured output. Add one key to
-`GENERATE_KEYS`, the prompt's JSON schema, and the dry-run mock:
+A single free-form sentence produces inconsistent, hit-or-miss covers. Instead,
+the **existing** `generate_post` call emits a **structured `image_brief` object**
+— typed slots the model must fill, so every prompt covers the same dimensions.
+Add `image_brief` to `GENERATE_KEYS`, the prompt's JSON schema, and the dry-run
+mock:
 
-- `image_concept`: *one sentence describing a fitting visual*, e.g. *"an abstract
-  circuit board morphing into a flowing river of light."* Prompt instruction:
-  "Describe a single vivid, literal-but-tasteful visual for a blog cover about
-  this post. No text in the image. One sentence."
+```json
+"image_brief": {
+  "subject": "the single central visual metaphor — concrete, literal, one clear focal object/scene (NOT abstract mush)",
+  "composition": "how it's framed — e.g. 'centered hero object, generous negative space, slight top-down angle'",
+  "mood": "emotional tone in 2-4 words — e.g. 'calm, precise, optimistic'",
+  "palette": "2-3 dominant colors that fit the topic — e.g. 'deep indigo, warm amber, off-white'"
+}
+```
 
-This adds **zero** API calls and zero cost — it's extra output on a call we
-already make.
+Prompt instruction to the model: *"Design a cover image brief for this post. The
+subject must be one concrete visual metaphor a person could sketch — never text,
+UI screenshots, or logos. Fill every field."*
+
+This is **extra output on a call we already make** — zero added API calls, zero
+added cost. It's validated like the other keys (§6.4): a missing/malformed brief
+falls back to a minimal brief derived from `headline` + `tags`, so we always have
+enough to build a prompt.
+
+### 6.2a Why structured (over a one-liner)
+
+- **Consistency:** fixed slots force subject *and* composition *and* palette every
+  time — the loose sentence routinely dropped composition/color, so covers drifted.
+- **Brand coherence:** subject/mood/palette vary per post while §6.3's house-style
+  and negatives stay constant — that split is what makes a recognizable series.
+- **FLUX responds to descriptive, well-ordered prompts;** assembling from slots
+  yields a fuller, better-ordered prompt than a single clause.
+- **Debuggable & regenerable:** the brief is stored (see `image_prompt`, §6.5), so
+  a bad cover can be diagnosed slot-by-slot and re-rendered.
 
 ### 6.3 `build_image_prompt()` (new — pure function in `generate_digest.py`)
 
-Domain logic (house style), kept out of the provider adapter so the adapter stays
-vendor-only and this stays unit-testable:
+Deterministically assembles the structured brief into a single ordered prompt.
+Domain logic (house style + negatives) lives here, out of the provider adapter, so
+the adapter stays vendor-only and this stays unit-testable. FLUX schnell on
+Workers AI takes **no separate negative-prompt param**, so exclusions are folded
+into the positive prompt as an explicit "avoid" clause.
 
 ```python
+# Fixed across every cover — the constant half of the series look.
 BRAND_STYLE = (
     "editorial tech illustration, flat vector style, soft geometric shapes, "
-    "muted modern palette, clean, high detail, no text, no watermark, no logos"
+    "clean, high detail, subtle grain, professional blog cover"
 )
-def build_image_prompt(image_concept: str, headline: str) -> str:
-    concept = (image_concept or headline).strip()
-    return f"{concept}. Style: {BRAND_STYLE}."[:2048]
+NEGATIVES = "no text, no words, no letters, no watermark, no logos, no UI screenshots, no photorealistic faces"
+
+def build_image_prompt(brief: dict, headline: str, tags: list[str]) -> str:
+    """Assemble a structured brief into one ordered FLUX prompt.
+    Falls back to headline/tags for any empty slot so we always get an image."""
+    subject     = _slot(brief, "subject")     or f"a clean conceptual illustration about {headline}"
+    composition = _slot(brief, "composition") or "centered hero subject, generous negative space"
+    mood        = _slot(brief, "mood")        or "modern, precise"
+    palette     = _slot(brief, "palette")     or "muted modern tech palette"
+    return (
+        f"{subject}. "
+        f"Composition: {composition}. "
+        f"Mood: {mood}. "
+        f"Color palette: {palette}. "
+        f"Style: {BRAND_STYLE}. "
+        f"Avoid: {NEGATIVES}."
+    )[:2048]
 ```
 
-The fixed `BRAND_STYLE` suffix is what makes every cover look like one series.
+- **Ordering is deliberate** — subject first (what FLUX weights most), then
+  framing, mood, color, then the fixed style and exclusions.
+- `_slot()` trims and guards against non-string/empty values from the model.
+- The constant `BRAND_STYLE` + `NEGATIVES` are what make every cover one series;
+  the brief supplies only the per-post variation.
 
 ### 6.4 Orchestration + failure policy (non-fatal by default)
 
@@ -153,7 +199,8 @@ In `main()`, after `verify_post`, before `save_to_mdx`:
 ```python
 image_rel = None                      # front-matter stays image-less if this stays None
 try:
-    prompt = build_image_prompt(generated.get("image_concept", ""), generated["headline"])
+    prompt = build_image_prompt(generated.get("image_brief", {}),
+                                generated["headline"], generated.get("tags", []))
     img_bytes = image_client.generate(prompt) if not dry_run else None
     if img_bytes:
         image_rel = save_cover_image(img_bytes, slug)   # writes digests/images/{slug}.jpg
@@ -177,9 +224,9 @@ Replace the naive `image_suggestion` line with real fields (only emitted when an
 image was produced; absent otherwise so legacy behavior is unchanged):
 
 ```yaml
-image: {yaml_safe_value(image_rel)}          # e.g. "/blog-images/{slug}.jpg"
-image_alt: {yaml_safe_value(image_concept)}  # accessibility
-image_prompt: {yaml_safe_value(full_prompt)} # reproducibility / regeneration
+image: {yaml_safe_value(image_rel)}              # e.g. "/blog-images/{slug}.jpg"
+image_alt: {yaml_safe_value(brief["subject"])}   # accessibility (subject slot)
+image_prompt: {yaml_safe_value(full_prompt)}     # full assembled prompt — reproducibility / regeneration
 ```
 
 `save_cover_image()` returns the site-relative path `"/blog-images/{slug}.jpg"`,
@@ -227,7 +274,7 @@ None required. `requests` covers the HTTP call; `base64`/`json`/`os` are stdlib.
 | Stage | Field | Value |
 |---|---|---|
 | MDX front-matter | `image` | `/blog-images/{slug}.jpg` (or absent) |
-| MDX front-matter | `image_alt` | image concept sentence |
+| MDX front-matter | `image_alt` | `subject` slot from the image brief |
 | MDX front-matter | `image_prompt` | full prompt (concept + house style) |
 | `blogs.json` entry | `coverImage` | copied from `image` |
 | `blogs.json` entry | `coverImageAlt` | copied from `image_alt` |
@@ -247,8 +294,9 @@ None required. `requests` covers the HTTP call; `base64`/`json`/`os` are stdlib.
 
 - **`image_client.generate`** (unit, mock `requests.post`): success → bytes;
   non-200 → raises; `success:false` payload → raises; missing env → raises.
-- **`build_image_prompt`** (pure): concept + house style; empty concept falls back
-  to headline; truncates to 2048.
+- **`build_image_prompt`** (pure): full brief → ordered prompt with all slots;
+  each empty/missing/non-string slot falls back to its headline/tags default;
+  `BRAND_STYLE` + `NEGATIVES` always present; truncates to 2048.
 - **`build_mdx`**: image fields present when `image_rel` set; fully absent when
   `None` (legacy parity).
 - **Orchestration**: image exception does NOT abort the run when
