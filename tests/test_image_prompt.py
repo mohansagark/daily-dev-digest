@@ -55,6 +55,28 @@ def test_other_trailing_punctuation_is_preserved():
     assert "what if code could fly? Composition:" in p
 
 
+def test_tags_become_a_domain_anchor():
+    # tags are the strongest topical signal we have; they used to be accepted
+    # and silently discarded, which is why covers drifted into generic stock.
+    p = build_image_prompt(FULL, "H", ["gitops", "kubernetes"])
+    assert "Subject domain: gitops, kubernetes." in p
+    # anchored after the subject, before the framing
+    assert p.index("lighthouse") < p.index("Subject domain:") < p.index("Composition:")
+
+
+def test_tags_absent_or_junk_add_no_clause():
+    for junk in ([], None, "not-a-list", [""], [None, 42]):
+        p = build_image_prompt(FULL, "H", junk)
+        assert "Subject domain:" not in p
+        assert ".." not in p          # no dangling separator when omitted
+
+
+def test_tags_are_capped():
+    p = build_image_prompt(FULL, "H", ["a", "b", "c", "d", "e", "f", "g"])
+    assert "Subject domain: a, b, c, d, e." in p
+    assert "f" not in p.split("Composition:")[0].split("Subject domain:")[1]
+
+
 def test_slot_trims_and_guards():
     assert _slot({"a": "  hi  "}, "a") == "hi"
     assert _slot({"a": ""}, "a") == ""

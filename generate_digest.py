@@ -340,7 +340,7 @@ Return ONLY this JSON object (no code fences, no commentary):
   "meta_description": "string",
   "tags": ["string"],
   "image_brief": {{
-    "subject": "one concrete visual metaphor for the cover — a clear focal object/scene a person could sketch. Never text, UI screenshots, or logos.",
+    "subject": "the STRUCTURE of the system or idea this post describes, as abstract geometry a person could sketch — nodes, layers, pipelines, flows, boundaries, groupings. Describe the shape of how it works, NOT a metaphor for it. Banned as lazy and generic: roads, paths, highways, bridges, mountains, sunrises, horizons, lightbulbs, puzzle pieces, handshakes, rockets, chess pieces, icebergs. Never text, UI screenshots, or logos.",
     "composition": "how it is framed — focal point and negative space",
     "mood": "2-4 word emotional tone",
     "palette": "2-3 dominant colors that fit the topic"
@@ -489,8 +489,9 @@ def verify_post(article, generated, dry_run=False):
 # ---------------------------------------------------------------------------
 # Constant half of the "series look": every cover shares this style + exclusions.
 BRAND_STYLE = (
-    "editorial tech illustration, flat vector style, soft geometric shapes, "
-    "clean, high detail, subtle grain, professional blog cover"
+    "isometric technical illustration, schematic diagram aesthetic, "
+    "precise geometric forms, clean linework, layered depth, "
+    "subtle grain, professional blog cover"
 )
 NEGATIVES = (
     "no text, no words, no letters, no watermark, no logos, "
@@ -518,32 +519,50 @@ def _clause(text):
     return text if text.endswith(("?", "!")) else f"{text}."
 
 
+MAX_PROMPT_TAGS = 5
+
+
+def _tag_clause(tags, limit=MAX_PROMPT_TAGS):
+    """Render post tags as a domain anchor, or '' when there are none usable.
+
+    Tags are the strongest topical signal the pipeline has. They were accepted
+    here and silently discarded, which let covers drift toward generic stock
+    imagery that fit any post equally badly.
+    """
+    if not isinstance(tags, (list, tuple)):
+        return ""
+    clean = [t.strip() for t in tags if isinstance(t, str) and t.strip()]
+    if not clean:
+        return ""
+    return f"Subject domain: {', '.join(clean[:limit])}."
+
+
 def build_image_prompt(brief, headline, tags):
     """Assemble a structured image brief into one ordered FLUX prompt.
 
-    Subject first (FLUX weights the front most), then framing, mood, color, then
-    the fixed house style and exclusions. Every empty slot falls back to a
-    headline-derived default so we always produce a usable prompt.
-
-    `tags` is accepted for future prompt refinement (e.g. topic-aware fallback
-    subjects) but is not currently used.
+    Subject first (FLUX weights the front most), then the tag-derived domain
+    anchor, then framing, mood, color, then the fixed house style and
+    exclusions. Every empty slot falls back to a headline-derived default so we
+    always produce a usable prompt.
     """
     subject = _slot(brief, "subject") or (
-        f"a clean conceptual illustration about {headline}"
+        f"abstract structural diagram of the system described by {headline}"
     )
     composition = _slot(brief, "composition") or (
         "centered hero subject, generous negative space"
     )
     mood = _slot(brief, "mood") or "modern, precise"
     palette = _slot(brief, "palette") or "muted modern tech palette"
-    prompt = (
-        f"{_clause(subject)} "
-        f"Composition: {_clause(composition)} "
-        f"Mood: {_clause(mood)} "
-        f"Color palette: {_clause(palette)} "
-        f"Style: {BRAND_STYLE}. "
-        f"Avoid: {NEGATIVES}."
-    )
+    parts = [
+        _clause(subject),
+        _tag_clause(tags),
+        f"Composition: {_clause(composition)}",
+        f"Mood: {_clause(mood)}",
+        f"Color palette: {_clause(palette)}",
+        f"Style: {BRAND_STYLE}.",
+        f"Avoid: {NEGATIVES}.",
+    ]
+    prompt = " ".join(p for p in parts if p)
     return prompt[:MAX_IMAGE_PROMPT_CHARS]
 
 
