@@ -47,6 +47,11 @@ jobs:
           # Static-key fallback (only used if OIDC step above is disabled):
           # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_IMAGE_MODEL: ${{ secrets.CF_IMAGE_MODEL || '@cf/black-forest-labs/flux-1-schnell' }}
+          IMAGE_STEPS: ${{ secrets.IMAGE_STEPS || '4' }}
+          IMAGE_REQUIRED: ${{ secrets.IMAGE_REQUIRED || 'false' }}
         run: python generate_digest.py
 
       # Repointed: push generated .mdx into the portfolio-blog repo (the single
@@ -62,12 +67,17 @@ jobs:
         run: |
           cp -v digests/*.mdx blog/posts/ || echo "⚠️ No .mdx files to copy"
 
+      - name: Copy cover images into portfolio-blog/images
+        run: |
+          mkdir -p blog/images/
+          cp -v digests/images/* blog/images/ 2>/dev/null || echo "ℹ️ No cover images to copy"
+
       - name: Commit and Push to portfolio-blog
         run: |
           cd blog
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add posts/*.mdx
+          git add posts/*.mdx images/ 2>/dev/null || git add posts/*.mdx
           git commit -m "🔁 daily dev digest $(date '+%Y-%m-%d %H:%M')" || echo "⚠️ Nothing to commit"
           git push origin main
 

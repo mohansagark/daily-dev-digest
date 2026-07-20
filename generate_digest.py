@@ -32,6 +32,7 @@ from dotenv import load_dotenv
 
 from yaml_utils import yaml_safe_value
 import bedrock_client
+import image_client
 
 # `trafilatura` gives much cleaner article text (strips nav/ads/boilerplate).
 # Imported defensively so the script still runs if it is not installed.
@@ -47,6 +48,8 @@ FEEDS = [f.strip() for f in os.getenv("FEED_SOURCES", "").split(",") if f.strip(
 MAX_PER_FEED = 5
 MAX_TOTAL = 1  # exactly one post per day (single best candidate)
 OUTPUT_DIR = "digests"
+IMAGES_SUBDIR = os.path.join(OUTPUT_DIR, "images")
+IMAGE_EXT = "jpg"
 DUPLICATES_FILE = "processed_articles.json"
 AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Mohan Sagar")
 
@@ -336,6 +339,12 @@ Return ONLY this JSON object (no code fences, no commentary):
   "subtitle": "string",
   "meta_description": "string",
   "tags": ["string"],
+  "image_brief": {{
+    "subject": "one concrete visual metaphor for the cover — a clear focal object/scene a person could sketch. Never text, UI screenshots, or logos.",
+    "composition": "how it is framed — focal point and negative space",
+    "mood": "2-4 word emotional tone",
+    "palette": "2-3 dominant colors that fit the topic"
+  }},
   "body_markdown": "string"
 }}
 
@@ -368,6 +377,12 @@ def generate_post(article, strategy, dry_run=False):
                 f"[dry-run] A rewritten take on '{article['title']}'."[:160]
             ),
             "tags": strategy["focus"][:4],
+            "image_brief": {
+                "subject": f"a clean conceptual illustration about {article['title']}",
+                "composition": "centered hero subject, generous negative space",
+                "mood": "modern, precise",
+                "palette": "muted modern tech palette",
+            },
             "body_markdown": (
                 "> **Dry-run stub.** Bedrock was not called; this is placeholder "
                 "body text so the export path can be exercised.\n\n"
@@ -394,6 +409,9 @@ def generate_post(article, strategy, dry_run=False):
         raise ValueError(f"LLM #1 output missing keys: {missing}")
     if not isinstance(data["tags"], list):
         data["tags"] = [str(data["tags"])]
+    # image_brief is best-effort: normalize to a dict, never fail the text run.
+    if not isinstance(data.get("image_brief"), dict):
+        data["image_brief"] = {}
     return data
 
 
@@ -467,13 +485,111 @@ def verify_post(article, generated, dry_run=False):
 
 
 # ---------------------------------------------------------------------------
+# Cover image prompt (structured brief -> one ordered FLUX prompt)
+# ---------------------------------------------------------------------------
+# Constant half of the "series look": every cover shares this style + exclusions.
+BRAND_STYLE = (
+    "editorial tech illustration, flat vector style, soft geometric shapes, "
+    "clean, high detail, subtle grain, professional blog cover"
+)
+NEGATIVES = (
+    "no text, no words, no letters, no watermark, no logos, "
+    "no UI screenshots, no photorealistic faces"
+)
+MAX_IMAGE_PROMPT_CHARS = 2048
+
+
+def _slot(brief, key):
+    """Return a trimmed string slot from the brief, or '' if missing/blank/non-str."""
+    val = brief.get(key) if isinstance(brief, dict) else None
+    return val.strip() if isinstance(val, str) and val.strip() else ""
+
+
+def build_image_prompt(brief, headline, tags):
+    """Assemble a structured image brief into one ordered FLUX prompt.
+
+    Subject first (FLUX weights the front most), then framing, mood, color, then
+    the fixed house style and exclusions. Every empty slot falls back to a
+    headline-derived default so we always produce a usable prompt.
+
+    `tags` is accepted for future prompt refinement (e.g. topic-aware fallback
+    subjects) but is not currently used.
+    """
+    subject = _slot(brief, "subject") or (
+        f"a clean conceptual illustration about {headline}"
+    )
+    composition = _slot(brief, "composition") or (
+        "centered hero subject, generous negative space"
+    )
+    mood = _slot(brief, "mood") or "modern, precise"
+    palette = _slot(brief, "palette") or "muted modern tech palette"
+    prompt = (
+        f"{subject}. "
+        f"Composition: {composition}. "
+        f"Mood: {mood}. "
+        f"Color palette: {palette}. "
+        f"Style: {BRAND_STYLE}. "
+        f"Avoid: {NEGATIVES}."
+    )
+    return prompt[:MAX_IMAGE_PROMPT_CHARS]
+
+
+def save_cover_image(image_bytes, slug):
+    """Write cover bytes to digests/images/{slug}.jpg; return its site-relative path."""
+    os.makedirs(IMAGES_SUBDIR, exist_ok=True)
+    filename = f"{slug}.{IMAGE_EXT}"
+    with open(os.path.join(IMAGES_SUBDIR, filename), "wb") as f:
+        f.write(image_bytes)
+    return f"/blog-images/{filename}"
+
+
+def maybe_generate_cover(generated, slug, dry_run=False):
+    """Best-effort cover image. Returns {'image','alt','prompt'} or None.
+
+    Never raises unless IMAGE_REQUIRED=true — a failed image must not block the
+    post (mirrors the image-less fallback for legacy posts).
+    """
+    if dry_run:
+        print("🧪 [dry-run] Skipping Cloudflare image generation.")
+        return None
+
+    try:
+        brief = generated.get("image_brief") or {}
+        prompt = build_image_prompt(brief, generated["headline"], generated.get("tags", []))
+        image_bytes = image_client.generate(prompt)
+        image_rel = save_cover_image(image_bytes, slug)
+        print(f"🖼️  Cover image generated: {image_rel}")
+        return {
+            "image": image_rel,
+            "alt": _slot(brief, "subject") or generated["headline"],
+            "prompt": prompt,
+        }
+    # Broad on purpose: this also catches save_cover_image errors (e.g. a
+    # disk/permission failure), which should degrade to text-only rather than
+    # aborting the whole post, same as an image-generation API failure.
+    except Exception as e:  # noqa: BLE001 — image is best-effort
+        print(f"⚠️ Cover image generation failed ({e}); publishing text-only.")
+        if os.getenv("IMAGE_REQUIRED", "false").lower() == "true":
+            raise
+        return None
+
+
+# ---------------------------------------------------------------------------
 # Markdown export (.mdx + front-matter)
 # ---------------------------------------------------------------------------
-def build_mdx(article, strategy, generated, verified, slug):
+def build_mdx(article, strategy, generated, verified, slug, cover=None):
     """Assemble the final .mdx (front-matter + verified body)."""
     now = datetime.now()
     tags = generated.get("tags", [])[:6]
     body = verified["corrected_body_markdown"].strip()
+
+    image_lines = ""
+    if cover:
+        image_lines = (
+            f"image: {yaml_safe_value(cover['image'])}\n"
+            f"image_alt: {yaml_safe_value(cover['alt'])}\n"
+            f"image_prompt: {yaml_safe_value(cover['prompt'])}\n"
+        )
 
     frontmatter = f"""---
 title: {yaml_safe_value(generated['headline'])}
@@ -485,8 +601,7 @@ time: {yaml_safe_value(now.strftime('%H:%M'))}
 content_strategy: {yaml_safe_value(strategy['description'])}
 writing_style: {yaml_safe_value(strategy['style'])}
 tags: {json.dumps(tags)}
-image_suggestion: {yaml_safe_value(f"Professional illustration representing {generated['headline']}")}
-source_url: {yaml_safe_value(article['link'])}
+{image_lines}source_url: {yaml_safe_value(article['link'])}
 published_date: {yaml_safe_value(article['published'])}
 author: {yaml_safe_value(AUTHOR_NAME)}
 ---
@@ -494,12 +609,12 @@ author: {yaml_safe_value(AUTHOR_NAME)}
     return f"{frontmatter}\n{body}\n"
 
 
-def save_to_mdx(article, strategy, generated, verified, slug):
+def save_to_mdx(article, strategy, generated, verified, slug, cover=None):
     """Write the .mdx into OUTPUT_DIR (the workflow copies it to portfolio-blog)."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     filepath = os.path.join(OUTPUT_DIR, f"{slug}.mdx")
     with open(filepath, "w", encoding="utf-8") as f:
-        f.write(build_mdx(article, strategy, generated, verified, slug))
+        f.write(build_mdx(article, strategy, generated, verified, slug, cover))
     print(f"✅ Saved: {filepath}")
     return filepath
 
@@ -556,7 +671,8 @@ def main(dry_run=False):
 
     # --- export ------------------------------------------------------------
     slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
-    save_to_mdx(best, strategy, generated, verified, slug)
+    cover = maybe_generate_cover(generated, slug, dry_run=dry_run)
+    save_to_mdx(best, strategy, generated, verified, slug, cover)
 
     # --- record for dedupe (store a content fingerprint too) ---------------
     processed_articles[best["hash"]] = {
