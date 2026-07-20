@@ -571,11 +571,19 @@ def maybe_generate_cover(generated, slug, dry_run=False):
 # ---------------------------------------------------------------------------
 # Markdown export (.mdx + front-matter)
 # ---------------------------------------------------------------------------
-def build_mdx(article, strategy, generated, verified, slug):
+def build_mdx(article, strategy, generated, verified, slug, cover=None):
     """Assemble the final .mdx (front-matter + verified body)."""
     now = datetime.now()
     tags = generated.get("tags", [])[:6]
     body = verified["corrected_body_markdown"].strip()
+
+    image_lines = ""
+    if cover:
+        image_lines = (
+            f"image: {yaml_safe_value(cover['image'])}\n"
+            f"image_alt: {yaml_safe_value(cover['alt'])}\n"
+            f"image_prompt: {yaml_safe_value(cover['prompt'])}\n"
+        )
 
     frontmatter = f"""---
 title: {yaml_safe_value(generated['headline'])}
@@ -587,8 +595,7 @@ time: {yaml_safe_value(now.strftime('%H:%M'))}
 content_strategy: {yaml_safe_value(strategy['description'])}
 writing_style: {yaml_safe_value(strategy['style'])}
 tags: {json.dumps(tags)}
-image_suggestion: {yaml_safe_value(f"Professional illustration representing {generated['headline']}")}
-source_url: {yaml_safe_value(article['link'])}
+{image_lines}source_url: {yaml_safe_value(article['link'])}
 published_date: {yaml_safe_value(article['published'])}
 author: {yaml_safe_value(AUTHOR_NAME)}
 ---
@@ -596,12 +603,12 @@ author: {yaml_safe_value(AUTHOR_NAME)}
     return f"{frontmatter}\n{body}\n"
 
 
-def save_to_mdx(article, strategy, generated, verified, slug):
+def save_to_mdx(article, strategy, generated, verified, slug, cover=None):
     """Write the .mdx into OUTPUT_DIR (the workflow copies it to portfolio-blog)."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     filepath = os.path.join(OUTPUT_DIR, f"{slug}.mdx")
     with open(filepath, "w", encoding="utf-8") as f:
-        f.write(build_mdx(article, strategy, generated, verified, slug))
+        f.write(build_mdx(article, strategy, generated, verified, slug, cover))
     print(f"✅ Saved: {filepath}")
     return filepath
 
@@ -658,7 +665,8 @@ def main(dry_run=False):
 
     # --- export ------------------------------------------------------------
     slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
-    save_to_mdx(best, strategy, generated, verified, slug)
+    cover = maybe_generate_cover(generated, slug, dry_run=dry_run)
+    save_to_mdx(best, strategy, generated, verified, slug, cover)
 
     # --- record for dedupe (store a content fingerprint too) ---------------
     processed_articles[best["hash"]] = {
