@@ -35,6 +35,28 @@ def _client():
     return boto3.client("bedrock-runtime", region_name=get_region())
 
 
+# Bedrock returns exact token counts on every call and we used to discard them,
+# leaving cost a ~4-chars-per-token guess. Accumulate them so a run's real spend
+# is visible in the workflow log and a future backfill can gate on measured cost.
+USAGE = {"calls": 0, "inputTokens": 0, "outputTokens": 0}
+
+
+def _record_usage(usage):
+    USAGE["calls"] += 1
+    USAGE["inputTokens"] += int(usage.get("inputTokens") or 0)
+    USAGE["outputTokens"] += int(usage.get("outputTokens") or 0)
+    print(
+        f"🧮 Bedrock call {USAGE['calls']}: "
+        f"in={usage.get('inputTokens')} out={usage.get('outputTokens')} "
+        f"(run total in={USAGE['inputTokens']} out={USAGE['outputTokens']})"
+    )
+
+
+def usage_summary():
+    """Token totals for this process. Returns a copy so callers cannot mutate it."""
+    return dict(USAGE)
+
+
 def converse(system_prompt, user_prompt, max_tokens=3000, temperature=0.4):
     """
     Single-turn call to the Bedrock `converse` API.
@@ -53,6 +75,7 @@ def converse(system_prompt, user_prompt, max_tokens=3000, temperature=0.4):
             "topP": 0.9,
         },
     )
+    _record_usage(response.get("usage") or {})
     return response["output"]["message"]["content"][0]["text"]
 
 

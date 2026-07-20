@@ -46,3 +46,38 @@ def test_failure_hard_when_required(monkeypatch):
     import pytest
     with pytest.raises(RuntimeError):
         gd.maybe_generate_cover(GEN, "slug")
+
+
+def _real_jpeg(px, colour=(120, 90, 200)):
+    from PIL import Image
+    import io as _io
+    buf = _io.BytesIO()
+    Image.new("RGB", (px, px), colour).save(buf, format="JPEG", quality=95)
+    return buf.getvalue()
+
+
+def test_downscale_shrinks_a_large_cover():
+    from PIL import Image
+    import io as _io
+    big = _real_jpeg(1024)
+    out = gd.downscale_cover(big)
+    assert len(out) < len(big)
+    assert max(Image.open(_io.BytesIO(out)).size) <= 800
+
+
+def test_downscale_passes_undecodable_bytes_through():
+    # a resize bug must never cost us the cover
+    assert gd.downscale_cover(b"NOT-A-JPEG") == b"NOT-A-JPEG"
+
+
+def test_downscale_never_returns_something_bigger():
+    small = _real_jpeg(64)
+    assert len(gd.downscale_cover(small)) <= len(small)
+
+
+def test_save_cover_image_writes_the_downscaled_bytes(tmp_path, monkeypatch):
+    monkeypatch.setattr(gd, "IMAGES_SUBDIR", str(tmp_path / "images"))
+    big = _real_jpeg(1024)
+    gd.save_cover_image(big, "big-slug")
+    written = (tmp_path / "images" / "big-slug.jpg").read_bytes()
+    assert len(written) < len(big)

@@ -14,6 +14,7 @@ Run `python generate_digest.py --dry-run` to exercise the whole deterministic
 path without any AWS calls (the two LLM stages are mocked). See README notes.
 """
 
+import io
 import os
 import re
 import sys
@@ -50,6 +51,17 @@ MAX_TOTAL = 1  # exactly one post per day (single best candidate)
 OUTPUT_DIR = "digests"
 IMAGES_SUBDIR = os.path.join(OUTPUT_DIR, "images")
 IMAGE_EXT = "jpg"
+
+# A bare "Mozilla/5.0" is a well-known bot signature: sitepoint.com and
+# hackernoon.com both answered it with 403 while a full browser UA gets 200,
+# so two feeds were silently contributing nothing. Verified 2026-07-20.
+REQUEST_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+}
 DUPLICATES_FILE = "processed_articles.json"
 AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Mohan Sagar")
 
@@ -197,7 +209,7 @@ def fetch_clean_content(url):
     """Fetch a page and return cleaned article text (or empty string on error)."""
     try:
         print(f"📖 Fetching + cleaning: {url}")
-        response = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+        response = requests.get(url, timeout=15, headers=REQUEST_HEADERS)
         response.raise_for_status()
         return clean_article_html(response.text, url)
     except Exception as e:  # noqa: BLE001 - network is best-effort
@@ -219,7 +231,7 @@ def fetch_articles_from_feed(url):
     """Fetch + clean up to MAX_PER_FEED articles from a single RSS feed."""
     print(f"🔗 Fetching feed: {url}")
     try:
-        res = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        res = requests.get(url, timeout=10, headers=REQUEST_HEADERS)
         res.raise_for_status()
         soup = BeautifulSoup(res.content, features="xml")
         items = soup.find_all("item")[:MAX_PER_FEED]
@@ -571,12 +583,44 @@ def build_image_prompt(brief, headline, tags):
     return prompt[:MAX_IMAGE_PROMPT_CHARS]
 
 
+def downscale_cover(image_bytes, max_px=None, quality=None):
+    """Shrink/recompress a cover for web delivery. Best-effort.
+
+    FLUX returns 1024x1024 at ~260KB, but the card renders it ~380px wide and
+    the article ~800px. The site serves images unoptimized, so whatever we write
+    here is exactly what every visitor downloads — and a backfill would multiply
+    that by 238. Any decode/encode failure returns the original bytes: a heavy
+    cover beats no cover.
+    """
+    max_px = int(os.getenv("COVER_MAX_PX", max_px or 800))
+    quality = int(os.getenv("COVER_JPEG_QUALITY", quality or 82))
+    try:
+        from PIL import Image  # imported lazily so the text pipeline never needs it
+
+        img = Image.open(io.BytesIO(image_bytes))
+        img.load()
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        if max(img.size) > max_px:
+            img.thumbnail((max_px, max_px), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=quality, optimize=True, progressive=True)
+        out = buf.getvalue()
+    except Exception as e:  # noqa: BLE001 - never lose a cover to a resize bug
+        print(f"⚠️ Cover downscale skipped ({e}); writing original bytes.")
+        return image_bytes
+    if len(out) >= len(image_bytes):
+        return image_bytes
+    print(f"🗜️  Cover {len(image_bytes) // 1024}KB → {len(out) // 1024}KB")
+    return out
+
+
 def save_cover_image(image_bytes, slug):
     """Write cover bytes to digests/images/{slug}.jpg; return its site-relative path."""
     os.makedirs(IMAGES_SUBDIR, exist_ok=True)
     filename = f"{slug}.{IMAGE_EXT}"
     with open(os.path.join(IMAGES_SUBDIR, filename), "wb") as f:
-        f.write(image_bytes)
+        f.write(downscale_cover(image_bytes))
     return f"/blog-images/{filename}"
 
 
