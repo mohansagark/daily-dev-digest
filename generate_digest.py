@@ -32,6 +32,7 @@ from dotenv import load_dotenv
 
 from yaml_utils import yaml_safe_value
 import bedrock_client
+import image_client
 
 # `trafilatura` gives much cleaner article text (strips nav/ads/boilerplate).
 # Imported defensively so the script still runs if it is not installed.
@@ -464,6 +465,53 @@ def verify_post(article, generated, dry_run=False):
         print("🔎 Fact-check passed.")
     data["corrected_body_markdown"] = corrected
     return data
+
+
+# ---------------------------------------------------------------------------
+# Cover image prompt (structured brief -> one ordered FLUX prompt)
+# ---------------------------------------------------------------------------
+# Constant half of the "series look": every cover shares this style + exclusions.
+BRAND_STYLE = (
+    "editorial tech illustration, flat vector style, soft geometric shapes, "
+    "clean, high detail, subtle grain, professional blog cover"
+)
+NEGATIVES = (
+    "no text, no words, no letters, no watermark, no logos, "
+    "no UI screenshots, no photorealistic faces"
+)
+MAX_IMAGE_PROMPT_CHARS = 2048
+
+
+def _slot(brief, key):
+    """Return a trimmed string slot from the brief, or '' if missing/blank/non-str."""
+    val = brief.get(key) if isinstance(brief, dict) else None
+    return val.strip() if isinstance(val, str) and val.strip() else ""
+
+
+def build_image_prompt(brief, headline, tags):
+    """Assemble a structured image brief into one ordered FLUX prompt.
+
+    Subject first (FLUX weights the front most), then framing, mood, color, then
+    the fixed house style and exclusions. Every empty slot falls back to a
+    headline/tags-derived default so we always produce a usable prompt.
+    """
+    subject = _slot(brief, "subject") or (
+        f"a clean conceptual illustration about {headline}"
+    )
+    composition = _slot(brief, "composition") or (
+        "centered hero subject, generous negative space"
+    )
+    mood = _slot(brief, "mood") or "modern, precise"
+    palette = _slot(brief, "palette") or "muted modern tech palette"
+    prompt = (
+        f"{subject}. "
+        f"Composition: {composition}. "
+        f"Mood: {mood}. "
+        f"Color palette: {palette}. "
+        f"Style: {BRAND_STYLE}. "
+        f"Avoid: {NEGATIVES}."
+    )
+    return prompt[:MAX_IMAGE_PROMPT_CHARS]
 
 
 # ---------------------------------------------------------------------------
