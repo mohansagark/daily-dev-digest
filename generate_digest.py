@@ -48,6 +48,8 @@ FEEDS = [f.strip() for f in os.getenv("FEED_SOURCES", "").split(",") if f.strip(
 MAX_PER_FEED = 5
 MAX_TOTAL = 1  # exactly one post per day (single best candidate)
 OUTPUT_DIR = "digests"
+IMAGES_SUBDIR = os.path.join(OUTPUT_DIR, "images")
+IMAGE_EXT = "jpg"
 DUPLICATES_FILE = "processed_articles.json"
 AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Mohan Sagar")
 
@@ -527,6 +529,43 @@ def build_image_prompt(brief, headline, tags):
         f"Avoid: {NEGATIVES}."
     )
     return prompt[:MAX_IMAGE_PROMPT_CHARS]
+
+
+def save_cover_image(image_bytes, slug):
+    """Write cover bytes to digests/images/{slug}.jpg; return its site-relative path."""
+    os.makedirs(IMAGES_SUBDIR, exist_ok=True)
+    filename = f"{slug}.{IMAGE_EXT}"
+    with open(os.path.join(IMAGES_SUBDIR, filename), "wb") as f:
+        f.write(image_bytes)
+    return f"/blog-images/{filename}"
+
+
+def maybe_generate_cover(generated, slug, dry_run=False):
+    """Best-effort cover image. Returns {'image','alt','prompt'} or None.
+
+    Never raises unless IMAGE_REQUIRED=true — a failed image must not block the
+    post (mirrors the image-less fallback for legacy posts).
+    """
+    if dry_run:
+        print("🧪 [dry-run] Skipping Cloudflare image generation.")
+        return None
+
+    brief = generated.get("image_brief") or {}
+    prompt = build_image_prompt(brief, generated["headline"], generated.get("tags", []))
+    try:
+        image_bytes = image_client.generate(prompt)
+        image_rel = save_cover_image(image_bytes, slug)
+        print(f"🖼️  Cover image generated: {image_rel}")
+        return {
+            "image": image_rel,
+            "alt": _slot(brief, "subject") or generated["headline"],
+            "prompt": prompt,
+        }
+    except Exception as e:  # noqa: BLE001 — image is best-effort
+        print(f"⚠️ Cover image generation failed ({e}); publishing text-only.")
+        if os.getenv("IMAGE_REQUIRED", "false").lower() == "true":
+            raise
+        return None
 
 
 # ---------------------------------------------------------------------------
