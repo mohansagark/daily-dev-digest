@@ -337,6 +337,12 @@ Return ONLY this JSON object (no code fences, no commentary):
   "subtitle": "string",
   "meta_description": "string",
   "tags": ["string"],
+  "image_brief": {{
+    "subject": "one concrete visual metaphor for the cover — a clear focal object/scene a person could sketch. Never text, UI screenshots, or logos.",
+    "composition": "how it is framed — focal point and negative space",
+    "mood": "2-4 word emotional tone",
+    "palette": "2-3 dominant colors that fit the topic"
+  }},
   "body_markdown": "string"
 }}
 
@@ -369,6 +375,12 @@ def generate_post(article, strategy, dry_run=False):
                 f"[dry-run] A rewritten take on '{article['title']}'."[:160]
             ),
             "tags": strategy["focus"][:4],
+            "image_brief": {
+                "subject": f"a clean conceptual illustration about {article['title']}",
+                "composition": "centered hero subject, generous negative space",
+                "mood": "modern, precise",
+                "palette": "muted modern tech palette",
+            },
             "body_markdown": (
                 "> **Dry-run stub.** Bedrock was not called; this is placeholder "
                 "body text so the export path can be exercised.\n\n"
@@ -395,6 +407,9 @@ def generate_post(article, strategy, dry_run=False):
         raise ValueError(f"LLM #1 output missing keys: {missing}")
     if not isinstance(data["tags"], list):
         data["tags"] = [str(data["tags"])]
+    # image_brief is best-effort: normalize to a dict, never fail the text run.
+    if not isinstance(data.get("image_brief"), dict):
+        data["image_brief"] = {}
     return data
 
 
