@@ -510,7 +510,10 @@ def build_image_prompt(brief, headline, tags):
 
     Subject first (FLUX weights the front most), then framing, mood, color, then
     the fixed house style and exclusions. Every empty slot falls back to a
-    headline/tags-derived default so we always produce a usable prompt.
+    headline-derived default so we always produce a usable prompt.
+
+    `tags` is accepted for future prompt refinement (e.g. topic-aware fallback
+    subjects) but is not currently used.
     """
     subject = _slot(brief, "subject") or (
         f"a clean conceptual illustration about {headline}"
@@ -550,9 +553,9 @@ def maybe_generate_cover(generated, slug, dry_run=False):
         print("🧪 [dry-run] Skipping Cloudflare image generation.")
         return None
 
-    brief = generated.get("image_brief") or {}
-    prompt = build_image_prompt(brief, generated["headline"], generated.get("tags", []))
     try:
+        brief = generated.get("image_brief") or {}
+        prompt = build_image_prompt(brief, generated["headline"], generated.get("tags", []))
         image_bytes = image_client.generate(prompt)
         image_rel = save_cover_image(image_bytes, slug)
         print(f"🖼️  Cover image generated: {image_rel}")
@@ -561,6 +564,9 @@ def maybe_generate_cover(generated, slug, dry_run=False):
             "alt": _slot(brief, "subject") or generated["headline"],
             "prompt": prompt,
         }
+    # Broad on purpose: this also catches save_cover_image errors (e.g. a
+    # disk/permission failure), which should degrade to text-only rather than
+    # aborting the whole post, same as an image-generation API failure.
     except Exception as e:  # noqa: BLE001 — image is best-effort
         print(f"⚠️ Cover image generation failed ({e}); publishing text-only.")
         if os.getenv("IMAGE_REQUIRED", "false").lower() == "true":

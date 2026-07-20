@@ -1,3 +1,5 @@
+import yaml
+
 from generate_digest import build_mdx
 
 STRAT = {"style": "energetic", "description": "Frontend"}
@@ -20,3 +22,35 @@ def test_without_cover_emits_no_image_fields():
     assert "image:" not in mdx
     assert "image_alt:" not in mdx
     assert "image_suggestion:" not in mdx
+
+
+def _frontmatter_block(mdx):
+    """Extract the text between the first two `---` lines."""
+    lines = mdx.splitlines()
+    dashes = [i for i, line in enumerate(lines) if line.strip() == "---"]
+    assert len(dashes) >= 2, "expected two '---' front-matter delimiters"
+    start, end = dashes[0], dashes[1]
+    return "\n".join(lines[start + 1 : end])
+
+
+def test_frontmatter_parses_as_valid_yaml():
+    # Colons in values (headline/alt/prompt) exercise yaml_safe_value's quoting.
+    gen = {
+        "headline": "Ratios: sin() and cos()",
+        "subtitle": "S",
+        "meta_description": "M",
+        "tags": ["css"],
+    }
+    cover = {
+        "image": "/blog-images/h.jpg",
+        "alt": "Ratios: sin() and cos()",
+        "prompt": "Ratios: sin() and cos(). Avoid: text.",
+    }
+
+    mdx_with_cover = build_mdx(ART, STRAT, gen, VER, "h", cover=cover)
+    parsed_with_cover = yaml.safe_load(_frontmatter_block(mdx_with_cover))
+    assert parsed_with_cover["source_url"] == ART["link"]
+
+    mdx_no_cover = build_mdx(ART, STRAT, gen, VER, "h", cover=None)
+    parsed_no_cover = yaml.safe_load(_frontmatter_block(mdx_no_cover))
+    assert parsed_no_cover["source_url"] == ART["link"]
