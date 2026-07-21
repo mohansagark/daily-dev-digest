@@ -320,6 +320,27 @@ def select_best_article(articles, strategy):
 # ---------------------------------------------------------------------------
 # LLM #1 — structured generate  (Bedrock converse)
 # ---------------------------------------------------------------------------
+
+# Single source of truth for the cover "subject" instruction — used by the daily
+# GENERATE prompt AND the cover_backfill brief-only prompt, so the two can never
+# drift. FLUX has no negative_prompt and renders any named label as garbled text,
+# so the subject must describe shapes and relationships WITHOUT naming or
+# labelling the parts (naming layers "Developer Interface"/"Delivery Layer" made
+# FLUX try to spell them and produce garbage signage).
+IMAGE_SUBJECT_INSTRUCTION = (
+    "the STRUCTURE of the system or idea this post describes, as abstract "
+    "geometry a person could sketch — nodes, layers, pipelines, flows, "
+    "boundaries, groupings. Describe topology and relationships ONLY. Describe "
+    "shapes and how they connect; NEVER assign a name, label, caption, or any "
+    "word to a node, box or layer — the finished image must contain NO readable "
+    "text of any kind. Do NOT name screens, dashboards, panels, sidebars, "
+    "charts, windows or any interface region; that produces a UI mockup, not a "
+    "diagram. Do NOT name products, languages or their mascots. Do NOT use a "
+    "metaphor. Banned as lazy and generic: roads, paths, highways, bridges, "
+    "mountains, sunrises, horizons, lightbulbs, puzzle pieces, handshakes, "
+    "rockets, chess pieces, icebergs."
+)
+
 GENERATE_SYSTEM_PROMPT = (
     "You are a senior software engineer who writes a well-regarded developer "
     "blog. You transform source material into ORIGINAL, technically-accurate "
@@ -352,7 +373,7 @@ Return ONLY this JSON object (no code fences, no commentary):
   "meta_description": "string",
   "tags": ["string"],
   "image_brief": {{
-    "subject": "the STRUCTURE of the system or idea this post describes, as abstract geometry a person could sketch — nodes, layers, pipelines, flows, boundaries, groupings. Describe topology and relationships ONLY. Do NOT name screens, dashboards, panels, sidebars, charts, windows or any interface region; that produces a UI mockup, not a diagram. Do NOT name products, languages or their mascots. Do NOT use a metaphor. Banned as lazy and generic: roads, paths, highways, bridges, mountains, sunrises, horizons, lightbulbs, puzzle pieces, handshakes, rockets, chess pieces, icebergs.",
+    "subject": "{image_subject}",
     "composition": "how it is framed — focal point and negative space",
     "mood": "2-4 word emotional tone",
     "palette": "2-3 dominant colors that fit the topic"
@@ -410,6 +431,7 @@ def generate_post(article, strategy, dry_run=False):
         source_author=article.get("author") or "Unknown",
         source_title=article["title"],
         source_text=source_text,
+        image_subject=IMAGE_SUBJECT_INSTRUCTION,
     )
     raw = bedrock_client.converse(GENERATE_SYSTEM_PROMPT, prompt, max_tokens=5000,
                                   temperature=0.6)
