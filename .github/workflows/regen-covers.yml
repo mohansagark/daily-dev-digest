@@ -1,0 +1,77 @@
+name: Regenerate Covers (existing posts)
+
+# One-off / backfill: generate structural covers for already-published posts and
+# push them to a PREVIEW BRANCH of portfolio-blog for review. Never writes main.
+# Merge the preview branch by hand once the images look right.
+
+on:
+  workflow_dispatch:
+    inputs:
+      slugs:
+        description: "Comma-separated post slugs to (re)generate covers for"
+        required: true
+        default: "building-an-open-source-it-dashboard-a-developer-s-journey,crafting-a-high-velocity-internal-developer-platform-with-ba,crafting-an-internal-developer-platform-with-backstage-argoc"
+      preview_branch:
+        description: "portfolio-blog branch to push the preview to"
+        required: true
+        default: "chore/regen-covers-preview"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Daily Dev Digest Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyyaml
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Clone portfolio-blog (preview branch off main)
+        run: |
+          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/portfolio-blog.git blog
+          cd blog
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout -B "${{ github.event.inputs.preview_branch }}" origin/main
+
+      - name: Regenerate covers (brief -> FLUX -> downscale -> attach)
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID || 'us.amazon.nova-pro-v1:0' }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_IMAGE_MODEL: ${{ secrets.CF_IMAGE_MODEL || '@cf/black-forest-labs/flux-1-schnell' }}
+          IMAGE_STEPS: ${{ secrets.IMAGE_STEPS || '8' }}
+        run: |
+          python cover_backfill.py \
+            --blog-root blog \
+            --slugs "${{ github.event.inputs.slugs }}"
+
+      - name: Push preview branch (NOT main)
+        run: |
+          cd blog
+          git add posts/*.mdx images/ 2>/dev/null || git add posts/*.mdx
+          git commit -m "preview: regenerate covers for existing posts (review before merge)" \
+            || { echo "⚠️ Nothing to commit — covers may already exist"; exit 0; }
+          # Dedicated preview branch that only this job writes; --force is safe
+          # here and avoids the first-push lease rejection when it doesn't exist.
+          git push --force origin "${{ github.event.inputs.preview_branch }}"
+          echo "✅ Pushed to ${{ github.event.inputs.preview_branch }} — review, then merge to main."
