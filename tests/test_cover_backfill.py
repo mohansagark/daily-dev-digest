@@ -137,3 +137,26 @@ def test_dry_run_writes_no_post_or_image(tmp_path, monkeypatch):
     assert post.read_text() == original           # post untouched
     assert not (root / "images" / "some-post.jpg").exists()  # no committed image
     assert (tmp_path / "review" / "some-post.jpg").exists()  # preview written
+
+
+def test_subject_instruction_is_shared_and_forbids_labels():
+    import generate_digest as gd
+    # single source of truth, referenced by both prompts
+    assert "NO readable text" in gd.IMAGE_SUBJECT_INSTRUCTION
+    assert "NEVER assign a name, label" in gd.IMAGE_SUBJECT_INSTRUCTION
+    # cover_backfill's brief renders the shared instruction, not a private copy
+    p = cb.BRIEF_USER.format(
+        image_subject=gd.IMAGE_SUBJECT_INSTRUCTION, title="T", tags="a", body="b"
+    )
+    assert "NO readable text" in p
+
+
+def test_daily_generate_template_still_formats():
+    import generate_digest as gd
+    # the {image_subject} placeholder must not break the big .format() template
+    out = gd.GENERATE_USER_TEMPLATE.format(
+        style="s", source_url="u", source_author="a", source_title="t",
+        source_text="x", image_subject=gd.IMAGE_SUBJECT_INSTRUCTION,
+    )
+    assert "NO readable text" in out
+    assert '"image_brief"' in out

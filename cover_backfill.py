@@ -77,10 +77,12 @@ BRIEF_SYSTEM = (
     "of an existing technical blog post. Return ONLY a JSON object, no prose."
 )
 
+# The subject instruction is shared with the daily pipeline (single source of
+# truth in generate_digest) so the two prompts can never drift.
 BRIEF_USER = """Produce a cover image brief for this post as a JSON object with
 exactly these keys:
 {{
-  "subject": "the STRUCTURE of the system or idea this post describes, as abstract geometry a person could sketch — nodes, layers, pipelines, flows, boundaries, groupings. Describe topology and relationships ONLY. Do NOT name screens, dashboards, panels, sidebars, charts, windows or any interface region. Do NOT name products, languages or their mascots. Do NOT use a metaphor. Banned as lazy/generic: roads, paths, highways, bridges, mountains, sunrises, horizons, lightbulbs, puzzle pieces, handshakes, rockets, chess pieces, icebergs.",
+  "subject": "{image_subject}",
   "composition": "how it is framed — focal point and negative space",
   "mood": "2-4 word emotional tone",
   "palette": "2-3 dominant colors that fit the topic"
@@ -102,7 +104,10 @@ def generate_image_brief(title, body, tags):
     Returns a dict (possibly with missing keys — build_image_prompt fills gaps).
     """
     prompt = BRIEF_USER.format(
-        title=title, tags=", ".join(tags or []), body=(body or "")[:6000]
+        title=title,
+        tags=", ".join(tags or []),
+        body=(body or "")[:6000],
+        image_subject=gd.IMAGE_SUBJECT_INSTRUCTION,
     )
     raw = bedrock_client.converse(BRIEF_SYSTEM, prompt, max_tokens=600, temperature=0.4)
     try:
