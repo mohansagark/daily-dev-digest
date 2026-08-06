@@ -78,6 +78,14 @@ jobs:
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then DRY="--dry-run"; fi
           python content_repair.py --blog-root blog $LIMIT_FLAG $SLUG_FLAG $DRY
 
+      - name: Upload triage report (dry-run)
+        if: github.event.inputs.dry_run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-report
+          path: blog/triage-report.md
+          if-no-files-found: ignore
+
       - name: Push preview branch (skip on dry-run)
         if: github.event.inputs.dry_run != 'true'
         env:
