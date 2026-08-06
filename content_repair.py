@@ -104,6 +104,8 @@ DEFAULT_LEDGER_PATH = os.path.join(os.path.dirname(__file__), "repair_ledger.jso
 class Ledger:
     """Durable idempotency store keyed by slug + input body hash."""
 
+    COMPLETED_ACTIONS = {"deleted", "rewritten", "kept"}
+
     def __init__(self, path: str | None = None):
         self.path = path or DEFAULT_LEDGER_PATH
 
@@ -125,7 +127,10 @@ class Ledger:
         entry = self.load().get(slug)
         if not isinstance(entry, dict):
             return False
-        return entry.get("body_hash") == body_hash(body)
+        return (
+            entry.get("body_hash") == body_hash(body)
+            and entry.get("action") in self.COMPLETED_ACTIONS
+        )
 
     def record(self, slug: str, body: str, **fields: Any) -> None:
         data = self.load()
@@ -259,19 +264,20 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
     if ledger.should_skip(slug, original_body, force=force):
         return {"slug": slug, "action": "skipped", "reason": "ledger body hash matches"}
 
+    bedrock_calls = 0
+    search_calls = 0
+
     try:
+        bedrock_calls += 1
         triage = _triage(str(fm.get("title") or slug), original_body)
     except Exception as exc:  # noqa: BLE001 - continue a batch after Bedrock failure
-        result = {
+        return {
             "slug": slug,
             "action": "error",
             "reason": f"triage failed: {exc}",
             "verdict": "error",
             "confidence": "",
         }
-        if not dry_run:
-            _record(ledger, slug, original_body, **result)
-        return result
 
     verdict = triage["verdict"]
     confidence = triage["confidence"]
@@ -284,11 +290,18 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
             try:
                 os.remove(path)
                 result["local_cover_deleted"] = maybe_delete_local_cover(blog_root, fm, slug)
-                _record(ledger, slug, original_body, **result)
+                _record(
+                    ledger,
+                    slug,
+                    original_body,
+                    bedrock_calls=bedrock_calls,
+                    search_calls=search_calls,
+                    search_failed=False,
+                    **result,
+                )
             except OSError as exc:
                 result["action"] = "error"
                 result["reason"] = f"delete failed: {exc}"
-                _record(ledger, slug, original_body, **result)
         return result
 
     rewrite = verdict == "rewrite" or verdict == "junk"
@@ -302,14 +315,16 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
     final_body = original_body
     search_failed = False
     if rewrite:
+        search_calls += 1
         search_notes, search_failed = _search_notes(str(fm.get("title") or slug), original_body)
         try:
+            bedrock_calls += 1
             generated = _generate(str(fm.get("title") or slug), original_body, search_notes)
+            bedrock_calls += 1
             verified = _verify(original_body, generated, search_notes)
         except Exception as exc:  # noqa: BLE001 - never replace on an incomplete rewrite
             result["action"] = "error"
             result["reason"] = f"rewrite failed: {exc}"
-            _record(ledger, slug, original_body, search_failed=search_failed, **result)
             return result
         final_body = str(verified["corrected_body_markdown"])
         updated_fm.update(
@@ -324,6 +339,7 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
 
     try:
         try:
+            bedrock_calls += 1
             suggestion = _image_suggestion(updated_fm, final_body)
         except Exception as exc:  # noqa: BLE001 - preserve keepers if cover prep fails
             print(f"⚠️ Image suggestion failed for {slug!r}: {exc}")
@@ -334,11 +350,18 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
         )
         with open(path, "w", encoding="utf-8") as f:
             f.write(dump_mdx(updated_fm, final_body))
-        _record(ledger, slug, original_body, search_failed=search_failed, **result)
+        _record(
+            ledger,
+            slug,
+            original_body,
+            bedrock_calls=bedrock_calls,
+            search_calls=search_calls,
+            search_failed=search_failed,
+            **result,
+        )
     except OSError as exc:
         result["action"] = "error"
         result["reason"] = f"write failed: {exc}"
-        _record(ledger, slug, original_body, search_failed=search_failed, **result)
     return result
 
 

@@ -1,7 +1,8 @@
-import content_repair as cr
-import repair_prompts as rp
+import builtins
 import json
 
+import content_repair as cr
+import repair_prompts as rp
 
 def test_origin_bot_requires_image_and_prompt():
     assert cr.detect_origin({"image": "/blog-images/x.jpg", "image_prompt": "desk"}) == "bot"
@@ -100,6 +101,36 @@ def test_ledger_force_bypasses_skip(tmp_path):
     assert ledger.should_skip("slug-a", body, force=True) is False
 
 
+def test_ledger_does_not_skip_error_entry_with_matching_body_hash(tmp_path):
+    path = tmp_path / "repair_ledger.json"
+    ledger = cr.Ledger(str(path))
+    body = "same body"
+
+    ledger.record("slug-a", body, verdict="error", action="error")
+
+    assert ledger.should_skip("slug-a", body) is False
+
+
+def test_ledger_records_bedrock_and_search_call_counts(tmp_path):
+    path = tmp_path / "repair_ledger.json"
+    ledger = cr.Ledger(str(path))
+
+    ledger.record(
+        "slug-a",
+        "same body",
+        verdict="rewrite",
+        action="rewritten",
+        bedrock_calls=4,
+        search_calls=1,
+        search_failed=False,
+    )
+
+    entry = ledger.load()["slug-a"]
+    assert entry["bedrock_calls"] == 4
+    assert entry["search_calls"] == 1
+    assert entry["search_failed"] is False
+
+
 def _write_post(blog_root, slug, *, title="Legacy post", body="Original body.\n", **fm):
     posts = blog_root / "posts"
     posts.mkdir(exist_ok=True)
@@ -157,6 +188,10 @@ def test_repair_one_clean_stamps_frontmatter(tmp_path, monkeypatch):
     assert fm["author"] == "Mohan Sagar"
     assert fm["cover_status"] == "none"
     assert fm["image_suggestion"] == "An abstract set of linked service nodes."
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["clean"]
+    assert entry["bedrock_calls"] == 2
+    assert entry["search_calls"] == 0
+    assert entry["search_failed"] is False
 
 
 def test_repair_one_rewrite_uses_search_notes(tmp_path, monkeypatch):
@@ -198,6 +233,127 @@ def test_repair_one_rewrite_uses_search_notes(tmp_path, monkeypatch):
     assert fm["title"] == "Queues in practice"
     assert "Queue docs" in prompts[1]
     assert "https://example.test/queues" in prompts[1]
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["rewrite"]
+    assert entry["bedrock_calls"] == 4
+    assert entry["search_calls"] == 1
+    assert entry["search_failed"] is False
+
+
+def test_repair_one_records_failed_search_attempt_in_ledger(tmp_path, monkeypatch):
+    _write_post(tmp_path, "search-failure")
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+    monkeypatch.setattr("search_client.search", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("offline")))
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "rewrite", "confidence": "high", "reason": "needs work"},
+            {
+                "headline": "Rewritten",
+                "subtitle": "Better",
+                "meta_description": "A better post.",
+                "tags": ["repair"],
+                "body_markdown": "Generated body.\n",
+            },
+            {"verdict": "pass", "issues": [], "corrected_body_markdown": "Verified body.\n"},
+            "An abstract technical cover.",
+        ],
+        prompts,
+    )
+
+    assert cr.repair_one(str(tmp_path), "search-failure")["action"] == "rewritten"
+
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["search-failure"]
+    assert entry["bedrock_calls"] == 4
+    assert entry["search_calls"] == 1
+    assert entry["search_failed"] is True
+
+
+def test_repair_one_retries_after_triage_failure_without_ledger_skip(tmp_path, monkeypatch):
+    _write_post(tmp_path, "triage-failure")
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+    responses = [
+        RuntimeError("Bedrock unavailable"),
+        {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+        "An abstract technical cover.",
+    ]
+
+    def converse(_system, _prompt, **_kwargs):
+        response = responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response if isinstance(response, str) else json.dumps(response)
+
+    monkeypatch.setattr("bedrock_client.converse", converse)
+
+    assert cr.repair_one(str(tmp_path), "triage-failure")["action"] == "error"
+    assert not (tmp_path / "ledger.json").exists()
+    assert cr.repair_one(str(tmp_path), "triage-failure")["action"] == "kept"
+
+
+def test_repair_one_retries_after_rewrite_failure_without_ledger_skip(tmp_path, monkeypatch):
+    _write_post(tmp_path, "rewrite-failure")
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+    monkeypatch.setattr("search_client.search", lambda *_args, **_kwargs: [])
+    responses = [
+        {"verdict": "rewrite", "confidence": "high", "reason": "needs work"},
+        RuntimeError("Bedrock unavailable"),
+        {"verdict": "rewrite", "confidence": "high", "reason": "needs work"},
+        {
+            "headline": "Rewritten",
+            "subtitle": "Better",
+            "meta_description": "A better post.",
+            "tags": ["repair"],
+            "body_markdown": "Generated body.\n",
+        },
+        {"verdict": "pass", "issues": [], "corrected_body_markdown": "Verified body.\n"},
+        "An abstract technical cover.",
+    ]
+
+    def converse(_system, _prompt, **_kwargs):
+        response = responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response if isinstance(response, str) else json.dumps(response)
+
+    monkeypatch.setattr("bedrock_client.converse", converse)
+
+    assert cr.repair_one(str(tmp_path), "rewrite-failure")["action"] == "error"
+    assert not (tmp_path / "ledger.json").exists()
+    assert cr.repair_one(str(tmp_path), "rewrite-failure")["action"] == "rewritten"
+
+
+def test_repair_one_retries_after_write_failure_without_ledger_skip(tmp_path, monkeypatch):
+    _write_post(tmp_path, "write-failure")
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+    original_open = builtins.open
+    write_attempts = 0
+
+    def failing_once_open(path, mode="r", *args, **kwargs):
+        nonlocal write_attempts
+        is_post_write = str(path).endswith("write-failure.mdx") and mode == "w"
+        if is_post_write:
+            write_attempts += 1
+        if is_post_write and write_attempts == 1:
+            raise OSError("disk full")
+        return original_open(path, mode, *args, **kwargs)
+
+    monkeypatch.setattr(cr, "open", failing_once_open, raising=False)
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+            "An abstract technical cover.",
+            {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+            "An abstract technical cover.",
+        ],
+        prompts,
+    )
+
+    assert cr.repair_one(str(tmp_path), "write-failure")["action"] == "error"
+    assert not (tmp_path / "ledger.json").exists()
+    assert cr.repair_one(str(tmp_path), "write-failure")["action"] == "kept"
 
 
 def test_main_dry_run_writes_report_without_mdx_or_ledger_changes(tmp_path, monkeypatch):
