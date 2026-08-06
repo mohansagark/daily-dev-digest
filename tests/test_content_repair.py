@@ -1,5 +1,6 @@
 import content_repair as cr
 import repair_prompts as rp
+import json
 
 
 def test_origin_bot_requires_image_and_prompt():
@@ -97,3 +98,146 @@ def test_ledger_force_bypasses_skip(tmp_path):
     body = "same body"
     ledger.record("slug-a", body, verdict="clean", action="kept")
     assert ledger.should_skip("slug-a", body, force=True) is False
+
+
+def _write_post(blog_root, slug, *, title="Legacy post", body="Original body.\n", **fm):
+    posts = blog_root / "posts"
+    posts.mkdir(exist_ok=True)
+    frontmatter = {"title": title, "slug": slug, **fm}
+    (posts / f"{slug}.mdx").write_text(
+        cr.dump_mdx(frontmatter, body), encoding="utf-8"
+    )
+
+
+def _mock_bedrock(monkeypatch, responses, prompts):
+    def converse(_system, prompt, **_kwargs):
+        prompts.append(prompt)
+        response = responses.pop(0)
+        return response if isinstance(response, str) else json.dumps(response)
+
+    monkeypatch.setattr("bedrock_client.converse", converse)
+
+
+def test_repair_one_junk_deletes(tmp_path, monkeypatch):
+    _write_post(tmp_path, "junk", body="cookie banner")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [{"verdict": "junk", "confidence": "high", "reason": "boilerplate"}],
+        prompts,
+    )
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "junk")
+
+    assert result["action"] == "deleted"
+    assert not (tmp_path / "posts" / "junk.mdx").exists()
+
+
+def test_repair_one_clean_stamps_frontmatter(tmp_path, monkeypatch):
+    _write_post(tmp_path, "clean", body="Coherent existing body.\n")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+            "An abstract set of linked service nodes.",
+        ],
+        prompts,
+    )
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "clean")
+    fm, body = cr.load_mdx(str(tmp_path / "posts" / "clean.mdx"))
+
+    assert result["action"] == "kept"
+    assert body == "Coherent existing body.\n"
+    assert fm["ai"] is True
+    assert fm["origin"] == "scraper"
+    assert fm["author"] == "Mohan Sagar"
+    assert fm["cover_status"] == "none"
+    assert fm["image_suggestion"] == "An abstract set of linked service nodes."
+
+
+def test_repair_one_rewrite_uses_search_notes(tmp_path, monkeypatch):
+    _write_post(tmp_path, "rewrite", title="Queues", body="Queues buffer work.\n")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "rewrite", "confidence": "medium", "reason": "too thin"},
+            {
+                "headline": "Queues in practice",
+                "subtitle": "Handling bursts",
+                "meta_description": "A practical guide to queues.",
+                "tags": ["queues"],
+                "body_markdown": "Generated body.\n",
+            },
+            {
+                "verdict": "pass",
+                "issues": [],
+                "corrected_body_markdown": "Verified body.\n",
+            },
+            "An abstract buffering pipeline.",
+        ],
+        prompts,
+    )
+    monkeypatch.setattr(
+        "search_client.search",
+        lambda query, max_results=5: [
+            {"title": "Queue docs", "url": "https://example.test/queues", "snippet": "FIFO"}
+        ],
+    )
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "rewrite")
+    fm, body = cr.load_mdx(str(tmp_path / "posts" / "rewrite.mdx"))
+
+    assert result["action"] == "rewritten"
+    assert body == "Verified body.\n"
+    assert fm["title"] == "Queues in practice"
+    assert "Queue docs" in prompts[1]
+    assert "https://example.test/queues" in prompts[1]
+
+
+def test_main_dry_run_writes_report_without_mdx_or_ledger_changes(tmp_path, monkeypatch):
+    _write_post(tmp_path, "dry", body="Existing content.\n")
+    original = (tmp_path / "posts" / "dry.mdx").read_text(encoding="utf-8")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [{"verdict": "clean", "confidence": "high", "reason": "coherent"}],
+        prompts,
+    )
+    ledger_path = tmp_path / "ledger.json"
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(ledger_path))
+
+    records = cr.main(["--blog-root", str(tmp_path), "--dry-run"])
+
+    assert records[0]["action"] == "would_keep"
+    assert (tmp_path / "posts" / "dry.mdx").read_text(encoding="utf-8") == original
+    assert not ledger_path.exists()
+    report = (tmp_path / "triage-report.md").read_text(encoding="utf-8")
+    assert "| dry | clean | high | would_keep | coherent |" in report
+
+
+def test_main_limit_counts_only_unfinished_posts(tmp_path, monkeypatch):
+    _write_post(tmp_path, "already", body="Already repaired.\n")
+    _write_post(tmp_path, "next", body="Needs processing.\n")
+    ledger_path = tmp_path / "ledger.json"
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(ledger_path))
+    cr.Ledger(str(ledger_path)).record("already", "Already repaired.\n", action="kept")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+            "An abstract technical cover.",
+        ],
+        prompts,
+    )
+
+    records = cr.main(["--blog-root", str(tmp_path), "--limit", "1"])
+
+    assert [record["slug"] for record in records] == ["already", "next"]
+    assert records[-1]["action"] == "kept"
