@@ -26,6 +26,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: repair-content
+  cancel-in-progress: false
+
 jobs:
   repair:
     runs-on: ubuntu-latest
@@ -67,16 +71,22 @@ jobs:
           SEARCH_API_KEY: ${{ secrets.SEARCH_API_KEY }}
           SEARCH_API_URL: ${{ secrets.SEARCH_API_URL }}
           BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID || 'us.amazon.nova-pro-v1:0' }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          SLUGS: ${{ github.event.inputs.slugs }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          FULL_RUN: ${{ github.event.inputs.full_run }}
         run: |
-          LIMIT_FLAG="--limit ${{ github.event.inputs.limit }}"
-          if [ "${{ github.event.inputs.full_run }}" = "true" ]; then LIMIT_FLAG=""; fi
-          SLUG_FLAG=""
-          if [ -n "${{ github.event.inputs.slugs }}" ]; then
-            SLUG_FLAG="--slugs ${{ github.event.inputs.slugs }}"
+          ARGS=(--blog-root blog)
+          if [ "$FULL_RUN" != "true" ] && [ -n "$LIMIT" ]; then
+            ARGS+=(--limit "$LIMIT")
           fi
-          DRY=""
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then DRY="--dry-run"; fi
-          python content_repair.py --blog-root blog $LIMIT_FLAG $SLUG_FLAG $DRY
+          if [ -n "$SLUGS" ]; then
+            ARGS+=(--slugs "$SLUGS")
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS+=(--dry-run)
+          fi
+          python content_repair.py "${ARGS[@]}"
 
       - name: Upload triage report (dry-run)
         if: github.event.inputs.dry_run == 'true'

@@ -22,6 +22,21 @@ def test_generate_prompt_has_no_source_url_slot():
     assert "always attribute the original source" not in rp.GENERATE_SYSTEM_PROMPT.lower()
 
 
+def test_generate_and_verify_prompts_frame_search_notes_as_untrusted():
+    needle = "untrusted reference data"
+    assert needle in rp.GENERATE_SYSTEM_PROMPT.lower()
+    assert needle in rp.VERIFY_SYSTEM_PROMPT.lower()
+
+
+def test_is_valid_slug_rejects_path_traversal():
+    assert cr.is_valid_slug("queues-in-practice") is True
+    assert cr.is_valid_slug("10-truly-mind-blowing-javascript-tricks-") is True
+    assert cr.is_valid_slug("../evil") is False
+    assert cr.is_valid_slug("foo/bar") is False
+    assert cr.is_valid_slug("foo.bar") is False
+    assert cr.is_valid_slug("") is False
+
+
 def test_apply_kept_frontmatter_sets_required_fields():
     fm = {"title": "T", "source_url": "https://old.example"}
     out = cr.apply_kept_frontmatter(fm, origin="scraper", image_suggestion="desk photo")
@@ -265,6 +280,99 @@ def test_repair_one_upgrades_clean_triage_with_unclosed_fence_to_rewrite(tmp_pat
     assert "unclosed code fence" in result["reason"]
 
 
+def test_repair_one_upgrades_junk_triage_with_unclosed_fence_to_rewrite(tmp_path, monkeypatch):
+    _write_post(tmp_path, "mangled", body="# Scraped\n\n```js\nconsole.log('oops')\n")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "junk", "confidence": "high", "reason": "unreadable scrape"},
+            {
+                "headline": "Recovered post",
+                "subtitle": "From a broken scrape",
+                "meta_description": "A repaired post.",
+                "tags": ["javascript"],
+                "body_markdown": "Generated body.\n",
+            },
+            {"verdict": "pass", "issues": [], "corrected_body_markdown": "Verified body.\n"},
+            "An abstract code workspace.",
+        ],
+        prompts,
+    )
+    monkeypatch.setattr("search_client.search", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "mangled")
+
+    assert result["action"] == "rewritten"
+    assert result["verdict"] == "rewrite"
+    assert "unclosed code fence" in result["reason"]
+    assert (tmp_path / "posts" / "mangled.mdx").exists()
+
+
+def test_repair_one_load_failure_is_fail_soft(tmp_path, monkeypatch):
+    posts = tmp_path / "posts"
+    posts.mkdir()
+    (posts / "broken.mdx").write_text("not valid front matter\n", encoding="utf-8")
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "broken")
+
+    assert result["action"] == "error"
+    assert result["reason"].startswith("load failed:")
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["broken"]
+    assert entry["action"] == "error"
+
+
+def test_repair_one_rejects_invalid_slug_before_path_join(tmp_path, monkeypatch):
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "../evil")
+
+    assert result["action"] == "error"
+    assert "invalid slug" in result["reason"]
+    assert not (tmp_path / "ledger.json").exists()
+
+
+def test_repair_one_clears_stale_image_suggestion_after_rewrite_failure(tmp_path, monkeypatch):
+    _write_post(
+        tmp_path,
+        "stale-cover",
+        body="Thin body.\n",
+        image_suggestion="Old cover about cookies",
+    )
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+    monkeypatch.setattr("search_client.search", lambda *_args, **_kwargs: [])
+    responses = [
+        {"verdict": "rewrite", "confidence": "high", "reason": "too thin"},
+        {
+            "headline": "Queues",
+            "subtitle": "Better",
+            "meta_description": "A better post.",
+            "tags": ["queues"],
+            "body_markdown": "Generated body.\n",
+        },
+        {"verdict": "pass", "issues": [], "corrected_body_markdown": "Verified body.\n"},
+        RuntimeError("image suggestion unavailable"),
+    ]
+
+    def converse(_system, _prompt, **_kwargs):
+        response = responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response if isinstance(response, str) else json.dumps(response)
+
+    monkeypatch.setattr("bedrock_client.converse", converse)
+
+    result = cr.repair_one(str(tmp_path), "stale-cover")
+    fm, _body = cr.load_mdx(str(tmp_path / "posts" / "stale-cover.mdx"))
+
+    assert result["action"] == "rewritten"
+    assert result["image_suggestion_error"] == "RuntimeError"
+    assert fm["image_suggestion"] == ""
+    assert fm["title"] == "Queues"
+
+
 def test_repair_one_rewrite_uses_search_notes(tmp_path, monkeypatch):
     _write_post(tmp_path, "rewrite", title="Queues", body="Queues buffer work.\n")
     prompts = []
@@ -454,7 +562,32 @@ def test_main_dry_run_writes_report_without_mdx_or_ledger_changes(tmp_path, monk
     assert (tmp_path / "posts" / "dry.mdx").read_text(encoding="utf-8") == original
     assert not ledger_path.exists()
     report = (tmp_path / "triage-report.md").read_text(encoding="utf-8")
-    assert "| dry | clean | high | would_keep | coherent |" in report
+    assert "| dry | clean | high | would_keep | coherent |  |" in report
+    assert "image_suggestion_error" in report
+
+
+def test_main_continues_past_malformed_mdx(tmp_path, monkeypatch):
+    posts = tmp_path / "posts"
+    posts.mkdir()
+    (posts / "aaa-broken.mdx").write_text("---\ntitle: [unterminated\n", encoding="utf-8")
+    _write_post(tmp_path, "zzz-ok", body="Coherent body.\n")
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+            "An abstract technical cover.",
+        ],
+        prompts,
+    )
+
+    records = cr.main(["--blog-root", str(tmp_path)])
+
+    assert records[0]["slug"] == "aaa-broken"
+    assert records[0]["action"] == "error"
+    assert records[1]["slug"] == "zzz-ok"
+    assert records[1]["action"] == "kept"
 
 
 def test_main_limit_counts_only_unfinished_posts(tmp_path, monkeypatch):

@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from datetime import datetime, timezone
 from typing import Any
 
@@ -13,9 +14,18 @@ import bedrock_client
 import repair_prompts
 import search_client
 
+# Safe posts/ filename stems: lowercase alnum + hyphens only (blocks path segments).
+# Allows trailing hyphens — some legacy truncated slugs end that way.
+_SLUG_RE = re.compile(r"^[a-z0-9-]+$")
+
 
 def _non_empty(value) -> bool:
     return bool(str(value or "").strip())
+
+
+def is_valid_slug(slug: str) -> bool:
+    """Return True when ``slug`` is a safe posts/ filename stem (no path segments)."""
+    return bool(_SLUG_RE.fullmatch(slug or "")) and ".." not in slug
 
 
 def detect_origin(fm: dict) -> str:
@@ -269,9 +279,39 @@ def _record(
 
 def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool = False) -> dict:
     """Triage and repair one post, returning its reviewable action record."""
+    if not is_valid_slug(slug):
+        return {
+            "slug": slug,
+            "action": "error",
+            "reason": f"invalid slug: {slug!r}",
+            "verdict": "error",
+            "confidence": "",
+        }
+
     path = os.path.join(blog_root, "posts", f"{slug}.mdx")
-    fm, original_body = load_mdx(path)
     ledger = Ledger()
+    try:
+        fm, original_body = load_mdx(path)
+    except Exception as exc:  # noqa: BLE001 - malformed legacy posts must not kill the batch
+        result = {
+            "slug": slug,
+            "action": "error",
+            "reason": f"load failed: {exc}",
+            "verdict": "error",
+            "confidence": "",
+        }
+        if not dry_run:
+            _record(
+                ledger,
+                slug,
+                "",
+                bedrock_calls=0,
+                search_calls=0,
+                search_failed=False,
+                **result,
+            )
+        return result
+
     if ledger.should_skip(slug, original_body, force=force):
         return {"slug": slug, "action": "skipped", "reason": "ledger body hash matches"}
 
@@ -303,7 +343,7 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
     verdict = triage["verdict"]
     confidence = triage["confidence"]
     reason = triage["reason"]
-    if verdict == "clean" and _has_unclosed_code_fence(original_body):
+    if verdict in {"clean", "junk"} and _has_unclosed_code_fence(original_body):
         verdict = "rewrite"
         reason = f"{reason}; deterministic guard: unclosed code fence".lstrip("; ")
     result = {"slug": slug, "verdict": verdict, "confidence": confidence, "reason": reason}
@@ -383,10 +423,14 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
         try:
             bedrock_calls += 1
             suggestion = _image_suggestion(updated_fm, final_body)
-        except Exception as exc:  # noqa: BLE001 - preserve keepers if cover prep fails
+        except Exception as exc:  # noqa: BLE001 - keepers may retain prior suggestion
             print(f"⚠️ Image suggestion failed for {slug!r}: {exc}")
-            suggestion = str(fm.get("image_suggestion") or "")
             result["image_suggestion_error"] = type(exc).__name__
+            if result.get("action") == "rewritten":
+                # Stale pre-rewrite suggestion would describe the old post — clear it.
+                suggestion = ""
+            else:
+                suggestion = str(fm.get("image_suggestion") or "")
         updated_fm = apply_kept_frontmatter(
             updated_fm, origin=detect_origin(fm), image_suggestion=suggestion
         )
@@ -419,16 +463,24 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
 def write_triage_report(blog_root: str, records: list[dict]) -> str:
     """Write a concise, reviewable Markdown table for this invocation."""
     path = os.path.join(blog_root, "triage-report.md")
+    columns = (
+        "slug",
+        "verdict",
+        "confidence",
+        "action",
+        "reason",
+        "image_suggestion_error",
+    )
     rows = [
         "# Content repair triage report",
         "",
-        "| slug | verdict | confidence | action | reason |",
-        "| --- | --- | --- | --- | --- |",
+        "| " + " | ".join(columns) + " |",
+        "| " + " | ".join("---" for _ in columns) + " |",
     ]
     for record in records:
         cells = [
             str(record.get(key, "")).replace("|", "\\|").replace("\n", " ")
-            for key in ("slug", "verdict", "confidence", "action", "reason")
+            for key in columns
         ]
         rows.append("| " + " | ".join(cells) + " |")
     with open(path, "w", encoding="utf-8") as f:
