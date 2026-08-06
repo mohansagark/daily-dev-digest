@@ -138,8 +138,9 @@ def filter_allowlisted(articles, strategy):
             skipped.append((article, "denylist:listicle"))
             print(f"⛔ Skip denylist (listicle): {title[:60]}")
             continue
-        text = f"{title} {content[:CONTENT_DENYLIST_CHARS]}"
-        hits = count_focus_hits(text, focus)
+        # Denylist may truncate (§14 #6); allowlist keyword gate uses full body
+        # so late keyword mentions are not hard-rejected before scoring.
+        hits = count_focus_hits(f"{title} {content}", focus)
         if hits < 1:
             skipped.append((article, "allowlist:no_keyword_hit"))
             print(f"⛔ Skip off-strategy: {title[:60]}")

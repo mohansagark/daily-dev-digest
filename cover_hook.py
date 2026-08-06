@@ -9,25 +9,27 @@ COVER_HOOK_SYSTEM = (
     "Return ONLY a single valid JSON object, no prose."
 )
 
+# Placeholders are literal tokens (not str.format) so `{`/`}` in post bodies
+# never raise KeyError and never need brace-escaping.
 COVER_HOOK_USER = """\
 Write cover copy and a photo brief for this published technical post.
 
 INPUT
-TITLE: {title}
-TAGS: {tags}
+TITLE: <<TITLE>>
+TAGS: <<TAGS>>
 BODY (excerpt):
 \"\"\"
-{body}
+<<BODY>>
 \"\"\"
 
 Return ONLY this JSON:
-{{
+{
   "headline": "short tension/contradiction hook, all-caps friendly, not 'A Guide to…'",
   "subtitle": "curiosity beat that does not spoil the how-to",
   "pill": ["beat1", "beat2", "beat3"],
   "photo_brief": "photographable scene description",
   "tone": "warm_bw | cool_steel | muted_color | vivid_night"
-}}
+}
 
 Rules:
 - pill: exactly 3 short topic beats (prefer under ~18 chars each) for ✓ A | ✓ B | ✓ C
@@ -51,7 +53,7 @@ PILL_MAX_TOTAL_CHARS = 52  # heuristic for one-line pill at cover scale
 
 
 def shorten_pill_beats(pill, max_total=PILL_MAX_TOTAL_CHARS):
-    """Ensure three beats fit a one-line pill; shorten the longest if needed."""
+    """Pre-render char-budget trim; cover.js also measures real pixel overflow."""
     beats = [str(b).strip() for b in (pill or []) if str(b).strip()]
     while len(beats) < 3:
         beats.append("Insights")
@@ -111,15 +113,10 @@ def build_flux_photo_prompt(hook):
 
 def _format_cover_hook_user(title, tags, body):
     """Fill COVER_HOOK_USER without choking on `{`/`}` in post bodies."""
-
-    def _escape(value):
-        # .format() treats braces as placeholders; double them so literals survive.
-        return str(value).replace("{", "{{").replace("}", "}}")
-
-    return COVER_HOOK_USER.format(
-        title=_escape(title or ""),
-        tags=_escape(", ".join(tags or [])),
-        body=_escape((body or "")[:6000]),
+    return (
+        COVER_HOOK_USER.replace("<<TITLE>>", title or "")
+        .replace("<<TAGS>>", ", ".join(tags or []))
+        .replace("<<BODY>>", (body or "")[:6000])
     )
 
 
@@ -144,8 +141,18 @@ def generate_cover_hook(title, tags, body, *, dry_run=False):
     raw = bedrock_client.converse(
         COVER_HOOK_SYSTEM, prompt, max_tokens=800, temperature=0.5
     )
+    data = None
     try:
         data = bedrock_client.extract_json(raw)
-    except Exception:  # noqa: BLE001
+    except Exception as e:  # noqa: BLE001 — fail-soft to fallback hook
+        print(
+            f"⚠️ cover_hook JSON parse failed ({type(e).__name__}); "
+            "using fallback hook."
+        )
         data = {}
+    if not isinstance(data, dict) or not data:
+        print("COVER_HOOK_STATUS=fallback")
+        data = {}
+    else:
+        print("COVER_HOOK_STATUS=ok")
     return normalize_hook(data)

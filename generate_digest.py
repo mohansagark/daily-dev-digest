@@ -589,7 +589,10 @@ def downscale_cover(image_bytes, max_px=None, quality=None):
     except Exception as e:  # noqa: BLE001 - never lose a cover to a resize bug
         print(f"⚠️ Cover downscale skipped ({e}); writing original bytes.")
         return image_bytes
-    if len(out) >= len(image_bytes):
+    # Already-JPEG: keep original if recompress didn't shrink. PNG/other inputs
+    # (editorial compositor) always take the single JPEG encode.
+    already_jpeg = image_bytes[:3] == b"\xff\xd8\xff"
+    if already_jpeg and len(out) >= len(image_bytes):
         return image_bytes
     print(f"🗜️  Cover {len(image_bytes) // 1024}KB → {len(out) // 1024}KB")
     return out
@@ -608,7 +611,8 @@ def maybe_generate_cover(generated, verified, slug, dry_run=False):
     """Best-effort editorial cover. Returns {'image','alt','prompt'} or None.
 
     Flow: cover_hook (Bedrock) → FLUX photo (skipped in dry-run) → Playwright
-    template compose → JPEG. Never raises unless IMAGE_REQUIRED=true.
+    template compose (PNG) → single JPEG via save_cover_image. Never raises
+    unless IMAGE_REQUIRED=true.
     """
     try:
         body = (verified or {}).get("corrected_body_markdown") or ""

@@ -78,3 +78,17 @@ def test_tools_strategy_rejects_css_clip_path_false_positive():
     kept, skipped = tf.filter_allowlisted(articles, strategy)
     assert kept == []
     assert skipped[0][1] == "allowlist:no_keyword_hit"
+
+
+def test_allowlist_scans_full_content_not_only_prefix():
+    strategy = tf.STRATEGIES["ai"]
+    pad = "lorem " * 800  # well past CONTENT_DENYLIST_CHARS
+    articles = [
+        {
+            "title": "A long systems writeup",
+            "content": pad + " Finally we evaluate the LLM agents carefully.",
+        }
+    ]
+    kept, skipped = tf.filter_allowlisted(articles, strategy)
+    assert len(kept) == 1
+    assert skipped == []

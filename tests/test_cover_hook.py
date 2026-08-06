@@ -46,3 +46,16 @@ def test_format_cover_hook_user_tolerates_braces_in_body():
     assert "map.get(key, {default: 1})" in prompt
     assert "{slug}" in prompt
     assert "TITLE: T" in prompt
+
+
+def test_cover_hook_logs_fallback_on_bad_json(monkeypatch, capsys):
+    monkeypatch.setattr(ch.bedrock_client, "converse", lambda *a, **k: "not-json")
+    monkeypatch.setattr(
+        ch.bedrock_client,
+        "extract_json",
+        lambda *a, **k: (_ for _ in ()).throw(ValueError("bad")),
+    )
+    h = ch.generate_cover_hook("T", ["ai"], "body", dry_run=False)
+    assert h["headline"]
+    out = capsys.readouterr().out
+    assert "COVER_HOOK_STATUS=fallback" in out

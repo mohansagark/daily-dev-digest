@@ -1,8 +1,10 @@
-"""Playwright compositor: editorial HTML template + photo → 1200×630 JPEG."""
+"""Playwright compositor: editorial HTML template + photo → 1200×630 PNG."""
 
 from __future__ import annotations
 
 import io
+import shutil
+import tempfile
 import threading
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -47,10 +49,24 @@ def _pill_text(hook):
     return " | ".join(f"✓ {b}" for b in h["pill"])
 
 
-def compose_cover(hook, photo_bytes=None) -> bytes:
-    """Render the editorial cover. Returns JPEG bytes (1200×630).
+def _stage_template(photo_bytes: bytes) -> Path:
+    """Copy template + photo into a private temp dir (safe for concurrent renders)."""
+    work = Path(tempfile.mkdtemp(prefix="cover_compose_"))
+    for name in ("index.html", "cover.css", "cover.js"):
+        shutil.copy2(TEMPLATE_DIR / name, work / name)
+    fonts_src = TEMPLATE_DIR / "fonts"
+    if fonts_src.is_dir():
+        shutil.copytree(fonts_src, work / "fonts")
+    (work / "photo.jpg").write_bytes(photo_bytes)
+    return work
 
-    Uses a local static server (never file://) so @font-face loads reliably.
+
+def compose_cover(hook, photo_bytes=None) -> bytes:
+    """Render the editorial cover. Returns PNG bytes (1200×630).
+
+    JPEG encoding is left to ``downscale_cover`` / ``save_cover_image`` so the
+    cover is lossy-compressed once. Uses a local static server (never file://)
+    so @font-face loads reliably.
     """
     from playwright.sync_api import sync_playwright
 
@@ -59,20 +75,16 @@ def compose_cover(hook, photo_bytes=None) -> bytes:
 
     h = cover_hook.normalize_hook(hook)
     server = None
-    tmp_photo = None
+    work = None
     try:
-        # Serve template dir; write photo into a temp name inside it for same-origin.
-        work = TEMPLATE_DIR
-        tmp_photo = work / "_runtime_photo.jpg"
-        tmp_photo.write_bytes(photo_bytes)
-
+        work = _stage_template(photo_bytes)
         server, origin = _start_server(work)
         qs = urlencode(
             {
                 "headline": h["headline"],
                 "subtitle": h["subtitle"],
                 "pill": _pill_text(h),
-                "photo": "/_runtime_photo.jpg",
+                "photo": "/photo.jpg",
             }
         )
         url = f"{origin}/index.html?{qs}"
@@ -85,22 +97,21 @@ def compose_cover(hook, photo_bytes=None) -> bytes:
             )
             page.goto(url, wait_until="networkidle")
             page.wait_for_function("() => window.__COVER_READY__ === true", timeout=15000)
-            # Ensure fonts applied
             page.evaluate("() => document.fonts.ready")
-            png = page.screenshot(type="png", clip={"x": 0, "y": 0, "width": COVER_W, "height": COVER_H})
+            png = page.screenshot(
+                type="png",
+                clip={"x": 0, "y": 0, "width": COVER_W, "height": COVER_H},
+            )
             browser.close()
 
         img = Image.open(io.BytesIO(png)).convert("RGB")
         if img.size != (COVER_W, COVER_H):
             img = img.resize((COVER_W, COVER_H), Image.LANCZOS)
         out = io.BytesIO()
-        img.save(out, format="JPEG", quality=88, optimize=True, progressive=True)
+        img.save(out, format="PNG", optimize=True)
         return out.getvalue()
     finally:
         if server is not None:
             server.shutdown()
-        if tmp_photo is not None and tmp_photo.exists():
-            try:
-                tmp_photo.unlink()
-            except OSError:
-                pass
+        if work is not None:
+            shutil.rmtree(work, ignore_errors=True)
