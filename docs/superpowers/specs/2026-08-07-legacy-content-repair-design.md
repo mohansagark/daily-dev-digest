@@ -139,9 +139,9 @@ On every **kept** post after repair:
 
 **Site / consumer requirements (pre-merge checklist):**
 
-1. Confirm `portfolio-blog` `build-index.mjs` / `next-gen-portfolio` do **not** display `sourceUrl` / `source_url` on post UI (today body attribution is already stripped in build-index; verify cards/detail never show the field).
-2. Confirm unknown FM keys (`ai`, `origin`, `cover_status`, `image_suggestion`) are ignored by the index/UI and do not break the build.
-3. If either check fails, fix the consumer in the same merge train **before** merging a large repair preview to `main`.
+1. ~~Confirm `portfolio-blog`/`next-gen-portfolio` do not display `source_url` on post UI~~ — **done**: `build-index.mjs`'s `entry` object no longer copies `data.source_url` at all (removed 2026-08-07), so it can't reach the public `generated/blogs.json` the client fetches, regardless of whether any component renders it. Body attribution was already stripped separately (`stripSourceAttribution`). `source_url` now lives **only** in `.mdx` front-matter — the durable provenance record, joined to the public site by `slug`.
+2. Confirm unknown FM keys (`ai`, `origin`, `cover_status`, `image_suggestion`) are ignored by the index/UI and do not break the build. Verified 2026-08-07: `build-index.mjs`'s `entry` construction is an explicit allowlist — build ran clean (244 posts, 0 unsafe) with these fields present in source `.mdx` and absent from output.
+3. If a future consumer check fails, fix it in the same merge train **before** merging a large repair preview to `main`.
 
 **Later image batch (out of scope here):**
 
@@ -255,7 +255,7 @@ Claude gaps + dual-review resolutions:
 | 2 | **Accept** — committed `repair_ledger.json` in `daily-dev-digest` (§9). |
 | 3 | **Accept** — failure-mode table (§9). |
 | 4 | **Accept** — `triage-report.md` on every preview push (§9). |
-| 5 | **Accept** — pre-merge consumer checklist for unknown FM + `source_url` UI (§8). |
+| 5 | **Verified 2026-08-07** — unknown FM + `source_url` exposure checked against real `portfolio-blog` code, not just planned (§8). `source_url` removed from `build-index.mjs`'s public entry; unknown FM keys confirmed dropped by its allowlist; build ran clean (244 posts, 0 unsafe). |
 | 6 | **Accept** — delete local cover files only (§9). |
 | 7 | **Accept** — cost/time incl. `image_suggestion` on all kept (§9). |
 | 8 | **Accept** — gist vs search conflict rule (§7). |
