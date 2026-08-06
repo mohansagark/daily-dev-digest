@@ -2,8 +2,9 @@
 
 **Date:** 2026-08-06  
 **Repo:** `daily-dev-digest`  
-**Status:** Approved for implementation planning  
-**Supersedes (partial):** abstract FLUX-only cover look from `2026-07-20-cover-image-generation-design.md` §6.3 style constants for *new* posts. Front-matter fields (`image`, `image_alt`, `image_prompt`) and fail-soft publish behavior stay.
+**Status:** Dual-review aligned — ready for implementation planning  
+**Supersedes (partial):** abstract FLUX-only cover look from `2026-07-20-cover-image-generation-design.md` §6.3 style constants for *new* posts. Front-matter fields (`image`, `image_alt`, `image_prompt`) and fail-soft publish behavior stay.  
+**Mohan sign-off (2026-08-06):** §14 accepted, including residual risk on #3, off-center crop bias (§14.2 #8), and **no fixed weekday→strategy calendar in this spec** (deterministic map deferred to the implementation plan).
 
 ## 1. Purpose
 
@@ -163,3 +164,89 @@ Implementation: regex denylist on title + summary; log skip reason. Prefer zero 
 - Playwright Python package is acceptable as a runtime/CI dependency for cover render (dev+CI; document in README).
 - FLUX remains photo-only; no return to schematic `BRAND_STYLE` / isometric defaults for new covers.
 - Cover hook headline may differ from MDX `title` (intentional — image hook vs article title).
+
+## 13. Open gaps / remediations (pre-implementation review)
+
+Blocking (must resolve before implementation starts):
+
+| # | Gap | Remediation |
+|---|---|---|
+| 1 | `cover_hook` input contract undefined. §5 gives output JSON only; §3 places the hook *after* verified MDX body/front-matter, but never says what text it reads (full body? title+tags+meta_description?). | Pin input shape explicitly, mirroring `cover_backfill.py`'s existing `BRIEF_USER` pattern (title + tags + body excerpt). |
+| 2 | Third Bedrock call not reconciled with existing `image_brief`. `generate_post()`'s LLM#1 already emits `image_brief` (subject/composition/mood/palette) used by the old `build_image_prompt` path. Doc doesn't say whether to drop `image_brief` from `GENERATE_USER_TEMPLATE` for new posts (dead weight/wasted tokens if kept) or keep it, and gives no added-cost estimate for the new cover_hook Bedrock call + FLUX call. | Decide explicitly: strip `image_brief` from LLM#1's prompt/output for the new-post path (cover_backfill.py keeps its own independent brief call for legacy posts). Add a cost line (Bedrock tokens + FLUX $/step) next to the existing CI-time budget in §7. |
+| 3 | FLUX has no `negative_prompt` — "no chrome, no text overlays" (§3 step 2) is unenforceable. `image_client.py` sends only `prompt`+`steps`. The existing `IMAGE_SUBJECT_INSTRUCTION` bans labels specifically because FLUX garbles any named text; realistic photos of "monitor, code, dashboard" (§4) inherently carry UI text that will garble the same way. | Either have the Playwright compositor blur/mask the photo's screen region before compositing, or add an explicit reject/retry rule for photos with garbled text, rather than relying on `photo_brief` wording alone. |
+| 4 | No image dimension/aspect-ratio spec for the FLUX call. `image_client.generate()` takes no width/height param; FLUX defaults square-ish. The diagonal right-pane (~54% of 1200×630 — wide, short) needs a non-square source and a defined crop strategy. | Add width/height (or target aspect) to `image_client.generate()`'s signature; state cover-fit vs. contain crop behavior in §6. |
+| 5 | Allowlist table (§8) is missing the `style`/`description` fields the pipeline requires. Current `STRATEGIES` dict has `focus` + `style` (feeds the GENERATE prompt tone) + `description` (feeds front-matter `content_strategy`). New table only lists keys+keywords. | Extend the §8 table with `style` and `description` per key now, not left to "exact map chosen at implementation." |
+| 6 | Denylist field mismatch (§8): "regex denylist on title + summary" — at select-time the article dict only has `title`+`content`; `summary`/`meta_description` doesn't exist until after LLM#1 runs. | If the denylist runs pre-LLM (as §8 implies), match against `content`, not a not-yet-created `summary`. State explicitly which field and which pipeline stage. |
+
+Non-blocking (should fix, won't break first implementation):
+
+| # | Gap | Remediation |
+|---|---|---|
+| 7 | No CI test-execution step exists today. §10 references regression tests but `digest.yml` has no pytest step at all, and §7's CI changes don't add one. | Add a `pytest` step to `digest.yml` (or a separate CI workflow) alongside the Playwright install step. |
+| 8 | Playwright Chromium isn't cached in CI. §7 accepts +1-3 min per run but every run re-downloads ~150MB of Chromium — added time and a new flakiness surface on a daily scheduled job. | Cache `~/.cache/ms-playwright` via `actions/cache`, keyed on Playwright version. |
+| 9 | §6 leaves `file://` vs. local static server as an "or." Vendored `@font-face` fonts under `file://` can hit Chromium file-access restrictions depending on version, silently falling back to system fonts — directly undermines goal 1 ("crisp readable type every time") without erroring. | Commit to a local static server now, not deferred to implementation. |
+| 10 | No content-safety guard on realistic photos. §4's "photo_brief" never states whether photorealistic people/faces are in bounds; FLUX schnell faces are typically low quality/distorted. The old `IMAGE_SUBJECT_INSTRUCTION` had this discipline (banned labels/metaphors) for a reason — new brief drops it. | Add an explicit "no human faces, artifact-only" rule to the photo_brief instructions, mirroring the old design's discipline. |
+| 11 | No alerting on repeated cover failures. Fail-soft is correct per-post, but nothing signals if covers silently fail N days running (e.g. vendored fonts missing, Playwright install broken) — goal 1 degrades quietly. | Add a log-scannable marker or simple counter for consecutive cover failures, even if full alerting is out of scope. |
+
+## 14. Spec alignment review (Cursor / Grok) — responses to §13
+
+Review of the pre-implementation gaps in §13. Goal: one shared decision table before writing-plans. Status values: **Accept** (adopt remediation as written), **Accept with tweak** (same intent, adjusted how), **Defer**.
+
+### Blocking
+
+| # | Verdict | Locked decision |
+|---|---|---|
+| 1 | **Accept** | `cover_hook` input is explicit: **title + tags + body excerpt** (mirror `cover_backfill.py` `BRIEF_USER` shape: title, comma-joined tags, body `[:6000]`). Runs **after** generate + verify, on the verified post fields. Output remains §5 JSON. |
+| 2 | **Accept** | **Strip `image_brief`** from LLM#1 (`GENERATE_USER_TEMPLATE` / structured output) on the new-post path. Photo brief ownership moves to `cover_hook` (+ FLUX). `cover_backfill.py` keeps its **independent** brief Bedrock call for legacy posts. §7 must add a **cost line**: +1 Bedrock `cover_hook` call (small max_tokens) + 1 FLUX render at configured `IMAGE_STEPS` (document $/step from current Workers AI pricing at implement time — do not hardcode stale rates). Old `build_image_prompt` / schematic `BRAND_STYLE` path is unused for new posts. |
+| 3 | **Accept with tweak** | Agree FLUX cannot enforce “no chrome / no text” via negative prompts. **Do not** require Playwright to blur/mask a guessed “screen region” in v1 (fragile, no reliable detector). Instead: (a) `photo_brief` rules prefer **artifact / environment scenes** and **soft-focus or non-legible screens** when a display is present; (b) ban instructing FLUX to render sharp readable UI chrome or labeled diagrams; (c) optional **one retry** with a stricter brief if a cheap post-check flags dense glyph-like noise (v1.5 if not free in v1). Compositor does **not** OCR-mask in v1. |
+| 4 | **Accept with tweak** | Today `image_client.generate()` has no width/height; Workers AI FLUX schnell typically returns ~square. **v1 crop strategy (required):** compositor treats photo as `object-fit: cover` into the diagonal right pane (wide short region of 1200×630) — defined center/focal crop, never letterbox empty bands. **If** the API accepts size params at implement time, pass a landscape-friendly size; otherwise square + cover-crop is normative. Document this in §6 at plan time. |
+| 5 | **Accept** | Extend §8 allowlist rows with `style` and `description` **in this spec** (see §14.1). Weekday rotation must stay **deterministic** at implement time, but **no fixed Mon–Sun schedule is required in this design doc** (Mohan: leave calendar to the implementation plan). Each key is fully specified in §14.1. |
+| 6 | **Accept** | Denylist runs **pre-LLM**, at select-time, on **`title` + `content`** (use a bounded content prefix, e.g. first 2k chars). Do **not** reference `summary` / `meta_description` (those do not exist yet). Log skip reason. |
+
+### Non-blocking
+
+| # | Verdict | Locked decision |
+|---|---|---|
+| 7 | **Accept** | Add **pytest in CI**. Prefer a **PR / push CI workflow** (or job) so the daily digest cron is not the only place tests run; digest workflow may still run a fast smoke subset if cheap. §10 stays valid once CI executes tests. |
+| 8 | **Accept** | Cache `~/.cache/ms-playwright` with `actions/cache`, key including Playwright package version. |
+| 9 | **Accept** | **Local static server only** for Playwright render. Drop `file://` as an option (font `@font-face` risk). |
+| 10 | **Accept** | Photo brief rules: **artifact-only, no human faces / photorealistic people**. Distorted FLUX faces are out of bounds. |
+| 11 | **Accept** | Every run logs a scannable marker, e.g. `COVER_STATUS=ok` or `COVER_STATUS=failed:<reason>`. Full alerting/paging is out of scope; log search is enough for v1. |
+
+### 14.1 Allowlist table — extended (closes #5)
+
+| Key | Keywords (scoring) | style | description |
+|---|---|---|---|
+| `ai` | ai, llm, agents, machine learning, generative, prompt, model | clear and rigorous | AI systems, agents, and applied ML for working engineers |
+| `frontend` | frontend, javascript, typescript, react, vue, css, next.js, ui engineering | energetic and practical | Frontend and JavaScript engineering |
+| `architecture` | architecture, system design, distributed, microservices, patterns, scalability | detailed and informative | Software architecture and system design |
+| `tools` | developer tools, cli, ide, devops tools, new release, tooling | practical and evaluative | New and notable software tools for developers |
+| `ai_news` | ai news, openai, anthropic, model release, industry | timely and analytical | AI industry news and model releases |
+| `biz_ideas` | indie hacker, saas, solopreneur, consulting, product idea, monetization | pragmatic and opinionated | Business ideas and monetization for software engineers |
+| `client_websites` | freelance, client site, agency, portfolio site, web design for clients | practical and client-aware | Building websites and web presence for clients |
+
+### 14.2 Normative amendments (apply when implementing; supersede conflicting soft language above)
+
+1. **§5 input:** title + tags + body excerpt as in §14 #1.  
+2. **§3 / LLM#1:** no `image_brief` on new-post generate path (§14 #2).  
+3. **§3 step 2 / §4 photo:** artifact-only, no faces; soft-focus/non-legible screens preferred; no compositor screen-mask in v1 (§14 #3, #10).  
+4. **§6:** local static server required; photo `object-fit: cover` into right pane (§14 #4, #9).  
+5. **§7:** Playwright cache; cost line for +1 Bedrock hook + 1 FLUX; pytest via CI workflow (§14 #2, #7, #8).  
+6. **§8:** use §14.1 table; denylist on `title` + `content` prefix pre-LLM (§14 #5, #6).  
+7. **§9:** emit `COVER_STATUS=...` on every path (§14 #11).  
+8. **§4 photo_brief / §6 crop:** `photo_brief` must bias FLUX toward off-center, one-side subject placement (matching whichever side lands in the diagonal right pane), not a centered square composition — a plain center-crop from a near-square FLUX source into the wide/short diagonal pane will otherwise clip the named artifact or suspense detail before it ever reaches the compositor. State this bias explicitly in the `cover_hook` prompt rules (§5), not left implicit in "composition" wording.  
+9. **§9 accepted risk:** v1 ships with no automated check for garbled/illegible screen-text in photos (§14 #3 dropped the OCR/mask option deliberately). This is an accepted residual risk, not a closed issue — mitigated only by brief wording, unmeasured until real renders are reviewed. Revisit (optional retry or masking) if it shows up in practice post-launch.
+
+### 14.3 Explicit non-agreement
+
+- **Disagree with §13 #3 remediation as written** insofar as it mandates Playwright blur/mask of a screen region as a v1 requirement. Intent (don’t ship garbled UI type) is shared; mechanism is brief discipline + crop/compose, not region masking.
+
+### 14.4 Confirmation log (Mohan, 2026-08-06)
+
+| Point | Decision |
+|---|---|
+| Gap #3 / residual garbled UI text | **OK for v1** — brief discipline only; no Playwright mask/OCR reject in v1; revisit after live renders (§14.2 #9). |
+| Off-center subject bias (§14.2 #8) | **OK** — `photo_brief` / cover_hook rules must bias FLUX subject placement for diagonal cover-crop. |
+| Weekday→strategy calendar | **Not in this spec** — no fixed schedule required here; plan may choose any deterministic rotation over §14.1 keys. |
+
+§13 gaps are **resolved for planning**. Implementation plan must cite §14 (including §14.4), not re-open these decisions.
