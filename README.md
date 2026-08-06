@@ -52,6 +52,16 @@ python generate_digest.py
 AWS with **OIDC** (`id-token: write`, least-privilege) — no long-lived AWS keys are
 stored. `.github/workflows/ci.yml` runs pytest on push/PR.
 
+### Content repair
+
+`.github/workflows/repair-content.yml` triages and repairs legacy posts in
+[`portfolio-blog`](https://github.com/mohansagark/portfolio-blog) via
+**workflow_dispatch**. Defaults to **dry-run** (writes `triage-report.md` only).
+Real runs push a dated preview branch `repair/content-cleanup-YYYYMMDD-HHMM` — never
+`main` — and commit any `repair_ledger.json` updates back to this repo. Start with
+`limit=10`, review the report, then re-run with `dry_run=false`; use `full_run=true`
+for the remaining backlog.
+
 ## Cover images
 
 Each new post gets a best-effort **editorial cover** (1200×630): Bedrock `cover_hook`

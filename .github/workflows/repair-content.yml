@@ -1,0 +1,124 @@
+name: Repair legacy content
+
+# Batch triage / rewrite / delete for legacy portfolio-blog posts.
+# Real runs push a dated PREVIEW branch for review — never main.
+# Merge the preview branch by hand once triage-report.md looks right.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max posts this run (ignored when full_run is true)"
+        default: "10"
+      slugs:
+        description: "Optional comma-separated slugs"
+        default: ""
+      dry_run:
+        description: "Triage only — write triage-report.md; no MDX or ledger writes; no push"
+        type: boolean
+        default: true
+      full_run:
+        description: "Process all unfinished slugs (clears --limit)"
+        type: boolean
+        default: false
+      force_branch:
+        description: "Overwrite preview branch if the dated name already exists"
+        type: boolean
+        default: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout Daily Dev Digest Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyyaml
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Clone portfolio-blog
+        run: |
+          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/portfolio-blog.git blog
+          cd blog
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Run repair
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          SEARCH_API_KEY: ${{ secrets.SEARCH_API_KEY }}
+          SEARCH_API_URL: ${{ secrets.SEARCH_API_URL }}
+          BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID || 'us.amazon.nova-pro-v1:0' }}
+        run: |
+          LIMIT_FLAG="--limit ${{ github.event.inputs.limit }}"
+          if [ "${{ github.event.inputs.full_run }}" = "true" ]; then LIMIT_FLAG=""; fi
+          SLUG_FLAG=""
+          if [ -n "${{ github.event.inputs.slugs }}" ]; then
+            SLUG_FLAG="--slugs ${{ github.event.inputs.slugs }}"
+          fi
+          DRY=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then DRY="--dry-run"; fi
+          python content_repair.py --blog-root blog $LIMIT_FLAG $SLUG_FLAG $DRY
+
+      - name: Push preview branch (skip on dry-run)
+        if: github.event.inputs.dry_run != 'true'
+        env:
+          FORCE_BRANCH: ${{ github.event.inputs.force_branch }}
+        run: |
+          cd blog
+          PREVIEW_BRANCH="repair/content-cleanup-$(date '+%Y%m%d-%H%M')"
+          echo "Preview branch: $PREVIEW_BRANCH"
+
+          git fetch origin
+          if git ls-remote --heads origin "$PREVIEW_BRANCH" | grep -q .; then
+            if [ "$FORCE_BRANCH" = "true" ]; then
+              echo "⚠️ Branch $PREVIEW_BRANCH exists; force_branch=true — will overwrite."
+            else
+              echo "❌ Preview branch $PREVIEW_BRANCH already exists. Retry in a minute or set force_branch=true."
+              exit 1
+            fi
+          fi
+
+          git checkout -B "$PREVIEW_BRANCH"
+          git add posts/ triage-report.md
+          git add -u images/ 2>/dev/null || true
+          git commit -m "preview: content repair $(date '+%Y-%m-%d %H:%M')" \
+            || { echo "❌ Nothing to commit after repair"; exit 1; }
+
+          if [ "$FORCE_BRANCH" = "true" ]; then
+            git push --force origin "$PREVIEW_BRANCH"
+          else
+            git push origin "$PREVIEW_BRANCH"
+          fi
+          echo "✅ Pushed to $PREVIEW_BRANCH — review triage-report.md, then merge to main."
+
+      - name: Commit repair ledger (skip on dry-run)
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          if git diff --quiet repair_ledger.json; then
+            echo "ℹ️ repair_ledger.json unchanged"
+          else
+            git add repair_ledger.json
+            git commit -m "chore: update repair_ledger after content repair run"
+            git push
+          fi
