@@ -3,7 +3,7 @@
 **Date:** 2026-08-07  
 **Repo:** `daily-dev-digest` (writes into `portfolio-blog` via preview branch)  
 **Branch context:** `feature/post-editorial-cover-followups` (on top of editorial-cover PR)  
-**Status:** Dual-review aligned — ready for implementation planning after Mohan sign-off  
+**Status:** Approved by Mohan (2026-08-07) — ready for implementation  
 
 ## 1. Purpose
 
