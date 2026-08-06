@@ -13,55 +13,68 @@ the blog on [devmohan.in](https://devmohan.in).
 ## Pipeline
 
 ```
-scrape → content-clean → dedupe → citation-extract        [deterministic]
+scrape → content-clean → dedupe → topic allowlist          [deterministic]
    → LLM #1 (structured generate) → LLM #2 (fact-verify)   [LLM / Bedrock]
+   → cover_hook → FLUX photo → Playwright 1200×630 cover   [cover]
    → markdown export (.mdx + front-matter)                 [deterministic]
 ```
 
-Volume is capped at **exactly one post per run**: after cleaning and de-duplication,
-all candidates are ranked and only the single best is kept.
+Volume is capped at **exactly one post per run**: after cleaning, de-duplication,
+and topic filtering, candidates are ranked and only the single best is kept.
+
+Topic packs (allowlist): AI, frontend, architecture, tools, AI news, biz ideas for
+software engineers, client websites. Listicle / “top N” noise is denylisted pre-LLM.
 
 ## Tech stack
 
-`Python` · **Amazon Bedrock** (`boto3`) · **Cloudflare Workers AI** (FLUX schnell, cover images) · `trafilatura` + `beautifulsoup4` + `lxml`
-(scraping/cleaning) · `feedparser` (RSS) · `pydantic` (structured output) ·
-`python-slugify` · **GitHub Actions** (scheduled, AWS OIDC)
+`Python` · **Amazon Bedrock** (`boto3`) · **Cloudflare Workers AI** (FLUX schnell photo) ·
+**Playwright** (editorial cover template) · `trafilatura` + `beautifulsoup4` + `lxml`
+(scraping/cleaning) · `feedparser` (RSS) · `python-slugify` · **GitHub Actions**
+(scheduled, AWS OIDC)
 
 ## Running locally
 
 ```bash
 pip install -r requirements.txt
+playwright install chromium
 
-# Dry run — exercises the entire deterministic path with the two LLM
-# stages mocked, so no AWS calls are made:
+# Dry run — Bedrock/FLUX mocked; still composes a cover JPG with a placeholder photo:
 python generate_digest.py --dry-run
 
-# Full run (requires AWS Bedrock credentials in the environment):
+# Full run (requires AWS Bedrock + Cloudflare credentials):
 python generate_digest.py
 ```
 
 ## Automation
 
-`.github/workflows/*.yml` runs the pipeline on a daily cron
+`.github/workflows/digest.yml` runs the pipeline on a daily cron
 (`30 2 * * *` UTC ≈ 8:00 AM IST) and via **workflow_dispatch**. It authenticates to
 AWS with **OIDC** (`id-token: write`, least-privilege) — no long-lived AWS keys are
-stored.
+stored. `.github/workflows/ci.yml` runs pytest on push/PR.
 
 ## Cover images
 
-Each post gets one best-effort cover image generated with
-[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) (FLUX schnell).
-Required environment variables: `CF_ACCOUNT_ID`, `CF_API_TOKEN`.
-Optional: `CF_IMAGE_MODEL` (default: `@cf/black-forest-labs/flux-1-schnell`),
-`IMAGE_STEPS` (default: `4`), `IMAGE_REQUIRED` (default: `false`).
+Each new post gets a best-effort **editorial cover** (1200×630): Bedrock `cover_hook`
+copy + FLUX photo + Playwright HTML template (`cover_template/`). Brand lock:
+**Mohan Sagar** / `<devmohan.in>`.
 
-If image generation fails, the post is still published as text-only (no image front-matter field).
+Required for FLUX: `CF_ACCOUNT_ID`, `CF_API_TOKEN`.
+Optional: `CF_IMAGE_MODEL` (default: `@cf/black-forest-labs/flux-1-schnell`),
+`IMAGE_STEPS` (default: `8` in Actions), `IMAGE_REQUIRED` (default: `false`).
+
+Look for `COVER_STATUS=ok` or `COVER_STATUS=failed:<reason>` in logs. If cover
+generation fails, the post still publishes as text-only.
 
 ## Files
 
 | File | Role |
 |------|------|
 | `generate_digest.py` | Orchestrates the full pipeline |
-| `bedrock_client.py`  | Amazon Bedrock LLM calls (generate + verify) |
+| `topic_focus.py` | Allowlist strategies + listicle denylist |
+| `cover_hook.py` | Bedrock cover copy + FLUX photo prompt |
+| `cover_compose.py` | Playwright compositor → JPEG |
+| `cover_template/` | Editorial HTML/CSS/fonts |
+| `bedrock_client.py`  | Amazon Bedrock LLM calls |
+| `image_client.py` | Cloudflare Workers AI FLUX |
 | `yaml_utils.py`      | Safe YAML front-matter helpers |
 | `processed_articles.json` | Dedupe ledger of already-published sources |

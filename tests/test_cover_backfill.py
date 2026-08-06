@@ -151,12 +151,13 @@ def test_subject_instruction_is_shared_and_forbids_labels():
     assert "NO readable text" in p
 
 
-def test_daily_generate_template_still_formats():
+def test_daily_generate_template_formats_without_image_brief():
     import generate_digest as gd
-    # the {image_subject} placeholder must not break the big .format() template
+    # New-post path no longer asks for image_brief; cover_hook owns photo copy.
     out = gd.GENERATE_USER_TEMPLATE.format(
         style="s", source_url="u", source_author="a", source_title="t",
-        source_text="x", image_subject=gd.IMAGE_SUBJECT_INSTRUCTION,
+        source_text="x",
     )
-    assert "NO readable text" in out
-    assert '"image_brief"' in out
+    assert "body_markdown" in out
+    assert "image_brief" not in out
+    assert "{image_subject}" not in gd.GENERATE_USER_TEMPLATE

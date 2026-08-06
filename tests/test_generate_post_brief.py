@@ -7,20 +7,23 @@ STRATEGY = {"focus": ["css", "js"], "style": "energetic", "description": "Fronte
 ARTICLE = {"title": "T", "link": "http://x", "content": "body " * 50, "author": "A"}
 
 
-def test_dry_run_includes_image_brief_dict():
+def test_dry_run_has_required_keys_without_image_brief():
     out = generate_post(ARTICLE, STRATEGY, dry_run=True)
-    assert isinstance(out["image_brief"], dict)
-    assert out["image_brief"].get("subject")            # mock provides a subject
+    for k in GENERATE_KEYS:
+        assert k in out
+    assert "image_brief" not in out
 
 
-def test_image_brief_not_hard_required():
-    # image_brief must stay OUT of the fail-loud required keys.
+def test_image_brief_not_in_generate_keys():
     assert "image_brief" not in GENERATE_KEYS
 
 
-def test_non_dict_image_brief_normalized_to_empty(monkeypatch):
-    # LLM #1 returns all hard-required keys but a malformed (non-dict)
-    # image_brief; generate_post must soft-normalize it to {} rather than fail.
+def test_generate_template_omits_image_brief():
+    assert "image_brief" not in gd.GENERATE_USER_TEMPLATE
+
+
+def test_malformed_extra_image_brief_ignored(monkeypatch):
+    # Extra keys from the model are fine; we no longer normalize image_brief.
     raw = json.dumps({
         "headline": "H",
         "subtitle": "S",
@@ -31,5 +34,5 @@ def test_non_dict_image_brief_normalized_to_empty(monkeypatch):
     })
     monkeypatch.setattr(gd.bedrock_client, "converse", lambda *a, **k: raw)
     out = generate_post(ARTICLE, STRATEGY, dry_run=False)
-    assert isinstance(out["image_brief"], dict)
-    assert out["image_brief"] == {}
+    assert out["headline"] == "H"
+    assert out.get("image_brief") == "oops"  # untouched; unused by cover path

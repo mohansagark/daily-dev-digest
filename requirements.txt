@@ -28,3 +28,5 @@ typing_extensions==4.14.0
 urllib3==2.5.0
 # Cover downscale/recompress (see downscale_cover)
 Pillow==11.3.0
+# Editorial cover compositor (Chromium screenshot of cover_template/)
+playwright==1.52.0

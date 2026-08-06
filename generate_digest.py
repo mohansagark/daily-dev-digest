@@ -1,17 +1,18 @@
 """
 Daily Dev Digest — AI rewrite pipeline (Amazon Bedrock).
 
-Flow (deterministic stages in Python, two LLM calls on Bedrock):
+Flow (deterministic stages in Python, LLM calls on Bedrock + FLUX photo):
 
-  scrape -> content-clean -> dedupe -> citation-extract      [deterministic]
+  scrape -> content-clean -> dedupe -> topic filter          [deterministic]
     -> LLM #1 (structured generate) -> LLM #2 (fact-verify)  [LLM / Bedrock]
+    -> cover_hook -> FLUX photo -> Playwright compose        [cover]
     -> markdown export (.mdx + front-matter)                 [deterministic]
 
-Volume is capped at exactly ONE post per run: after cleaning + dedupe we rank
-all candidates and keep only the single best one.
+Volume is capped at exactly ONE post per run: after cleaning + dedupe + topic
+allowlist we rank candidates and keep only the single best one.
 
-Run `python generate_digest.py --dry-run` to exercise the whole deterministic
-path without any AWS calls (the two LLM stages are mocked). See README notes.
+Run `python generate_digest.py --dry-run` to exercise the deterministic path
+(Bedrock/FLUX mocked; cover still composed with a placeholder photo).
 """
 
 import io
@@ -34,6 +35,9 @@ from dotenv import load_dotenv
 from yaml_utils import yaml_safe_value
 import bedrock_client
 import image_client
+import topic_focus
+import cover_hook
+import cover_compose
 
 # `trafilatura` gives much cleaner article text (strips nav/ads/boilerplate).
 # Imported defensively so the script still runs if it is not installed.
@@ -72,54 +76,8 @@ NEAR_DUP_SAMPLE_CHARS = 800  # how much cleaned text we fingerprint / compare
 
 
 # ---------------------------------------------------------------------------
-# Content strategy (one run/day -> pick a single strategy, rotated by weekday)
-# ---------------------------------------------------------------------------
-# The pipeline now runs once per day, so the old four time-of-day strategies
-# collapse. We rotate the strategy by weekday to keep topical variety across the
-# week while staying deterministic for any given day.
-STRATEGIES = {
-    "frontend": {
-        "focus": ["javascript", "frontend", "react", "vue", "angular",
-                  "typescript", "node.js", "css"],
-        "style": "energetic and practical",
-        "description": "Frontend and JavaScript engineering",
-    },
-    "backend": {
-        "focus": ["backend", "databases", "api", "devops", "cloud",
-                  "architecture", "performance", "security"],
-        "style": "detailed and informative",
-        "description": "Backend, cloud, and systems engineering",
-    },
-    "design_career": {
-        "focus": ["ux", "ui", "design", "productivity", "tools",
-                  "career", "soft-skills", "trends"],
-        "style": "thoughtful and reflective",
-        "description": "Design, tooling, and developer career growth",
-    },
-    "fundamentals": {
-        "focus": ["tutorials", "learning", "fundamentals", "concepts",
-                  "theory", "best-practices", "algorithms"],
-        "style": "educational and foundational",
-        "description": "Computer-science fundamentals and best practices",
-    },
-}
-
-# Weekday (Mon=0 .. Sun=6) -> strategy key. Deterministic weekly rotation.
-WEEKDAY_STRATEGY = {
-    0: "frontend",
-    1: "backend",
-    2: "design_career",
-    3: "fundamentals",
-    4: "frontend",
-    5: "backend",
-    6: "design_career",
-}
-
-
-def get_content_strategy():
-    """Pick the daily strategy based on the weekday (deterministic rotation)."""
-    key = WEEKDAY_STRATEGY[datetime.now().weekday()]
-    return STRATEGIES[key]
+# Content strategy — allowlisted packs in topic_focus.py (§14.1).
+get_content_strategy = topic_focus.get_content_strategy
 
 
 # ---------------------------------------------------------------------------
@@ -286,9 +244,8 @@ def score_article(article, strategy):
     Weighted so topical relevance dominates, recency breaks ties, and we avoid
     thin/stub articles.
     """
-    text = f"{article['title']} {article['content']}".lower()
-
-    keyword_hits = sum(1 for kw in strategy["focus"] if kw.lower() in text)
+    text = f"{article['title']} {article['content']}"
+    keyword_hits = topic_focus.count_focus_hits(text, strategy["focus"])
     keyword_score = min(1.0, keyword_hits / 3.0)  # 3+ hits saturates
 
     recency = _recency_score(article["published"])
@@ -365,6 +322,8 @@ Requirements:
   filler. Do NOT include an H1 title (front-matter owns it).
 - tags: 3-6 short lowercase topic tags.
 - meta_description: <= 160 chars, SEO-friendly.
+- JSON must be valid: escape every " inside string values as \\". Prefer
+  single quotes inside body_markdown code/prose when possible.
 
 Return ONLY this JSON object (no code fences, no commentary):
 {{
@@ -372,12 +331,6 @@ Return ONLY this JSON object (no code fences, no commentary):
   "subtitle": "string",
   "meta_description": "string",
   "tags": ["string"],
-  "image_brief": {{
-    "subject": "{image_subject}",
-    "composition": "how it is framed — focal point and negative space",
-    "mood": "2-4 word emotional tone",
-    "palette": "2-3 dominant colors that fit the topic"
-  }},
   "body_markdown": "string"
 }}
 
@@ -410,12 +363,6 @@ def generate_post(article, strategy, dry_run=False):
                 f"[dry-run] A rewritten take on '{article['title']}'."[:160]
             ),
             "tags": strategy["focus"][:4],
-            "image_brief": {
-                "subject": f"a clean conceptual illustration about {article['title']}",
-                "composition": "centered hero subject, generous negative space",
-                "mood": "modern, precise",
-                "palette": "muted modern tech palette",
-            },
             "body_markdown": (
                 "> **Dry-run stub.** Bedrock was not called; this is placeholder "
                 "body text so the export path can be exercised.\n\n"
@@ -431,11 +378,24 @@ def generate_post(article, strategy, dry_run=False):
         source_author=article.get("author") or "Unknown",
         source_title=article["title"],
         source_text=source_text,
-        image_subject=IMAGE_SUBJECT_INSTRUCTION,
     )
-    raw = bedrock_client.converse(GENERATE_SYSTEM_PROMPT, prompt, max_tokens=5000,
-                                  temperature=0.6)
-    data = bedrock_client.extract_json(raw)
+    data = None
+    last_err = None
+    for attempt in range(2):
+        raw = bedrock_client.converse(
+            GENERATE_SYSTEM_PROMPT, prompt, max_tokens=5000, temperature=0.6
+        )
+        try:
+            data = bedrock_client.extract_json(raw)
+            break
+        except ValueError as e:
+            last_err = e
+            if attempt == 0:
+                print("⚠️ LLM #1 JSON parse failed; retrying once.")
+                continue
+            raise
+    if data is None:  # pragma: no cover - loop always sets data or raises
+        raise last_err
 
     # Validate the structured shape; fail loudly rather than push garbage.
     missing = [k for k in GENERATE_KEYS if k not in data]
@@ -443,9 +403,6 @@ def generate_post(article, strategy, dry_run=False):
         raise ValueError(f"LLM #1 output missing keys: {missing}")
     if not isinstance(data["tags"], list):
         data["tags"] = [str(data["tags"])]
-    # image_brief is best-effort: normalize to a dict, never fail the text run.
-    if not isinstance(data.get("image_brief"), dict):
-        data["image_brief"] = {}
     return data
 
 
@@ -614,7 +571,8 @@ def downscale_cover(image_bytes, max_px=None, quality=None):
     that by 238. Any decode/encode failure returns the original bytes: a heavy
     cover beats no cover.
     """
-    max_px = int(os.getenv("COVER_MAX_PX", max_px or 800))
+    # Editorial covers are 1200×630 OG; default max edge preserves that canvas.
+    max_px = int(os.getenv("COVER_MAX_PX", max_px or 1200))
     quality = int(os.getenv("COVER_JPEG_QUALITY", quality or 82))
     try:
         from PIL import Image  # imported lazily so the text pipeline never needs it
@@ -646,32 +604,40 @@ def save_cover_image(image_bytes, slug):
     return f"/blog-images/{filename}"
 
 
-def maybe_generate_cover(generated, slug, dry_run=False):
-    """Best-effort cover image. Returns {'image','alt','prompt'} or None.
+def maybe_generate_cover(generated, verified, slug, dry_run=False):
+    """Best-effort editorial cover. Returns {'image','alt','prompt'} or None.
 
-    Never raises unless IMAGE_REQUIRED=true — a failed image must not block the
-    post (mirrors the image-less fallback for legacy posts).
+    Flow: cover_hook (Bedrock) → FLUX photo (skipped in dry-run) → Playwright
+    template compose → JPEG. Never raises unless IMAGE_REQUIRED=true.
     """
-    if dry_run:
-        print("🧪 [dry-run] Skipping Cloudflare image generation.")
-        return None
-
     try:
-        brief = generated.get("image_brief") or {}
-        prompt = build_image_prompt(brief, generated["headline"], generated.get("tags", []))
-        image_bytes = image_client.generate(prompt)
-        image_rel = save_cover_image(image_bytes, slug)
+        body = (verified or {}).get("corrected_body_markdown") or ""
+        hook = cover_hook.generate_cover_hook(
+            generated.get("headline") or "",
+            generated.get("tags") or [],
+            body,
+            dry_run=dry_run,
+        )
+        flux_prompt = cover_hook.build_flux_photo_prompt(hook)
+
+        if dry_run:
+            print("🧪 [dry-run] Skipping Cloudflare FLUX; using placeholder photo.")
+            photo_bytes = None
+        else:
+            photo_bytes = image_client.generate(flux_prompt)
+
+        composed = cover_compose.compose_cover(hook, photo_bytes)
+        image_rel = save_cover_image(composed, slug)
         print(f"🖼️  Cover image generated: {image_rel}")
+        print("COVER_STATUS=ok")
         return {
             "image": image_rel,
-            "alt": _slot(brief, "subject") or generated["headline"],
-            "prompt": prompt,
+            "alt": hook["headline"],
+            "prompt": flux_prompt,
         }
-    # Broad on purpose: this also catches save_cover_image errors (e.g. a
-    # disk/permission failure), which should degrade to text-only rather than
-    # aborting the whole post, same as an image-generation API failure.
     except Exception as e:  # noqa: BLE001 — image is best-effort
         print(f"⚠️ Cover image generation failed ({e}); publishing text-only.")
+        print(f"COVER_STATUS=failed:{type(e).__name__}")
         if os.getenv("IMAGE_REQUIRED", "false").lower() == "true":
             raise
         return None
@@ -761,6 +727,13 @@ def main(dry_run=False):
         print("❌ No new articles. Exiting.")
         return
 
+    # --- topic allowlist + listicle denylist (pre-LLM) ---------------------
+    candidates, _skipped = topic_focus.filter_allowlisted(candidates, strategy)
+    print(f"🎯 {len(candidates)} candidate(s) after topic filter")
+    if not candidates:
+        print("❌ No on-strategy candidates after allowlist/denylist. Exiting.")
+        return
+
     # --- rank -> single best candidate (MAX_TOTAL == 1) --------------------
     best = select_best_article(candidates, strategy)
     if best is None:
@@ -774,18 +747,21 @@ def main(dry_run=False):
 
     # --- export ------------------------------------------------------------
     slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
-    cover = maybe_generate_cover(generated, slug, dry_run=dry_run)
+    cover = maybe_generate_cover(generated, verified, slug, dry_run=dry_run)
     save_to_mdx(best, strategy, generated, verified, slug, cover)
 
     # --- record for dedupe (store a content fingerprint too) ---------------
-    processed_articles[best["hash"]] = {
-        "title": best["title"],
-        "link": best["link"],
-        "processed_date": datetime.now().isoformat(),
-        "strategy_used": strategy["description"],
-        "content_sample": _normalize_for_similarity(best["content"]),
-    }
-    save_processed_articles(processed_articles)
+    if dry_run:
+        print("🧪 [dry-run] Skipping processed_articles.json update.")
+    else:
+        processed_articles[best["hash"]] = {
+            "title": best["title"],
+            "link": best["link"],
+            "processed_date": datetime.now().isoformat(),
+            "strategy_used": strategy["description"],
+            "content_sample": _normalize_for_similarity(best["content"]),
+        }
+        save_processed_articles(processed_articles)
 
     print(f"🎉 Done. Generated 1 post ({slug}.mdx).")
     print(f"📝 Total processed articles: {len(processed_articles)}")
