@@ -11,6 +11,7 @@ in environments where boto3 / AWS credentials are not available.
 import os
 import json
 import re
+import time
 
 # Base model id vs. cross-region inference profile:
 #   - amazon.nova-pro-v1:0      -> base model id
@@ -39,6 +40,19 @@ def _client():
 # leaving cost a ~4-chars-per-token guess. Accumulate them so a run's real spend
 # is visible in the workflow log and a future backfill can gate on measured cost.
 USAGE = {"calls": 0, "inputTokens": 0, "outputTokens": 0}
+MAX_RETRY_ATTEMPTS = 3
+RETRY_BASE_DELAY_SECONDS = 0.1
+RETRYABLE_ERROR_CODES = {
+    "InternalServerError",
+    "InternalServerException",
+    "ModelNotReadyException",
+    "ModelTimeoutException",
+    "RequestTimeout",
+    "ServiceUnavailableException",
+    "Throttling",
+    "ThrottlingException",
+    "TooManyRequestsException",
+}
 
 
 def _record_usage(usage):
@@ -57,24 +71,51 @@ def usage_summary():
     return dict(USAGE)
 
 
+def _is_retryable_error(exc):
+    """Return whether a Bedrock transport or service error is transient."""
+    response = getattr(exc, "response", {})
+    if not isinstance(response, dict):
+        response = {}
+    error = response.get("Error") or {}
+    metadata = response.get("ResponseMetadata") or {}
+    status_code = metadata.get("HTTPStatusCode")
+    error_code = error.get("Code")
+    error_type = type(exc).__name__
+    return (
+        error_code in RETRYABLE_ERROR_CODES
+        or status_code == 429
+        or isinstance(status_code, int) and 500 <= status_code < 600
+        or error_type
+        in {"ConnectTimeoutError", "EndpointConnectionError", "ReadTimeoutError"}
+    )
+
+
 def converse(system_prompt, user_prompt, max_tokens=3000, temperature=0.4):
     """
     Single-turn call to the Bedrock `converse` API.
 
-    Returns the raw assistant text. Raises on transport/API errors so the caller
-    can decide how to handle failures (we fail the run rather than push garbage).
+    Returns the raw assistant text. Retryable transport and service failures use
+    bounded exponential backoff; other errors raise immediately.
     """
     client = _client()
-    response = client.converse(
-        modelId=get_model_id(),
-        system=[{"text": system_prompt}],
-        messages=[{"role": "user", "content": [{"text": user_prompt}]}],
-        inferenceConfig={
+    request = {
+        "modelId": get_model_id(),
+        "system": [{"text": system_prompt}],
+        "messages": [{"role": "user", "content": [{"text": user_prompt}]}],
+        "inferenceConfig": {
             "maxTokens": max_tokens,
             "temperature": temperature,
             "topP": 0.9,
         },
-    )
+    }
+    for attempt in range(MAX_RETRY_ATTEMPTS):
+        try:
+            response = client.converse(**request)
+            break
+        except Exception as exc:
+            if not _is_retryable_error(exc) or attempt == MAX_RETRY_ATTEMPTS - 1:
+                raise
+            time.sleep(RETRY_BASE_DELAY_SECONDS * (2**attempt))
     _record_usage(response.get("usage") or {})
     return response["output"]["message"]["content"][0]["text"]
 

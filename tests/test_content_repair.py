@@ -1,6 +1,7 @@
 import builtins
 import json
 
+import bedrock_client as bc
 import content_repair as cr
 import repair_prompts as rp
 
@@ -111,6 +112,30 @@ def test_ledger_does_not_skip_error_entry_with_matching_body_hash(tmp_path):
     assert ledger.should_skip("slug-a", body) is False
 
 
+def test_converse_retries_retryable_bedrock_failures_with_exponential_backoff(monkeypatch):
+    class RetryableError(Exception):
+        response = {"Error": {"Code": "ThrottlingException"}, "ResponseMetadata": {"HTTPStatusCode": 429}}
+
+    class Client:
+        def __init__(self):
+            self.calls = 0
+
+        def converse(self, **_kwargs):
+            self.calls += 1
+            if self.calls < 3:
+                raise RetryableError("throttled")
+            return {"usage": {}, "output": {"message": {"content": [{"text": "recovered"}]}}}
+
+    client = Client()
+    delays = []
+    monkeypatch.setattr(bc, "_client", lambda: client)
+    monkeypatch.setattr(bc.time, "sleep", delays.append)
+
+    assert bc.converse("system", "user") == "recovered"
+    assert client.calls == 3
+    assert delays == [0.1, 0.2]
+
+
 def test_ledger_records_bedrock_and_search_call_counts(tmp_path):
     path = tmp_path / "repair_ledger.json"
     ledger = cr.Ledger(str(path))
@@ -165,6 +190,23 @@ def test_repair_one_junk_deletes(tmp_path, monkeypatch):
     assert not (tmp_path / "posts" / "junk.mdx").exists()
 
 
+def test_repair_one_dry_run_junk_delete_is_would_delete(tmp_path, monkeypatch):
+    _write_post(tmp_path, "junk", body="cookie banner")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [{"verdict": "junk", "confidence": "high", "reason": "boilerplate"}],
+        prompts,
+    )
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "junk", dry_run=True)
+
+    assert result["action"] == "would_delete"
+    assert (tmp_path / "posts" / "junk.mdx").exists()
+    assert not (tmp_path / "ledger.json").exists()
+
+
 def test_repair_one_clean_stamps_frontmatter(tmp_path, monkeypatch):
     _write_post(tmp_path, "clean", body="Coherent existing body.\n")
     prompts = []
@@ -192,6 +234,35 @@ def test_repair_one_clean_stamps_frontmatter(tmp_path, monkeypatch):
     assert entry["bedrock_calls"] == 2
     assert entry["search_calls"] == 0
     assert entry["search_failed"] is False
+
+
+def test_repair_one_upgrades_clean_triage_with_unclosed_fence_to_rewrite(tmp_path, monkeypatch):
+    _write_post(tmp_path, "broken", body="# Legacy code\n\n```python\nprint('unfinished')\n")
+    prompts = []
+    _mock_bedrock(
+        monkeypatch,
+        [
+            {"verdict": "clean", "confidence": "high", "reason": "coherent"},
+            {
+                "headline": "Fixed code",
+                "subtitle": "A complete example",
+                "meta_description": "A repaired post.",
+                "tags": ["python"],
+                "body_markdown": "Generated body.\n",
+            },
+            {"verdict": "pass", "issues": [], "corrected_body_markdown": "Verified body.\n"},
+            "An abstract code workspace.",
+        ],
+        prompts,
+    )
+    monkeypatch.setattr("search_client.search", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(cr, "DEFAULT_LEDGER_PATH", str(tmp_path / "ledger.json"))
+
+    result = cr.repair_one(str(tmp_path), "broken")
+
+    assert result["action"] == "rewritten"
+    assert result["verdict"] == "rewrite"
+    assert "unclosed code fence" in result["reason"]
 
 
 def test_repair_one_rewrite_uses_search_notes(tmp_path, monkeypatch):
@@ -287,7 +358,10 @@ def test_repair_one_retries_after_triage_failure_without_ledger_skip(tmp_path, m
     monkeypatch.setattr("bedrock_client.converse", converse)
 
     assert cr.repair_one(str(tmp_path), "triage-failure")["action"] == "error"
-    assert not (tmp_path / "ledger.json").exists()
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["triage-failure"]
+    assert entry["action"] == "error"
+    assert entry["bedrock_calls"] == 1
+    assert entry["search_calls"] == 0
     assert cr.repair_one(str(tmp_path), "triage-failure")["action"] == "kept"
 
 
@@ -319,7 +393,10 @@ def test_repair_one_retries_after_rewrite_failure_without_ledger_skip(tmp_path, 
     monkeypatch.setattr("bedrock_client.converse", converse)
 
     assert cr.repair_one(str(tmp_path), "rewrite-failure")["action"] == "error"
-    assert not (tmp_path / "ledger.json").exists()
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["rewrite-failure"]
+    assert entry["action"] == "error"
+    assert entry["bedrock_calls"] == 2
+    assert entry["search_calls"] == 1
     assert cr.repair_one(str(tmp_path), "rewrite-failure")["action"] == "rewritten"
 
 
@@ -352,7 +429,10 @@ def test_repair_one_retries_after_write_failure_without_ledger_skip(tmp_path, mo
     )
 
     assert cr.repair_one(str(tmp_path), "write-failure")["action"] == "error"
-    assert not (tmp_path / "ledger.json").exists()
+    entry = cr.Ledger(str(tmp_path / "ledger.json")).load()["write-failure"]
+    assert entry["action"] == "error"
+    assert entry["bedrock_calls"] == 2
+    assert entry["search_calls"] == 0
     assert cr.repair_one(str(tmp_path), "write-failure")["action"] == "kept"
 
 

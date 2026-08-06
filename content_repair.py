@@ -170,6 +170,17 @@ def _triage(title: str, body: str) -> dict:
     return data
 
 
+def _has_unclosed_code_fence(body: str) -> bool:
+    """Detect an unmatched Markdown code fence without relying on model triage."""
+    open_fences = {"```": 0, "~~~": 0}
+    for line in body.splitlines():
+        stripped = line.lstrip()
+        for fence in open_fences:
+            if stripped.startswith(fence):
+                open_fences[fence] += 1
+    return any(count % 2 for count in open_fences.values())
+
+
 def _search_notes(title: str, body: str) -> tuple[str, bool]:
     query = f"{title}\n{_gist(body, limit=1000)}".strip()
     try:
@@ -271,21 +282,34 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
         bedrock_calls += 1
         triage = _triage(str(fm.get("title") or slug), original_body)
     except Exception as exc:  # noqa: BLE001 - continue a batch after Bedrock failure
-        return {
+        result = {
             "slug": slug,
             "action": "error",
             "reason": f"triage failed: {exc}",
             "verdict": "error",
             "confidence": "",
         }
+        _record(
+            ledger,
+            slug,
+            original_body,
+            bedrock_calls=bedrock_calls,
+            search_calls=search_calls,
+            search_failed=False,
+            **result,
+        )
+        return result
 
     verdict = triage["verdict"]
     confidence = triage["confidence"]
     reason = triage["reason"]
+    if verdict == "clean" and _has_unclosed_code_fence(original_body):
+        verdict = "rewrite"
+        reason = f"{reason}; deterministic guard: unclosed code fence".lstrip("; ")
     result = {"slug": slug, "verdict": verdict, "confidence": confidence, "reason": reason}
 
     if should_delete(verdict, confidence):
-        result["action"] = "deleted"
+        result["action"] = "would_delete" if dry_run else "deleted"
         if not dry_run:
             try:
                 os.remove(path)
@@ -302,6 +326,15 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
             except OSError as exc:
                 result["action"] = "error"
                 result["reason"] = f"delete failed: {exc}"
+                _record(
+                    ledger,
+                    slug,
+                    original_body,
+                    bedrock_calls=bedrock_calls,
+                    search_calls=search_calls,
+                    search_failed=False,
+                    **result,
+                )
         return result
 
     rewrite = verdict == "rewrite" or verdict == "junk"
@@ -325,6 +358,15 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
         except Exception as exc:  # noqa: BLE001 - never replace on an incomplete rewrite
             result["action"] = "error"
             result["reason"] = f"rewrite failed: {exc}"
+            _record(
+                ledger,
+                slug,
+                original_body,
+                bedrock_calls=bedrock_calls,
+                search_calls=search_calls,
+                search_failed=search_failed,
+                **result,
+            )
             return result
         final_body = str(verified["corrected_body_markdown"])
         updated_fm.update(
@@ -362,6 +404,15 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
     except OSError as exc:
         result["action"] = "error"
         result["reason"] = f"write failed: {exc}"
+        _record(
+            ledger,
+            slug,
+            original_body,
+            bedrock_calls=bedrock_calls,
+            search_calls=search_calls,
+            search_failed=search_failed,
+            **result,
+        )
     return result
 
 
