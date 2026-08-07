@@ -245,6 +245,34 @@ body
     assert "replacement only" in out
 
 
+def test_upsert_seed_does_not_splice_into_block_tags_list():
+    """Regression: seed inserted cover_status between tags: and - items."""
+    import yaml
+
+    mdx = """---
+title: T
+tags:
+- llm
+- open-source
+- commercial
+image: /blog-images/t.jpg
+image_prompt: soft-focus photo
+author: Mohan Sagar
+---
+body
+"""
+    out = cs.upsert_cover_fields(mdx, cover_status="done")
+    fm = yaml.safe_load(out.split("---\n", 2)[1])
+    assert fm["cover_status"] == "done"
+    assert fm["tags"] == ["llm", "open-source", "commercial"]
+    # cover_status must not sit between tags: and the first list item
+    fm_text = out.split("---\n", 2)[1]
+    tags_i = fm_text.index("tags:\n")
+    first_item_i = fm_text.index("\n- llm")
+    status_i = fm_text.index("cover_status:")
+    assert not (tags_i < status_i < first_item_i)
+
+
 def test_upsert_strips_pyyaml_implicit_line_wrap_without_orphans():
     """content_repair.py writes FM via yaml.safe_dump, which line-wraps long
     plain scalars with no `|`/`>` marker — drop_fm_keys must still treat the
