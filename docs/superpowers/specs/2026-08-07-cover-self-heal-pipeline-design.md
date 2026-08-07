@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07  
 **Repo:** `daily-dev-digest` (job + secrets); queue state on `portfolio-blog` MDX  
-**Status:** Approved — implementation in progress on `feature/cover-self-heal`  
+**Status:** Implemented — PR https://github.com/mohansagark/daily-dev-digest/pull/7 (schedule gated until rollout §11)  
 **Related:**  
 - `2026-08-06-editorial-cover-template-and-topic-focus-design.md` (editorial cover path; previously deferred D/E retry cron)  
 - `2026-08-07-legacy-content-repair-design.md` §8 (`cover_status` backlog; “later image batch” now this spec)  
@@ -157,8 +157,8 @@ python cover_heal.py --blog-root … --seed-status-only
 
 - Walk all posts; if `is_editorial_cover` and `cover_status != done`, set `cover_status: done` (FM only, no Bedrock/FLUX).
 - Report **must** list three buckets for human spot-check before commit: `seeded_done`, `eligible_schematic`, `eligible_missing` (and optionally `eligible_unknown`).
-- Denylist false-positive risk (§15 #7) is accepted: worst case is one good cover regenerated once. Spot-check the `seeded_done` / `eligible_schematic` lists in the seed report; only then commit to `portfolio-blog` main.
-- After seed (approx on 2026-08-07 corpus): ~5 already-editorial → `done`; ~17 schematic + ~227 missing remain eligible — **not** “249 regenerations.”
+- Dimension check removes the false-positive risk §15 #7 originally worried about (prompt-text denylist) — it's exact and structural, not heuristic. Spot-check the `seeded_done` list in the seed report anyway (should be very small); only then commit to `portfolio-blog` main.
+- **Real counts, verified on 2026-08-07 corpus (249 posts, dimension-checked directly):** only **1** post is currently `1200×630` (today's `navigating-the-llm-landscape...`) → seeds to `done`. The other **248** — 21 square `origin: bot` photos + 227 with no usable image — remain eligible. This is intentional and expected, not a bug: the editorial template only shipped today, so the backlog really is almost the entire catalog. At `≤50/day` that's **~5 days** to fully drain. `limit`/`workflow_dispatch` may be raised temporarily if a faster initial drain is wanted — see §12.
 
 ## 6. Architecture
 
@@ -327,7 +327,7 @@ Strict sequence (blocking):
 
 ### Cost
 
-- **Backlog drain:** ≤50 editorial covers/day until missing+schematic set is exhausted (order-of-magnitude: a few days, not “249 regenerations” after seed). Unit cost ≈ one digest cover attempt (Bedrock hook + FLUX + Playwright minutes) per slug.
+- **Backlog drain:** ≤50 editorial covers/day. Real eligible count after seed is **248** (verified 2026-08-07 — only 1 post is currently the true `1200×630` template; the rest, including 21 `origin: bot` posts with square photos, are eligible) — effectively the whole catalog, not a small residual. At 50/day that's **~5 days**. Unit cost ≈ one digest cover attempt (Bedrock hook + FLUX + Playwright minutes) per slug, so a full drain costs roughly 248× that unit cost regardless of how many days it's spread across.
 - **Steady state (ongoing cron):** typically **0–few** covers/day — only `failed` create/heal retries and rare manual resets. Idle runs still clone/scan but skip paid generation when eligible count is 0.
 
 ### Knobs
@@ -365,5 +365,5 @@ Typo fix note: §9 table uses “Slug” consistently (not “Spug”).
 | # | Note | Resolution |
 |---|---|---|
 | 6 | §7.4 cross-referenced "§11 step 4" as the schedule gate; §11's actual gate is step 6 (after the real limit-5 verification, not just the dry-run). | **Fixed** in §7.4 → "until §11 step 6." |
-| 7 | Schematic denylist on `image_prompt` may rare-false-positive an editorial brief. | **Accepted** — low blast radius. Mitigated operationally: seed report lists `seeded_done` / `eligible_schematic` for spot-check before commit (§5.5). Revisit denylist only if seed spot-check finds real FPs. |
+| 7 | Schematic denylist on `image_prompt` may rare-false-positive an editorial brief. | **Superseded by §16 #9** — the denylist itself was dropped in favor of an exact dimension check (`== (1200, 630)`), which is structural rather than heuristic and closes this concern entirely rather than just accepting the risk. |
 | 8 | Heal pushes up to 50 posts/day to `main` without a PR, unlike content-repair’s preview path. | **Accepted with rationale** folded into §3 Push target: mechanical FM+image only; blast radius is cover quality, not article authenticity. |
