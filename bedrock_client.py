@@ -20,6 +20,22 @@ import time
 # Default to the inference profile; override with BEDROCK_MODEL_ID if needed.
 DEFAULT_MODEL_ID = "us.amazon.nova-pro-v1:0"
 
+_CONTENT_FILTER_MARKERS = (
+    "blocked by our content filters",
+    "blocked by the content filters",
+    "blocked by content filters",
+)
+
+
+class ContentFilterBlocked(ValueError):
+    """Raised when Bedrock refuses to generate due to a content filter."""
+
+
+def is_content_filter_block(text: str | None) -> bool:
+    """True when assistant text is a content-filter refusal (not usable JSON)."""
+    blob = (text or "").lower()
+    return any(marker in blob for marker in _CONTENT_FILTER_MARKERS)
+
 
 def get_model_id():
     return os.getenv("BEDROCK_MODEL_ID", DEFAULT_MODEL_ID)
@@ -129,6 +145,10 @@ def extract_json(text):
     """
     if not text:
         raise ValueError("Empty LLM response, cannot parse JSON")
+    if is_content_filter_block(text):
+        raise ContentFilterBlocked(
+            f"Bedrock content filter blocked generation: {text.strip()[:200]}"
+        )
 
     candidate = text.strip()
 

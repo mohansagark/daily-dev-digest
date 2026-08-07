@@ -264,11 +264,18 @@ def score_article(article, strategy):
     return score
 
 
+def rank_articles(articles, strategy):
+    """Return candidates sorted best-first (mutates each with ``_score_breakdown``)."""
+    if not articles:
+        return []
+    return sorted(articles, key=lambda a: score_article(a, strategy), reverse=True)
+
+
 def select_best_article(articles, strategy):
     """Rank candidates and return the single highest-scoring article (or None)."""
-    if not articles:
+    ranked = rank_articles(articles, strategy)
+    if not ranked:
         return None
-    ranked = sorted(articles, key=lambda a: score_article(a, strategy), reverse=True)
     best = ranked[0]
     print(f"🏆 Best candidate ({best['_score_breakdown']}): {best['title'][:60]}")
     return best
@@ -388,6 +395,9 @@ def generate_post(article, strategy, dry_run=False):
         try:
             data = bedrock_client.extract_json(raw)
             break
+        except bedrock_client.ContentFilterBlocked:
+            # Same prompt will hit the same filter — do not burn a retry.
+            raise
         except ValueError as e:
             last_err = e
             if attempt == 0:
@@ -738,37 +748,67 @@ def main(dry_run=False):
         print("❌ No on-strategy candidates after allowlist/denylist. Exiting.")
         return
 
-    # --- rank -> single best candidate (MAX_TOTAL == 1) --------------------
-    best = select_best_article(candidates, strategy)
-    if best is None:
+    # --- rank -> try best candidates until one publishes (MAX_TOTAL == 1) --
+    ranked = rank_articles(candidates, strategy)
+    if not ranked:
         print("❌ No suitable candidate. Exiting.")
         return
 
-    # --- LLM #1 generate -> LLM #2 verify ----------------------------------
-    print(f"📝 Generating post for: {best['title']}")
-    generated = generate_post(best, strategy, dry_run=dry_run)
-    verified = verify_post(best, generated, dry_run=dry_run)
+    published = False
+    for index, best in enumerate(ranked):
+        breakdown = best.get("_score_breakdown") or {}
+        print(
+            f"🏆 Candidate {index + 1}/{len(ranked)} ({breakdown}): "
+            f"{best['title'][:60]}"
+        )
+        print(f"📝 Generating post for: {best['title']}")
+        try:
+            generated = generate_post(best, strategy, dry_run=dry_run)
+            verified = verify_post(best, generated, dry_run=dry_run)
+        except bedrock_client.ContentFilterBlocked as exc:
+            print(f"⛔ Bedrock content filter blocked this source: {exc}")
+            if dry_run:
+                print("🧪 [dry-run] Would mark article skipped (content_filter).")
+            else:
+                processed_articles[best["hash"]] = {
+                    "title": best["title"],
+                    "link": best["link"],
+                    "processed_date": datetime.now().isoformat(),
+                    "strategy_used": strategy["description"],
+                    "content_sample": _normalize_for_similarity(best["content"]),
+                    "skipped": "content_filter",
+                }
+                save_processed_articles(processed_articles)
+            continue
 
-    # --- export ------------------------------------------------------------
-    slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
-    cover = maybe_generate_cover(generated, verified, slug, dry_run=dry_run)
-    save_to_mdx(best, strategy, generated, verified, slug, cover)
+        slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
+        cover = maybe_generate_cover(generated, verified, slug, dry_run=dry_run)
+        save_to_mdx(best, strategy, generated, verified, slug, cover)
 
-    # --- record for dedupe (store a content fingerprint too) ---------------
-    if dry_run:
-        print("🧪 [dry-run] Skipping processed_articles.json update.")
-    else:
-        processed_articles[best["hash"]] = {
-            "title": best["title"],
-            "link": best["link"],
-            "processed_date": datetime.now().isoformat(),
-            "strategy_used": strategy["description"],
-            "content_sample": _normalize_for_similarity(best["content"]),
-        }
-        save_processed_articles(processed_articles)
+        if dry_run:
+            print("🧪 [dry-run] Skipping processed_articles.json update.")
+        else:
+            processed_articles[best["hash"]] = {
+                "title": best["title"],
+                "link": best["link"],
+                "processed_date": datetime.now().isoformat(),
+                "strategy_used": strategy["description"],
+                "content_sample": _normalize_for_similarity(best["content"]),
+            }
+            save_processed_articles(processed_articles)
 
-    print(f"🎉 Done. Generated 1 post ({slug}.mdx).")
-    print(f"📝 Total processed articles: {len(processed_articles)}")
+        print(f"🎉 Done. Generated 1 post ({slug}.mdx).")
+        print(f"📝 Total processed articles: {len(processed_articles)}")
+        published = True
+        break
+
+    if not published:
+        print(
+            "⚠️ All ranked candidates were blocked by Bedrock content filters "
+            "(or otherwise unusable). No post today — exiting cleanly."
+        )
+        return
+
     if dry_run:
         print("🧪 Dry run complete — Bedrock was NOT called.")
 
