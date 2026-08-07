@@ -65,6 +65,14 @@ jobs:
           IMAGE_REQUIRED: ${{ secrets.IMAGE_REQUIRED || 'false' }}
         run: python generate_digest.py
 
+      - name: Upload selection report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selection-report
+          path: selection-report.md
+          if-no-files-found: warn
+
       # Repointed: push generated .mdx into the portfolio-blog repo (the single
       # source of truth), NOT next-gen-portfolio.
       - name: Clone portfolio-blog Repo

@@ -1,6 +1,6 @@
-"""Topic allowlist + listicle denylist for digest candidate selection.
+"""Topic packs, hard rejects, and theme scoring for digest candidate selection.
 
-See docs/superpowers/specs/2026-08-06-editorial-cover-template-and-topic-focus-design.md §14.1.
+See docs/superpowers/specs/2026-08-07-hybrid-candidate-selection-design.md.
 """
 
 from __future__ import annotations
@@ -8,11 +8,12 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-# §14.1 — each key has focus keywords, writing style, and content_strategy description.
+# Weekday packs — keywords boost ranking (soft); they do not hard-drop candidates.
 STRATEGIES = {
     "ai": {
         "focus": [
             "ai", "llm", "agents", "machine learning", "generative", "prompt", "model",
+            "rag", "fine-tuning",
         ],
         "style": "clear and rigorous",
         "description": "AI systems, agents, and applied ML for working engineers",
@@ -20,7 +21,7 @@ STRATEGIES = {
     "frontend": {
         "focus": [
             "frontend", "javascript", "typescript", "react", "vue", "css",
-            "next.js", "ui engineering",
+            "next.js", "ui engineering", "html", "dom", "browser",
         ],
         "style": "energetic and practical",
         "description": "Frontend and JavaScript engineering",
@@ -42,7 +43,8 @@ STRATEGIES = {
     },
     "ai_news": {
         "focus": [
-            "ai news", "openai", "anthropic", "model release", "industry",
+            "ai", "llm", "chatgpt", "claude", "gemini", "model release",
+            "openai", "anthropic",
         ],
         "style": "timely and analytical",
         "description": "AI industry news and model releases",
@@ -65,8 +67,6 @@ STRATEGIES = {
     },
 }
 
-# Deterministic Mon=0..Sun=6 rotation across all seven keys (no fixed brand calendar
-# required by the design — this map is an implementation choice).
 WEEKDAY_STRATEGY = {
     0: "ai",
     1: "frontend",
@@ -77,7 +77,6 @@ WEEKDAY_STRATEGY = {
     6: "client_websites",
 }
 
-# Pre-LLM denylist on title + content prefix (spec §14 #6).
 _LISTICLE_PATTERNS = [
     re.compile(r"\btop\s+\d+\b", re.I),
     re.compile(r"\bbest\s+\d+\b", re.I),
@@ -90,13 +89,16 @@ _LISTICLE_PATTERNS = [
 ]
 
 CONTENT_DENYLIST_CHARS = 2000
+MIN_BODY_CHARS = 400
 
 
 def get_content_strategy(now=None):
-    """Pick the daily strategy from weekday (deterministic)."""
+    """Pick the daily strategy from weekday (deterministic). Includes ``key``."""
     now = now or datetime.now()
     key = WEEKDAY_STRATEGY[now.weekday()]
-    return STRATEGIES[key]
+    strategy = dict(STRATEGIES[key])
+    strategy["key"] = key
+    return strategy
 
 
 def is_listicle_noise(title, content=""):
@@ -105,32 +107,53 @@ def is_listicle_noise(title, content=""):
     return any(p.search(blob) for p in _LISTICLE_PATTERNS)
 
 
-def count_focus_hits(text, focus):
-    """Count strategy keywords as whole words/phrases (not substrings).
+def _keyword_pattern(keyword: str) -> re.Pattern[str]:
+    k = (keyword or "").lower().strip()
+    return re.compile(
+        r"(?<!\w)" + re.escape(k).replace(r"\ ", r"\s+") + r"(?!\w)",
+        re.I,
+    )
 
-    Short tokens like ``cli``, ``ide``, ``ai`` otherwise match inside
-    ``clip-path``, ``provide``, ``available``, etc.
-    """
-    blob = (text or "").lower()
-    hits = 0
+
+def matched_keywords(text, focus) -> list[str]:
+    """Return distinct focus keywords that appear as whole words/phrases in text."""
+    blob = text or ""
+    found = []
     for kw in focus or []:
-        k = (kw or "").lower().strip()
+        k = (kw or "").strip()
         if not k:
             continue
-        pattern = r"(?<!\w)" + re.escape(k).replace(r"\ ", r"\s+") + r"(?!\w)"
-        if re.search(pattern, blob):
-            hits += 1
-    return hits
+        if _keyword_pattern(k).search(blob):
+            found.append(k.lower())
+    return found
 
 
-def filter_allowlisted(articles, strategy):
-    """Drop denylisted noise; keep articles that score > 0 on strategy keywords.
+def count_focus_hits(text, focus):
+    """Count strategy keywords as whole words/phrases (not substrings)."""
+    return len(matched_keywords(text, focus))
+
+
+def title_body_hits(title, content, focus) -> tuple[int, int, list[str]]:
+    """Distinct keyword hits in full title and full body (no truncation)."""
+    title_matched = matched_keywords(title or "", focus)
+    body_matched = matched_keywords(content or "", focus)
+    combined = sorted(set(title_matched) | set(body_matched))
+    return len(title_matched), len(body_matched), combined
+
+
+def theme_score(title_hits: int, body_hits: int) -> float:
+    """Soft theme score from title-weighted distinct keyword hits."""
+    return min(1.0, (2 * title_hits + body_hits) / 4.0)
+
+
+def filter_hard_rejects(articles, strategy=None, *, min_body_chars: int = MIN_BODY_CHARS):
+    """Drop listicle noise and thin bodies only — theme keywords do not hard-drop.
 
     Returns (kept, skipped) where skipped is a list of (article, reason) tuples.
     """
+    del strategy  # soft theme only; kept for call-site compatibility
     kept = []
     skipped = []
-    focus = strategy.get("focus") or []
     for article in articles:
         title = article.get("title") or ""
         content = article.get("content") or ""
@@ -138,14 +161,14 @@ def filter_allowlisted(articles, strategy):
             skipped.append((article, "denylist:listicle"))
             print(f"⛔ Skip denylist (listicle): {title[:60]}")
             continue
-        # Denylist may truncate (§14 #6); allowlist keyword gate uses full body
-        # so late keyword mentions are not hard-rejected before scoring.
-        hits = count_focus_hits(f"{title} {content}", focus)
-        if hits < 1:
-            skipped.append((article, "allowlist:no_keyword_hit"))
-            print(f"⛔ Skip off-strategy: {title[:60]}")
+        if len(content) < min_body_chars:
+            skipped.append((article, "hard:thin_body"))
+            print(f"⛔ Skip thin body ({len(content)} chars): {title[:60]}")
             continue
-        article = dict(article)
-        article["_allowlist_hits"] = hits
-        kept.append(article)
+        kept.append(dict(article))
     return kept, skipped
+
+
+def filter_allowlisted(articles, strategy):
+    """Backward-compatible alias for ``filter_hard_rejects`` (keyword gate removed)."""
+    return filter_hard_rejects(articles, strategy)

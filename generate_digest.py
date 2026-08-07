@@ -3,13 +3,14 @@ Daily Dev Digest — AI rewrite pipeline (Amazon Bedrock).
 
 Flow (deterministic stages in Python, LLM calls on Bedrock + FLUX photo):
 
-  scrape -> content-clean -> dedupe -> topic filter          [deterministic]
-    -> LLM #1 (structured generate) -> LLM #2 (fact-verify)  [LLM / Bedrock]
+  scrape -> content-clean -> dedupe -> hard filters          [deterministic]
+    -> soft-theme rank -> top-K shortlist -> Bedrock triage  [hybrid select]
+    -> LLM #1 generate -> LLM #2 verify                      [Bedrock]
     -> cover_hook -> FLUX photo -> Playwright compose        [cover]
     -> markdown export (.mdx + front-matter)                 [deterministic]
 
-Volume is capped at exactly ONE post per run: after cleaning + dedupe + topic
-allowlist we rank candidates and keep only the single best one.
+Volume is capped at exactly ONE post per run: hard filters + shortlist + triage
+pick the rewrite target (theme is a soft boost, not a hard allowlist).
 
 Run `python generate_digest.py --dry-run` to exercise the deterministic path
 (Bedrock/FLUX mocked; cover still composed with a placeholder photo).
@@ -38,6 +39,7 @@ import image_client
 import topic_focus
 import cover_hook
 import cover_compose
+import selection_triage
 
 # `trafilatura` gives much cleaner article text (strips nav/ads/boilerplate).
 # Imported defensively so the script still runs if it is not installed.
@@ -52,6 +54,8 @@ FEEDS = [f.strip() for f in os.getenv("FEED_SOURCES", "").split(",") if f.strip(
 
 MAX_PER_FEED = 5
 MAX_TOTAL = 1  # exactly one post per day (single best candidate)
+SHORTLIST_K = 5
+SELECTION_REPORT_PATH = "selection-report.md"
 OUTPUT_DIR = "digests"
 IMAGES_SUBDIR = os.path.join(OUTPUT_DIR, "images")
 IMAGE_EXT = "jpg"
@@ -238,28 +242,31 @@ def _recency_score(published):
 
 
 def score_article(article, strategy):
-    """
-    Composite score = strategy-keyword match + recency + content length.
-
-    Weighted so topical relevance dominates, recency breaks ties, and we avoid
-    thin/stub articles.
-    """
-    text = f"{article['title']} {article['content']}"
-    keyword_hits = topic_focus.count_focus_hits(text, strategy["focus"])
-    keyword_score = min(1.0, keyword_hits / 3.0)  # 3+ hits saturates
-
-    recency = _recency_score(article["published"])
-
-    length = len(article["content"])
-    # Reward substantial articles; saturate around 2500 chars.
+    """Soft theme boost + recency + length (hybrid selection spec §4.3)."""
+    focus = strategy.get("focus") or []
+    title_hits, body_hits, matched = topic_focus.title_body_hits(
+        article.get("title") or "",
+        article.get("content") or "",
+        focus,
+    )
+    t_score = topic_focus.theme_score(title_hits, body_hits)
+    recency = _recency_score(article.get("published"))
+    length = len(article.get("content") or "")
     length_score = min(1.0, length / 2500.0)
-
-    score = (0.55 * keyword_score) + (0.25 * recency) + (0.20 * length_score)
+    thin_penalty = 0.15 if length < 800 else 0.0
+    score = (0.45 * t_score) + (0.30 * recency) + (0.25 * length_score) - thin_penalty
+    article["_title_hits"] = title_hits
+    article["_body_hits"] = body_hits
+    article["_theme_hits"] = len(matched)
+    article["_matched_keywords"] = matched
     article["_score_breakdown"] = {
-        "keyword": round(keyword_score, 3),
+        "theme": round(t_score, 3),
         "recency": round(recency, 3),
         "length": round(length_score, 3),
+        "thin_penalty": thin_penalty,
         "total": round(score, 3),
+        "title_hits": title_hits,
+        "body_hits": body_hits,
     }
     return score
 
@@ -271,6 +278,15 @@ def rank_articles(articles, strategy):
     return sorted(articles, key=lambda a: score_article(a, strategy), reverse=True)
 
 
+def build_shortlist(articles, strategy, *, k: int = SHORTLIST_K):
+    """Rank survivors and return (top-K shortlist with triage ids, full ranked)."""
+    ranked = rank_articles(articles, strategy)
+    shortlist = [dict(item) for item in ranked[:k]]
+    for index, item in enumerate(shortlist, start=1):
+        item["_triage_id"] = index
+    return shortlist, ranked
+
+
 def select_best_article(articles, strategy):
     """Rank candidates and return the single highest-scoring article (or None)."""
     ranked = rank_articles(articles, strategy)
@@ -279,6 +295,48 @@ def select_best_article(articles, strategy):
     best = ranked[0]
     print(f"🏆 Best candidate ({best['_score_breakdown']}): {best['title'][:60]}")
     return best
+
+
+def write_selection_report(path: str, report: dict) -> str:
+    """Write selection-report.md for Actions artifact upload."""
+    lines = [
+        "# Digest selection report",
+        "",
+        f"- strategy_key: `{report.get('strategy_key', '')}`",
+        f"- description: {report.get('strategy_description', '')}",
+        f"- focus: {', '.join(report.get('focus') or [])}",
+        f"- fetched: {report.get('fetched', 0)}",
+        f"- after_dedupe: {report.get('after_dedupe', 0)}",
+        f"- after_hard_filters: {report.get('after_hard_filters', 0)}",
+        f"- shortlist_size: {report.get('shortlist_size', 0)}",
+        f"- triage_fallback: {report.get('triage_fallback')}",
+        f"- none_good_enough: {report.get('none_good_enough')}",
+        f"- winner_id: {report.get('winner_id')}",
+        f"- reason: {report.get('reason', '')}",
+        f"- published_slug: {report.get('published_slug') or '(none)'}",
+        "",
+        "## Shortlist",
+        "",
+        "| id | score | title_hits | body_hits | matched | title |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for item in report.get("shortlist") or []:
+        bd = item.get("_score_breakdown") or {}
+        title = str(item.get("title") or "").replace("|", "\\|")
+        matched = ", ".join(item.get("_matched_keywords") or [])
+        lines.append(
+            f"| {item.get('_triage_id')} | {bd.get('total')} | "
+            f"{item.get('_title_hits')} | {item.get('_body_hits')} | "
+            f"{matched} | {title[:80]} |"
+        )
+    lines.extend(["", "## Triage rankings", ""])
+    for row in report.get("rankings") or []:
+        lines.append(f"- {row}")
+    text = "\n".join(lines) + "\n"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+    print(f"📋 Wrote {path}")
+    return path
 
 
 # ---------------------------------------------------------------------------
@@ -710,65 +768,157 @@ def main(dry_run=False):
     print(f"📥 Daily Dev Digest — AI rewrite pipeline{mode}")
 
     strategy = get_content_strategy()
-    print(f"🎯 Strategy: {strategy['description']} | style: {strategy['style']}")
-    print(f"🏷️  Focus: {', '.join(strategy['focus'])}")
+    print(
+        f"🎯 Strategy [{strategy.get('key')}]: {strategy['description']} | "
+        f"style: {strategy['style']}"
+    )
+    print(f"🏷️  Focus (soft): {', '.join(strategy['focus'])}")
 
     processed_articles = load_processed_articles()
     print(f"📚 Loaded {len(processed_articles)} previously processed articles")
 
-    # --- scrape + content-clean -------------------------------------------
-    all_articles = []
-    for feed_url in FEEDS:
-        all_articles.extend(fetch_articles_from_feed(feed_url))
-    print(f"📄 Fetched {len(all_articles)} articles")
-    if not all_articles:
-        print("❌ No articles found. Exiting.")
-        return
+    report = {
+        "strategy_key": strategy.get("key"),
+        "strategy_description": strategy.get("description"),
+        "focus": list(strategy.get("focus") or []),
+        "fetched": 0,
+        "after_dedupe": 0,
+        "after_hard_filters": 0,
+        "shortlist_size": 0,
+        "shortlist": [],
+        "rankings": [],
+        "winner_id": None,
+        "reason": "",
+        "triage_fallback": None,
+        "none_good_enough": False,
+        "published_slug": None,
+    }
 
-    # --- dedupe (URL-hash + near-duplicate content) ------------------------
-    candidates = []
-    for article in all_articles:
-        article_hash = get_article_hash(article)
-        if article_hash in processed_articles:
-            print(f"⚠️ Skipping exact duplicate: {article['title'][:50]}")
-            continue
-        if is_near_duplicate(article, processed_articles):
-            continue
-        article["hash"] = article_hash
-        candidates.append(article)
-    print(f"🆕 {len(candidates)} candidate(s) after dedupe")
-    if not candidates:
-        print("❌ No new articles. Exiting.")
-        return
+    def _persist_report():
+        write_selection_report(SELECTION_REPORT_PATH, report)
 
-    # --- topic allowlist + listicle denylist (pre-LLM) ---------------------
-    candidates, _skipped = topic_focus.filter_allowlisted(candidates, strategy)
-    print(f"🎯 {len(candidates)} candidate(s) after topic filter")
-    if not candidates:
-        print("❌ No on-strategy candidates after allowlist/denylist. Exiting.")
-        return
+    try:
+        # --- scrape + content-clean ---------------------------------------
+        all_articles = []
+        for feed_url in FEEDS:
+            all_articles.extend(fetch_articles_from_feed(feed_url))
+        report["fetched"] = len(all_articles)
+        print(f"📄 Fetched {len(all_articles)} articles")
+        if not all_articles:
+            print("❌ No articles found. Exiting.")
+            return
 
-    # --- rank -> try best candidates until one publishes (MAX_TOTAL == 1) --
-    ranked = rank_articles(candidates, strategy)
-    if not ranked:
-        print("❌ No suitable candidate. Exiting.")
-        return
+        # --- dedupe (URL-hash + near-duplicate content) --------------------
+        candidates = []
+        for article in all_articles:
+            article_hash = get_article_hash(article)
+            if article_hash in processed_articles:
+                print(f"⚠️ Skipping exact duplicate: {article['title'][:50]}")
+                continue
+            if is_near_duplicate(article, processed_articles):
+                continue
+            article["hash"] = article_hash
+            candidates.append(article)
+        report["after_dedupe"] = len(candidates)
+        print(f"🆕 {len(candidates)} candidate(s) after dedupe")
+        if not candidates:
+            print("❌ No new articles. Exiting.")
+            return
 
-    published = False
-    for index, best in enumerate(ranked):
-        breakdown = best.get("_score_breakdown") or {}
-        print(
-            f"🏆 Candidate {index + 1}/{len(ranked)} ({breakdown}): "
-            f"{best['title'][:60]}"
-        )
-        print(f"📝 Generating post for: {best['title']}")
+        # --- hard rejects only (listicle + thin); theme is soft ------------
+        candidates, _skipped = topic_focus.filter_hard_rejects(candidates, strategy)
+        report["after_hard_filters"] = len(candidates)
+        print(f"🎯 {len(candidates)} candidate(s) after hard filters")
+        if not candidates:
+            print("❌ No candidates after hard filters. Exiting.")
+            return
+
+        shortlist, _ranked = build_shortlist(candidates, strategy, k=SHORTLIST_K)
+        report["shortlist_size"] = len(shortlist)
+        report["shortlist"] = shortlist
+        if not shortlist:
+            print("❌ Empty shortlist. Exiting.")
+            return
+
+        print(f"📋 Shortlist top {len(shortlist)}:")
+        for item in shortlist:
+            bd = item.get("_score_breakdown") or {}
+            print(
+                f"  #{item['_triage_id']} score={bd.get('total')} "
+                f"theme_hits={item.get('_theme_hits')} | {item['title'][:60]}"
+            )
+
+        # --- batch triage (1 Bedrock call) --------------------------------
+        triage = selection_triage.triage_shortlist(shortlist, strategy, dry_run=dry_run)
+        report["rankings"] = triage.get("rankings") or []
+        report["reason"] = triage.get("reason") or ""
+        report["triage_fallback"] = triage.get("triage_fallback")
+        report["none_good_enough"] = bool(triage.get("none_good_enough"))
+        report["winner_id"] = triage.get("winner_id")
+
+        if triage.get("none_good_enough"):
+            print("⚠️ Triage: none_good_enough — no post today.")
+            if not dry_run:
+                by_id = {item["_triage_id"]: item for item in shortlist}
+                for rid in selection_triage.triage_rejects_to_mark(triage):
+                    art = by_id.get(rid)
+                    if not art:
+                        continue
+                    processed_articles[art["hash"]] = {
+                        "title": art["title"],
+                        "link": art["link"],
+                        "processed_date": datetime.now().isoformat(),
+                        "strategy_used": strategy["description"],
+                        "content_sample": _normalize_for_similarity(art["content"]),
+                        "skipped": "triage_reject",
+                    }
+                save_processed_articles(processed_articles)
+            return
+
+        winner_id = triage.get("winner_id")
         try:
-            generated = generate_post(best, strategy, dry_run=dry_run)
-            verified = verify_post(best, generated, dry_run=dry_run)
-        except bedrock_client.ContentFilterBlocked as exc:
-            print(f"⛔ Bedrock content filter blocked this source: {exc}")
+            winner_id = int(winner_id) if winner_id is not None else None
+        except (TypeError, ValueError):
+            winner_id = shortlist[0]["_triage_id"]
+
+        attempt_ids = selection_triage.ordered_attempt_ids(
+            shortlist, triage, winner_id=winner_id
+        )
+        by_id = {item["_triage_id"]: item for item in shortlist}
+
+        published = False
+        for triage_id in attempt_ids:
+            best = by_id[triage_id]
+            breakdown = best.get("_score_breakdown") or {}
+            print(
+                f"🏆 Trying id={triage_id} ({breakdown}): {best['title'][:60]}"
+            )
+            print(f"📝 Generating post for: {best['title']}")
+            try:
+                generated = generate_post(best, strategy, dry_run=dry_run)
+                verified = verify_post(best, generated, dry_run=dry_run)
+            except bedrock_client.ContentFilterBlocked as exc:
+                print(f"⛔ Bedrock content filter blocked this source: {exc}")
+                if dry_run:
+                    print("🧪 [dry-run] Would mark article skipped (content_filter).")
+                else:
+                    processed_articles[best["hash"]] = {
+                        "title": best["title"],
+                        "link": best["link"],
+                        "processed_date": datetime.now().isoformat(),
+                        "strategy_used": strategy["description"],
+                        "content_sample": _normalize_for_similarity(best["content"]),
+                        "skipped": "content_filter",
+                    }
+                    save_processed_articles(processed_articles)
+                continue
+
+            slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
+            cover = maybe_generate_cover(generated, verified, slug, dry_run=dry_run)
+            save_to_mdx(best, strategy, generated, verified, slug, cover)
+
             if dry_run:
-                print("🧪 [dry-run] Would mark article skipped (content_filter).")
+                print("🧪 [dry-run] Skipping processed_articles.json update.")
             else:
                 processed_articles[best["hash"]] = {
                     "title": best["title"],
@@ -776,41 +926,26 @@ def main(dry_run=False):
                     "processed_date": datetime.now().isoformat(),
                     "strategy_used": strategy["description"],
                     "content_sample": _normalize_for_similarity(best["content"]),
-                    "skipped": "content_filter",
                 }
                 save_processed_articles(processed_articles)
-            continue
 
-        slug = slugify(generated["headline"])[:60] or slugify(best["title"])[:60]
-        cover = maybe_generate_cover(generated, verified, slug, dry_run=dry_run)
-        save_to_mdx(best, strategy, generated, verified, slug, cover)
+            report["published_slug"] = slug
+            print(f"🎉 Done. Generated 1 post ({slug}.mdx).")
+            print(f"📝 Total processed articles: {len(processed_articles)}")
+            published = True
+            break
+
+        if not published:
+            print(
+                "⚠️ All eligible shortlist candidates were blocked or unusable. "
+                "No post today — exiting cleanly."
+            )
 
         if dry_run:
-            print("🧪 [dry-run] Skipping processed_articles.json update.")
-        else:
-            processed_articles[best["hash"]] = {
-                "title": best["title"],
-                "link": best["link"],
-                "processed_date": datetime.now().isoformat(),
-                "strategy_used": strategy["description"],
-                "content_sample": _normalize_for_similarity(best["content"]),
-            }
-            save_processed_articles(processed_articles)
-
-        print(f"🎉 Done. Generated 1 post ({slug}.mdx).")
-        print(f"📝 Total processed articles: {len(processed_articles)}")
-        published = True
-        break
-
-    if not published:
-        print(
-            "⚠️ All ranked candidates were blocked by Bedrock content filters "
-            "(or otherwise unusable). No post today — exiting cleanly."
-        )
-        return
-
-    if dry_run:
-        print("🧪 Dry run complete — Bedrock was NOT called.")
+            print("🧪 Dry run complete — Bedrock was NOT called.")
+    finally:
+        # Always leave an audit trail, including unexpected crashes mid-run.
+        _persist_report()
 
 
 if __name__ == "__main__":
