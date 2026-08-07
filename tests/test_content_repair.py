@@ -46,10 +46,13 @@ def test_verify_prompts_strip_fabricated_autobiography():
     assert "depersonalize" in user_l
 
 
-def test_triage_prompt_keeps_technical_journals():
-    sys_l = rp.TRIAGE_USER_TEMPLATE.lower()
-    assert "not a reject by themselves" in sys_l or "not a reject" in sys_l
-    assert "first-person journal" in sys_l
+def test_triage_prompt_routes_technical_journals_to_rewrite():
+    user_l = rp.TRIAGE_USER_TEMPLATE.lower()
+    assert "first-person" in user_l
+    assert "even if otherwise coherent" in user_l
+    assert "never keep someone else's lived experience as clean" in user_l
+    # Must not use daily-digest "reject" vocabulary — repair uses junk/rewrite/clean.
+    assert "not a reject by themselves" not in user_l
 
 
 def test_is_valid_slug_rejects_path_traversal():

@@ -18,14 +18,17 @@ Classify this legacy post.
 Guidance:
 - **junk** — empty/near-empty, nav/boilerplate garbage, unreadable scrape
   failure, spam, or no recoverable technical gist. Prefer confidence
-  high for junk you would delete.
+  high for junk you would delete. Also junk: personal diaries with no
+  recoverable technical substance.
 - **rewrite** — has a real topic/gist but incomplete, thin, broken structure,
-  or clearly below current blog standards.
-- **clean** — already coherent enough to keep without rewrite.
-- First-person journals, diaries, internship week-N logs, and career-pivot
-  stories are NOT a reject by themselves when they carry real transferable
-  technical lessons — the rewrite step depersonalizes the voice. Reject only
-  personal diaries that lack recoverable technical substance.
+  or clearly below current blog standards. Also rewrite: first-person
+  journals, diaries, internship week-N logs, career-pivot stories, or
+  personal learning journeys that carry transferable technical lessons —
+  even if otherwise coherent — so generate can depersonalize them into a
+  knowledge article (never keep someone else's lived experience as clean).
+- **clean** — already coherent enough to keep without rewrite, AND not a
+  first-person journal/diary/autobiography that would misattribute another
+  author's personal timeline under this blog's byline.
 
 Return ONLY this JSON object (no code fences, no commentary):
 {{
