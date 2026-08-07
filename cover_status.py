@@ -137,6 +137,47 @@ def drop_fm_keys(lines: list[str], key_names: tuple[str, ...]) -> list[str]:
     return out
 
 
+def fm_insert_after_tags(kept: list[str]) -> int | None:
+    """Return index after the full ``tags`` field (flow, wrapped, or block list).
+
+    Inserting at ``tags:`` + 1 is wrong for block sequences::
+
+        tags:
+        - llm
+        - open-source
+
+    — that would splice ``cover_status`` between ``tags:`` and ``- llm`` and
+    break YAML parse (seed regression on navigating-the-llm-landscape…).
+    """
+    for i, line in enumerate(kept):
+        if not line.startswith("tags:"):
+            continue
+        after = line.split(":", 1)[1].lstrip()
+        j = i + 1
+        if after.startswith("|") or after.startswith(">"):
+            while j < len(kept) and (
+                kept[j].startswith(" ") or kept[j].startswith("\t")
+            ):
+                j += 1
+            return j
+        if after:
+            # Same-line value; may still have PyYAML-wrapped indented continuations.
+            while j < len(kept) and (
+                kept[j].startswith(" ") or kept[j].startswith("\t")
+            ):
+                j += 1
+            return j
+        # Block sequence: tags:\n- a\n- b  (items often unindented in our corpus)
+        while j < len(kept) and (
+            kept[j].startswith("- ")
+            or kept[j].startswith(" ")
+            or kept[j].startswith("\t")
+        ):
+            j += 1
+        return j
+    return None
+
+
 def set_cover_status_in_fm_lines(lines: list[str], status: str) -> list[str]:
     """Insert or replace cover_status in a list of FM lines (no ---)."""
     out = drop_fm_keys(lines, ("cover_status",))
@@ -187,10 +228,7 @@ def upsert_cover_fields(
             block.extend(rendered.split("\n"))
     block.append(f"cover_status: {cover_status}")
 
-    insert_at = next(
-        (i + 1 for i, l in enumerate(kept) if l.startswith("tags:")),
-        None,
-    )
+    insert_at = fm_insert_after_tags(kept)
     if insert_at is None:
         insert_at = next(
             (i for i, l in enumerate(kept) if l.startswith("source_url:")),
