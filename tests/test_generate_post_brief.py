@@ -22,6 +22,24 @@ def test_generate_template_omits_image_brief():
     assert "image_brief" not in gd.GENERATE_USER_TEMPLATE
 
 
+def test_generate_prompts_depersonalize_first_person_journals():
+    sys_l = gd.GENERATE_SYSTEM_PROMPT.lower()
+    user_l = gd.GENERATE_USER_TEMPLATE.lower()
+    assert "knowledge article" in sys_l
+    assert "first-person journal" in sys_l
+    assert "never present someone else's" in sys_l
+    assert "knowledge article, not a personal diary" in user_l
+    assert "depersonalize" in user_l
+
+
+def test_verify_prompts_strip_fabricated_autobiography():
+    sys_l = gd.VERIFY_SYSTEM_PROMPT.lower()
+    user_l = gd.VERIFY_USER_TEMPLATE.lower()
+    assert "first-person autobiography" in sys_l
+    assert "knowledge-article" in sys_l
+    assert "depersonalize" in user_l
+
+
 def test_malformed_extra_image_brief_ignored(monkeypatch):
     # Extra keys from the model are fine; we no longer normalize image_brief.
     raw = json.dumps({

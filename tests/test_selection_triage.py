@@ -108,3 +108,12 @@ def test_triage_invalid_winner_falls_back_to_deterministic(monkeypatch):
     out = st.triage_shortlist(shortlist, {"key": "ai", "focus": ["ai"], "description": "AI"})
     assert out["winner_id"] == 1
     assert out["triage_fallback"] in {"deterministic", "invalid_winner"}
+
+
+def test_triage_prompts_keep_technical_journals():
+    sys_l = st.TRIAGE_SYSTEM_PROMPT.lower()
+    user_l = st.TRIAGE_USER_TEMPLATE.lower()
+    assert "first-person journals are fine" in sys_l
+    assert "knowledge articles" in sys_l
+    assert "first-person journal" in user_l
+    assert "not a reject by itself" in user_l
