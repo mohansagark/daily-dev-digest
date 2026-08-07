@@ -585,14 +585,14 @@
     "verdict": "rewrite"
   },
   "building-graphql-apis-with-apollo-server": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "ac7600418e8b6ec75bf2b829dd7669e3",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Crafting Efficient GraphQL APIs Using Apollo Server\",\n  \"subtitle\": \"A practical guide for developers\",\n  \"meta_description\": \"Explore the essentials of building GraphQL APIs with Apo...",
+    "reason": "The post has a real topic and gist but contains duplicated sections, lacks a coherent structure, and has boilerplate content that needs to be removed.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T11:58:22.691622+00:00",
+    "timestamp": "2026-08-07T12:38:01.957749+00:00",
     "verdict": "rewrite"
   },
   "building-interactive-cli-applications-wi": {
@@ -630,13 +630,13 @@
   },
   "capture-html-elements-to-images-using-sn": {
     "action": "error",
-    "bedrock_calls": 2,
+    "bedrock_calls": 3,
     "body_hash": "63700514bd1a17a3887a61409d0ed3af",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Transform HTML Elements into Images with snapDOM\",\n  \"subtitle\": \"A practical guide for developers\",\n  \"meta_description\": \"Learn how to use snapDOM to capture HTML elements as images...",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft includes an 'Advanced Features' section that is not supported by the prior post gist or web search notes.\",\n    \"The draft mentions specific advan...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T11:59:02.650561+00:00",
+    "timestamp": "2026-08-07T12:38:16.774367+00:00",
     "verdict": "rewrite"
   },
   "charm-of-method-chaining-fluent-interfac": {
@@ -651,14 +651,14 @@
     "verdict": "rewrite"
   },
   "check-out-3-awesome-open-source-tabular-": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "9bc1eb679f8541734c363497ebcee984",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Explore Three Open Source Tools for Effective Tabular Data Management\",\n  \"subtitle\": \"A pragmatic look at Open Data Editor, QSV Pro, and FlightPath Data\",\n  \"meta_description\": \"Disc...",
+    "reason": "The post has a real topic and gist but contains repeated text, lacks a coherent structure, and has incomplete sections.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T11:59:18.580723+00:00",
+    "timestamp": "2026-08-07T12:38:29.726817+00:00",
     "verdict": "rewrite"
   },
   "code-review-and-team-collaboration-best-": {
@@ -927,14 +927,14 @@
     "verdict": "rewrite"
   },
   "declutter-your-typescript-project-using-": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "c7e13bfcfee468536b5babec7cb66ece",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Streamline Your TypeScript Project with Knip\",\n  \"subtitle\": \"A practical guide to reducing bloat in your codebase\",\n  \"meta_description\": \"Learn how to use Knip to remove unused depe...",
+    "reason": "The post has a real topic but is repetitive, poorly structured, and contains extraneous content that detracts from the main subject. It needs significant editing to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:02:43.298818+00:00",
+    "timestamp": "2026-08-07T12:38:42.562370+00:00",
     "verdict": "rewrite"
   },
   "decoding-quantum-circuit-discrepancies-simulator-vs-real-har": {
@@ -1018,22 +1018,22 @@
     "action": "error",
     "bedrock_calls": 2,
     "body_hash": "1723e73d50098cc2ea59d9fad1cb8044",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Harnessing AI in Product Design: Advanced Techniques for Enhanced Workflow\",\n  \"subtitle\": \"Leveraging AI to Elevate Your Design Process\",\n  \"meta_description\": \"Explore advanced tech...",
+    "confidence": "medium",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Harnessing AI in Product Design: Advanced Techniques and Best Practices\",\n  \"subtitle\": \"Elevate your design process with AI-driven strategies\",\n  \"meta_description\": \"Discover how to...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:04:02.897635+00:00",
+    "timestamp": "2026-08-07T12:38:51.701748+00:00",
     "verdict": "rewrite"
   },
   "devops-journey-week-8-automating-configu": {
     "action": "error",
     "bedrock_calls": 3,
     "body_hash": "886f0d08439141f7f1c92a59b79d8a29",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims that Ansible 'simplifies automation tasks through easy-to-write YAML playbooks', which is a general fact but not specifically supported by ...",
+    "confidence": "medium",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims 'Secure communication via SSH is fundamental to Ansible's operation, ensuring that tasks are executed safely across your infrastructure.' T...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:04:13.669905+00:00",
+    "timestamp": "2026-08-07T12:39:03.283834+00:00",
     "verdict": "rewrite"
   },
   "dipping-your-toes-into-ai-here-s-what-yo": {
@@ -1048,14 +1048,14 @@
     "verdict": "rewrite"
   },
   "docker-port-mapping-cli-flag-cheatsheet": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "5a463eea25311dde7854b6add6e27ae2",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Mastering Docker Port Mapping and CLI Flags\",\n  \"subtitle\": \"A pragmatic guide for developers\",\n  \"meta_description\": \"Learn Docker port mapping and CLI flags with practical examples....",
+    "reason": "The post has a real topic and useful content but suffers from repetition, inconsistent structure, and could be streamlined for clarity and conciseness.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:04:30.519954+00:00",
+    "timestamp": "2026-08-07T12:39:16.680092+00:00",
     "verdict": "rewrite"
   },
   "droip-the-modern-website-builder-wordpre": {
@@ -1081,14 +1081,14 @@
     "verdict": "rewrite"
   },
   "eis-a-tiny-framework-agnostic-state-stor": {
-    "action": "error",
-    "bedrock_calls": 3,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "25113574bcc4e970e71a1b256a3e9b87",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims 'EIS is a powerful yet minimal tool for managing state in web applications.' The gist describes EIS as 'a minimal, framework-agnostic state...",
+    "reason": "The post has a real topic and gist but contains redundant and repeated sections, broken structure, and could be streamlined for clarity and coherence.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:04:58.167617+00:00",
+    "timestamp": "2026-08-07T12:39:28.388389+00:00",
     "verdict": "rewrite"
   },
   "enhance-the-ecosystem-with-wallet-connec": {
@@ -1140,10 +1140,10 @@
     "bedrock_calls": 2,
     "body_hash": "0fcf6546e8ea269b72f175e68b50f26a",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Future-Proof Your Career: Essential Programming Languages and Skills\",\n  \"subtitle\": \"Stay competitive in the tech job market with these in-demand tools and languages.\",\n  \"meta_descr...",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Future-Proof Programming Languages and Skills Every Developer Needs\",\n  \"subtitle\": \"Stay competitive in the tech job market with these essential languages and skills\",\n  \"meta_descri...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:05:32.444158+00:00",
+    "timestamp": "2026-08-07T12:39:35.510463+00:00",
     "verdict": "rewrite"
   },
   "event-driven-architecture-pattern-applic": {
@@ -1228,11 +1228,11 @@
     "action": "error",
     "bedrock_calls": 2,
     "body_hash": "b24296afe0b34e5219f483a850e9a293",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Embrace GitOps: The Blueprint for Modern Software Management\",\n  \"subtitle\": \"Revolutionize your software deployment with GitOps principles\",\n  \"meta_description\": \"Discover how GitOp...",
+    "confidence": "medium",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Embrace GitOps: The Blueprint for Modern Software Management\",\n  \"subtitle\": \"Streamline your software deployment with GitOps principles\",\n  \"meta_description\": \"Discover how GitOps t...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:06:24.375086+00:00",
+    "timestamp": "2026-08-07T12:39:43.573198+00:00",
     "verdict": "rewrite"
   },
   "from-data-to-decisions-ux-strategies-for": {
@@ -1258,14 +1258,14 @@
     "verdict": "clean"
   },
   "from-zero-to-chat-my-journey-building-a-": {
-    "action": "error",
-    "bedrock_calls": 3,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "fd17e742988d98db48bb4c96c1d66c3c",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft includes specific code snippets and detailed explanations of the implementation that are not present in the prior post gist or web search notes.\",...",
+    "confidence": "medium",
+    "reason": "The post has a real topic and gist but contains redundant sections, broken markdown, and could be structured better to meet current blog standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:06:40.432744+00:00",
+    "timestamp": "2026-08-07T12:39:54.433340+00:00",
     "verdict": "rewrite"
   },
   "fun-fact-from-my-ar-mini-game-experiment": {
@@ -1361,10 +1361,10 @@
     "bedrock_calls": 2,
     "body_hash": "ba4c76a7309f77a2c7828c9f23bce51f",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Efficient Error Handling: Serializing and Deserializing Errors in JavaScript\",\n  \"subtitle\": \"Leverage the serialize-error package for robust error management\",\n  \"meta_description\": ...",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Serializing and Deserializing Errors in JavaScript: A Practical Guide\",\n  \"subtitle\": \"How to use the serialize-error package effectively\",\n  \"meta_description\": \"Learn how to seriali...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:08:11.772918+00:00",
+    "timestamp": "2026-08-07T12:40:02.525742+00:00",
     "verdict": "rewrite"
   },
   "how-developers-can-support-localization-": {
@@ -1386,7 +1386,7 @@
     "reason": "rewrite failed: Bedrock content filter blocked generation: - The generated text has been blocked by our content filters.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:08:27.557010+00:00",
+    "timestamp": "2026-08-07T12:40:05.865621+00:00",
     "verdict": "rewrite"
   },
   "how-the-tea-app-got-hacked-firebase-pitf": {
@@ -1657,11 +1657,11 @@
     "action": "error",
     "bedrock_calls": 3,
     "body_hash": "8a42fc509aab2aac8ab63c84b9723080",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims that 'Chrome is experimenting with `display: masonry`', which is not supported by the gist.\",\n    \"The draft mentions combining the masonry...",
+    "confidence": "medium",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims that 'Combining this solution with CSS frameworks like Tailwind CSS can add even more flexibility to your masonry grids.' This specific cla...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:13:25.949122+00:00",
+    "timestamp": "2026-08-07T12:40:20.950951+00:00",
     "verdict": "rewrite"
   },
   "mastering-angulars-httpresource-why-serv": {
@@ -1764,14 +1764,14 @@
     "verdict": "clean"
   },
   "model-mondays-s2e04-ai-developer-experie": {
-    "action": "error",
-    "bedrock_calls": 3,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "b5deba7ea7027726ac8c67450b025d01",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims that the AI Toolkit allows developers to 'easily discover and experiment with a variety of AI models available on GitHub' and 'search for a...",
+    "confidence": "medium",
+    "reason": "The post has a real topic and gist but contains repetitive content, lacks a clear structure, and has some broken elements (e.g., incomplete sentences, missing links). It needs significant editing to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:14:47.736036+00:00",
+    "timestamp": "2026-08-07T12:40:31.626107+00:00",
     "verdict": "rewrite"
   },
   "montessori-inspired-ar-mini-game-prototy": {
@@ -1830,14 +1830,14 @@
     "verdict": "clean"
   },
   "navigating-the-node-js-package-manager-m": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "022c13585421ef0ff384d355e06aa2fc",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Choosing the Right Node.js Package Manager: npm, pnpm, or Yarn?\",\n  \"subtitle\": \"A detailed comparison to help you make an informed decision\",\n  \"meta_description\": \"Explore the diffe...",
+    "confidence": "medium",
+    "reason": "The post has a real topic and gist but contains redundant sections, incomplete sentences, and lacks a coherent structure. It needs significant editing to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:15:32.590648+00:00",
+    "timestamp": "2026-08-07T12:40:42.664931+00:00",
     "verdict": "rewrite"
   },
   "nexus-framework-coordinating-multiple-sc": {
@@ -1995,14 +1995,14 @@
     "verdict": "clean"
   },
   "project-pact-expedition-deep-dive": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "bfb446eba416d399ee2d0a19881d6b04",
-    "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Crafting a Unique Expedition System in Project: Pact\",\n  \"subtitle\": \"A modern twist on classic browser RPGs\",\n  \"meta_description\": \"Explore how Project: Pact innovates on classic br...",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but is incomplete, has a broken structure, and contains repetitive content. It needs significant editing to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:18:37.797607+00:00",
+    "timestamp": "2026-08-07T12:40:56.611840+00:00",
     "verdict": "rewrite"
   },
   "prompting-is-a-design-act-how-to-brief-g": {
@@ -2039,14 +2039,14 @@
     "verdict": "rewrite"
   },
   "react-fundamentals-what-it-is-why-we-use": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "573cb6205acd4aa7e99117c85419d440",
-    "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Dive into React: Understanding Its Core, Benefits, and Setup\",\n  \"subtitle\": \"A developer-friendly guide to getting started with React\",\n  \"meta_description\": \"Explore what React is, ...",
+    "confidence": "medium",
+    "reason": "The post has a real topic and gist but contains repetitive content, lacks completeness in the setup guide, and has structural issues.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:19:16.315304+00:00",
+    "timestamp": "2026-08-07T12:41:06.608127+00:00",
     "verdict": "rewrite"
   },
   "react-india-2025-indias-premier-react-co": {
@@ -2062,14 +2062,14 @@
     "verdict": "junk"
   },
   "react-libraries-for-building-ai-powered-": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "c48aa5b4fdcc0ebd2e12b0696c7831db",
     "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Leveraging React Libraries to Develop AI-Powered Applications\",\n  \"subtitle\": \"Essential tools for integrating AI into your React projects\",\n  \"meta_description\": \"Explore key React l...",
+    "reason": "The post has a real topic and provides useful information about React libraries for AI-powered apps, but it contains repetitive content, lacks a clear structure, and has an abrupt ending.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:19:25.002284+00:00",
+    "timestamp": "2026-08-07T12:41:21.631278+00:00",
     "verdict": "rewrite"
   },
   "rediscovering-the-basics-my-week-1-journ": {
@@ -2091,7 +2091,7 @@
     "reason": "rewrite failed: Bedrock content filter blocked generation: - The generated text has been blocked by our content filters.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:19:43.868836+00:00",
+    "timestamp": "2026-08-07T12:41:26.020035+00:00",
     "verdict": "rewrite"
   },
   "scroll-driven-sticky-heading": {
@@ -2386,10 +2386,10 @@
     "bedrock_calls": 2,
     "body_hash": "548191e475b13565cb4328f5f1d3a244",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Unlocking the Potential: Developing Web Apps for Feature Phones\",\n  \"subtitle\": \"Exploring the benefits and strategies for targeting flip phones in 2025\",\n  \"meta_description\": \"Disco...",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Revitalizing Web Apps for Feature Phones: Strategies for Tiny Screens\",\n  \"subtitle\": \"Unlock the potential of feature phones with practical development tips.\",\n  \"meta_description\": ...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:24:11.871514+00:00",
+    "timestamp": "2026-08-07T12:41:34.927218+00:00",
     "verdict": "rewrite"
   },
   "top-5-javascript-array-methods-every-dev": {
@@ -2607,14 +2607,14 @@
     "verdict": "rewrite"
   },
   "we-might-need-something-between-root-and": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "da0f6912936d1c41f08978c80262bf3b",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Exploring the Need for Intermediate CSS Units Between Root and Relative\",\n  \"subtitle\": \"A pragmatic approach to CSS unit selection for consistent design\",\n  \"meta_description\": \"Dive...",
+    "reason": "The post has a real topic and gist but contains repeated content, lacks a coherent structure, and has broken elements (e.g., missing text in some sections, improper formatting in key takeaways).",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:26:55.281643+00:00",
+    "timestamp": "2026-08-07T12:41:45.750938+00:00",
     "verdict": "rewrite"
   },
   "web-components-custom-elements": {
@@ -2651,14 +2651,14 @@
     "verdict": "clean"
   },
   "week-1-picking-a-stack-breaking-things-l": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "08c08f7ea25e99323d63157fa9ed0cd3",
-    "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Week 1 Journey: Navigating Tech Stacks and Monorepos\",\n  \"subtitle\": \"A pragmatic guide to starting your web app project\",\n  \"meta_description\": \"Learn how to choose the right tech st...",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but is repetitive, poorly structured, and contains incomplete sections. It needs significant editing to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:27:23.578706+00:00",
+    "timestamp": "2026-08-07T12:41:58.583164+00:00",
     "verdict": "rewrite"
   },
   "weekly-34-2025-lockfiles-debate-dockers-": {
@@ -2684,14 +2684,14 @@
     "verdict": "rewrite"
   },
   "what-can-we-actually-do-with-corner-shap": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "44665369c20e576f1468f7073f370888",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Exploring the Creative Potential of CSS corner-shape\",\n  \"subtitle\": \"Unleashing new UI designs with modern CSS properties\",\n  \"meta_description\": \"Discover how the CSS corner-shape p...",
+    "reason": "The post contains valuable information but has repeated content, lacks a coherent structure, and has broken embeds. It needs restructuring and cleanup to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:27:51.060557+00:00",
+    "timestamp": "2026-08-07T12:42:10.721559+00:00",
     "verdict": "rewrite"
   },
   "what-i-took-from-the-state-of-dev-2025-s": {
@@ -2732,10 +2732,10 @@
     "bedrock_calls": 2,
     "body_hash": "9c62bf2e29ad6ecbd57c9555225f218f",
     "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Unlocking the Power of o4-mini-high: A Developer's Guide\",\n  \"subtitle\": \"Dive deep into the enhanced reasoning capabilities of o4-mini-high and how it can elevate your AI projects.\",...",
+    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Demystifying o4-mini-high: The Enhanced Reasoning Model\",\n  \"subtitle\": \"A deep dive into the capabilities and applications of o4-mini-high\",\n  \"meta_description\": \"Explore the o4-min...",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:28:29.180938+00:00",
+    "timestamp": "2026-08-07T12:42:16.649742+00:00",
     "verdict": "rewrite"
   },
   "what-is-the-best-platform-to-learn-backe": {
@@ -2860,14 +2860,14 @@
     "verdict": "rewrite"
   },
   "wrangler-deploy-usage-in-git-mcp-codebas": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "73a7db75c9c16c1756ff24d1feb072f7",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Streamlining Deployments with `wrangler deploy` in the git-mcp Codebase\",\n  \"subtitle\": \"A practical guide for developers\",\n  \"meta_description\": \"Learn how to use `wrangler deploy` i...",
+    "reason": "The post has a real topic but is incomplete, has a broken structure, and contains repeated sections. It needs significant editing to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:30:36.367116+00:00",
+    "timestamp": "2026-08-07T12:42:28.095095+00:00",
     "verdict": "rewrite"
   },
   "wwdc-2025-wi-fi-aware-framework-revoluti": {
