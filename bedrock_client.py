@@ -136,6 +136,39 @@ def converse(system_prompt, user_prompt, max_tokens=3000, temperature=0.4):
     return response["output"]["message"]["content"][0]["text"]
 
 
+def _first_balanced_json_object(text: str) -> str | None:
+    """Return the first top-level ``{...}`` object, respecting JSON string escapes.
+
+    Using ``rfind('}')`` is wrong when string values (e.g. body_markdown with code)
+    contain ``}`` — that truncates the object mid-JSON and causes parse failures.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for index in range(start, len(text)):
+        ch = text[index]
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : index + 1]
+    return None
+
+
 def extract_json(text):
     """
     Best-effort extraction of a single JSON object from an LLM response.
@@ -159,11 +192,9 @@ def extract_json(text):
         if m:
             candidate = m.group(1).strip()
 
-    # Isolate the outermost {...} object (drops any prose before/after it).
-    start = candidate.find("{")
-    end = candidate.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        candidate = candidate[start : end + 1]
+    balanced = _first_balanced_json_object(candidate)
+    if balanced is not None:
+        candidate = balanced
 
     # strict=False tolerates literal newlines/tabs inside string values, which
     # LLMs routinely emit inside a long markdown field (strict JSON forbids them).

@@ -156,13 +156,25 @@ def _gist(body: str, *, limit: int = 8000) -> str:
 
 
 def _json_response(system_prompt: str, user_prompt: str, *, max_tokens: int, temperature: float) -> dict:
-    raw = bedrock_client.converse(
-        system_prompt, user_prompt, max_tokens=max_tokens, temperature=temperature
-    )
-    data = bedrock_client.extract_json(raw)
-    if not isinstance(data, dict):
-        raise ValueError("Bedrock response must be a JSON object")
-    return data
+    last_err: Exception | None = None
+    for attempt in range(2):
+        raw = bedrock_client.converse(
+            system_prompt, user_prompt, max_tokens=max_tokens, temperature=temperature
+        )
+        try:
+            data = bedrock_client.extract_json(raw)
+        except bedrock_client.ContentFilterBlocked:
+            raise
+        except ValueError as exc:
+            last_err = exc
+            if attempt == 0:
+                print(f"⚠️ Repair JSON parse failed; retrying once ({exc}).")
+                continue
+            raise
+        if not isinstance(data, dict):
+            raise ValueError("Bedrock response must be a JSON object")
+        return data
+    raise last_err  # pragma: no cover
 
 
 def _triage(title: str, body: str) -> dict:
