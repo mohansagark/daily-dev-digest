@@ -71,18 +71,55 @@ def test_main_skips_filtered_candidate_and_publishes_next(tmp_path, monkeypatch)
     )
     monkeypatch.setattr(
         gd.topic_focus,
-        "filter_allowlisted",
-        lambda articles, _strategy: (list(articles), []),
+        "filter_hard_rejects",
+        lambda articles, _strategy=None, **_k: (list(articles), []),
     )
     monkeypatch.setattr(
         gd,
-        "rank_articles",
-        lambda articles, _strategy: list(articles),
+        "build_shortlist",
+        lambda articles, _strategy, k=5: (
+            [
+                {
+                    **articles[0],
+                    "_triage_id": 1,
+                    "_theme_hits": 1,
+                    "_title_hits": 1,
+                    "_body_hits": 0,
+                    "_matched_keywords": ["javascript"],
+                    "_score_breakdown": {"total": 0.9},
+                },
+                {
+                    **articles[1],
+                    "_triage_id": 2,
+                    "_theme_hits": 1,
+                    "_title_hits": 1,
+                    "_body_hits": 0,
+                    "_matched_keywords": ["css"],
+                    "_score_breakdown": {"total": 0.8},
+                },
+            ],
+            articles,
+        ),
+    )
+    monkeypatch.setattr(
+        gd.selection_triage,
+        "triage_shortlist",
+        lambda shortlist, strategy, dry_run=False: {
+            "winner_id": 1,
+            "none_good_enough": False,
+            "reason": "test",
+            "rankings": [
+                {"id": 1, "reject": False, "rewrite_worthiness": 0.9},
+                {"id": 2, "reject": False, "rewrite_worthiness": 0.8},
+            ],
+            "triage_fallback": None,
+        },
     )
     monkeypatch.setattr(
         gd,
         "get_content_strategy",
         lambda: {
+            "key": "frontend",
             "focus": ["javascript", "css", "frontend"],
             "style": "energetic",
             "description": "Frontend",
@@ -148,14 +185,43 @@ def test_main_exits_cleanly_when_all_candidates_filtered(tmp_path, monkeypatch):
     monkeypatch.setattr(gd, "is_near_duplicate", lambda *_a, **_k: False)
     monkeypatch.setattr(
         gd.topic_focus,
-        "filter_allowlisted",
-        lambda articles, _strategy: (list(articles), []),
+        "filter_hard_rejects",
+        lambda articles, _strategy=None, **_k: (list(articles), []),
     )
-    monkeypatch.setattr(gd, "rank_articles", lambda articles, _strategy: list(articles))
+    monkeypatch.setattr(
+        gd,
+        "build_shortlist",
+        lambda articles, _strategy, k=5: (
+            [
+                {
+                    **articles[0],
+                    "_triage_id": 1,
+                    "_theme_hits": 1,
+                    "_title_hits": 1,
+                    "_body_hits": 0,
+                    "_matched_keywords": ["javascript"],
+                    "_score_breakdown": {"total": 0.9},
+                }
+            ],
+            articles,
+        ),
+    )
+    monkeypatch.setattr(
+        gd.selection_triage,
+        "triage_shortlist",
+        lambda shortlist, strategy, dry_run=False: {
+            "winner_id": 1,
+            "none_good_enough": False,
+            "reason": "test",
+            "rankings": [{"id": 1, "reject": False, "rewrite_worthiness": 0.9}],
+            "triage_fallback": None,
+        },
+    )
     monkeypatch.setattr(
         gd,
         "get_content_strategy",
         lambda: {
+            "key": "frontend",
             "focus": ["javascript"],
             "style": "energetic",
             "description": "Frontend",
