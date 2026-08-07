@@ -1,4 +1,4 @@
-# Content / Slug / FLUX Hygiene — Issue Backlog
+# Content / Slug / FLUX / SEO Hygiene — Issue Backlog
 
 **Date:** 2026-08-08  
 **Status:** Open — recorded for resolution (not yet implemented)  
@@ -11,5 +11,7 @@
 | 1 | Valid slug generation + cleanup | Truncated / trailing-`-` slugs; rewrite rules + corpus cleanup |
 | 2 | Consolidate Takeaways → **Key Takeaways** | Generate + repair prompts; legacy MDX hygiene |
 | 8 | FLUX cover quality consistency | Prompt / steps / seed policy so heal+create quality is steadier |
+| 14 | SEO: answer-first opener + Key Takeaways high on page | Generate/repair structure; ~40–60 word direct answer first |
+| 15 | SEO: question-style H2s + FAQ section | PAA-shaped H2s; FAQ when natural; no body H1; no skipped levels |
 
-UI items (#3–7, #9–10) live in the next-gen-portfolio companion backlog.
+UI / template SEO items (#13, #16–#18) and other UX items live in the next-gen-portfolio companion backlog.
