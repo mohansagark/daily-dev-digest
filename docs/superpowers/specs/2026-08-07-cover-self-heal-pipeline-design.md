@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07  
 **Repo:** `daily-dev-digest` (job + secrets); queue state on `portfolio-blog` MDX  
-**Status:** Spec finalized (§16–§17). Implementation updated on PR https://github.com/mohansagark/daily-dev-digest/pull/7 to match §5.1/§10/§17.2 (Pillow `(1200, 630)` classifier; denylist removed; `eligible_wrong_size` seed buckets). Awaiting Claude code review before merge (schedule stays gated until rollout §11 step 6).  
+**Status:** Spec finalized (§16–§17). PR https://github.com/mohansagark/daily-dev-digest/pull/7 implements §5.1/§10/§17.2 (Pillow `(1200, 630)` classifier; denylist removed; `eligible_wrong_size`) plus multiline FM upsert fix. Awaiting final code review before merge (schedule stays gated until rollout §11 step 6).  
 **Related:**  
 - `2026-08-06-editorial-cover-template-and-topic-focus-design.md` (editorial cover path; previously deferred D/E retry cron)  
 - `2026-08-07-legacy-content-repair-design.md` §8 (`cover_status` backlog; “later image batch” now this spec)  
@@ -396,21 +396,27 @@ Cursor reviewed Claude’s §16 update against the live corpus and the in-progre
 | 13 | §10 tests still described “schematic prompt / editorial prompt” matrices. | Rewritten around fixture JPEG dimensions + failed short-circuit. |
 | 14 | §7.6 / §11 step 7 still used “schematic” / “false 249” wording that fought §12’s verified **248 eligible**. | Aligned to wrong-size/missing + **248** after seed. |
 
-### 17.2 Implementation gaps vs this finalized §5.1 (do **not** merge PR until fixed)
+### 17.2 Implementation gaps vs this finalized §5.1 — resolved on PR #7
 
-These are present on PR #7 as of the fourth pass and must be corrected **after** this spec revision is approved — not before:
-
-| # | Gap in current code | Required fix |
+| # | Gap | Status |
 |---|---|---|
-| 15 | [`cover_status.py`](cover_status.py) `is_editorial_cover` still uses `SCHEMATIC_DENYLIST` / `prompt_is_schematic` on `image_prompt` and never reads pixel size. | Replace with Pillow `Image.open(local_cover_path).size == (1200, 630)`; delete denylist path for enrollment. |
-| 16 | [`cover_heal.py`](cover_heal.py) / tests still classify seed buckets as `eligible_schematic` and assert prompt-based editorial detection. | Switch to `eligible_wrong_size`; add tiny fixture JPEGs (or generate in-test with Pillow) at 1200×630 / 800×800 / 1024×1024. |
-| 17 | [`tests/test_content_repair.py`](tests/test_content_repair.py) “editorial cover” case uses a non-schematic prompt string without a real `1200×630` file dimension guarantee in the classifier sense. | After #15, tests must create a real 1200×630 JPEG under `images/` for the “already editorial” case, and an 800×800 file for “wrong size stays none”. |
-| 18 | Any comments/docs in the PR that still cite “~5 editorial / ~17 schematic / ~227 missing” as the backlog split. | Replace with verified **1 / 21 wrong-size / ~227 missing** (248 eligible after seed). |
+| 15 | Prompt denylist classifier | **Fixed** — Pillow `(1200, 630)` |
+| 16 | `eligible_schematic` seed buckets / prompt tests | **Fixed** — `eligible_wrong_size` + dimension fixtures |
+| 17 | Repair “editorial” test without real 1200×630 JPEG | **Fixed** |
+| 18 | Stale ~5/~17/~227 backlog comments | **Fixed** in spec/cost notes |
 
-### 17.3 Non-gaps / no product decision needed
+### 17.3 Fifth-pass gaps (post code review) — resolved
+
+| # | Gap | Fix |
+|---|---|---|
+| 19 | `upsert_cover_fields` dropped only `image_prompt:` header, leaving `|`/`>` continuation orphans that polluted `cover_status` on re-heal | `drop_fm_keys` strips full block scalars; regression tests for multiline replace + `heal_one` |
+| 20 | Heal `main` scanned eligible twice via `select_batch(..., limit=10000)` for remaining estimate | `select_eligible` + single scan, then slice |
+
+### 17.4 Non-gaps / no product decision needed
 
 - Raising `limit` above 50 for a faster first drain remains an ops knob (§12), not a spec change.
 - Direct push to `main` for heal remains accepted (§15 #8).
 - Schedule stays gated until §11 step 6.
+- Repair workflow may keep a separate concurrency group (ops risk accepted unless heal/digest races with a repair push become real).
 
-**Gate:** finalize this doc (§16 + §17) with Claude → then update PR #7 implementation to match §5.1 / §10 / §17.2 → then continue rollout.
+**Gate:** Claude final code review on PR #7 → merge → continue rollout §11.

@@ -108,3 +108,66 @@ def test_main_seed_writes_report(tmp_path: Path):
     assert "eligible_wrong_size" in body
     assert "eligible_schematic" not in body
     assert "good" in body
+
+
+def test_heal_one_success_overwrites_multiline_prompt(tmp_path: Path, monkeypatch):
+    slug = "reheal"
+    _post(
+        tmp_path,
+        slug,
+        [
+            "title: Reheal",
+            f"slug: {slug}",
+            "date: '2025-01-01'",
+            f"image: /blog-images/{slug}.jpg",
+            "image_prompt: |",
+            "  old line one",
+            "  old line two",
+            "cover_status: failed",
+        ],
+    )
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", (800, 800))
+    rows = ch.select_eligible(str(tmp_path), slugs=[slug])
+    assert len(rows) == 1
+
+    def fake_cover(*_a, **_k):
+        return {
+            "image": f"/blog-images/{slug}.jpg",
+            "alt": "new alt",
+            "prompt": "fresh single-line brief",
+        }
+
+    monkeypatch.setattr(ch.gd, "generate_editorial_cover", fake_cover)
+    assert ch.heal_one(str(tmp_path), rows[0], dry_run=False) == "ok"
+    text = (tmp_path / "posts" / f"{slug}.mdx").read_text(encoding="utf-8")
+    assert "cover_status: done" in text
+    assert "fresh single-line brief" in text
+    assert "old line one" not in text
+    assert "old line two" not in text
+
+
+def test_heal_one_failure_preserves_image(tmp_path: Path, monkeypatch):
+    slug = "boom"
+    _post(
+        tmp_path,
+        slug,
+        [
+            "title: Boom",
+            f"slug: {slug}",
+            f"image: /blog-images/{slug}.jpg",
+            "image_prompt: keep me",
+            "cover_status: none",
+        ],
+    )
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", (800, 800))
+    rows = ch.select_eligible(str(tmp_path), slugs=[slug])
+
+    def boom(*_a, **_k):
+        raise RuntimeError("flux down")
+
+    monkeypatch.setattr(ch.gd, "generate_editorial_cover", boom)
+    assert ch.heal_one(str(tmp_path), rows[0], dry_run=False) == "failed"
+    text = (tmp_path / "posts" / f"{slug}.mdx").read_text(encoding="utf-8")
+    assert "cover_status: failed" in text
+    assert "image: /blog-images/boom.jpg" in text
+    assert "image_prompt: keep me" in text

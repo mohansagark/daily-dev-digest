@@ -182,3 +182,64 @@ body
     assert "new alt" in out
     assert "soft-focus photo brief" in out
     assert "isometric" not in out
+
+
+def test_upsert_replaces_multiline_image_prompt_without_orphans():
+    mdx = """---
+title: T
+tags: ["a"]
+image: /blog-images/t.jpg
+image_alt: old
+image_prompt: |
+  line one of brief
+  line two of brief
+author: Mohan Sagar
+cover_status: none
+---
+body
+"""
+    out = cs.upsert_cover_fields(
+        mdx,
+        cover_status="done",
+        image="/blog-images/t.jpg",
+        image_alt="new alt",
+        image_prompt="single line brief",
+    )
+    assert "line one of brief" not in out
+    assert "line two of brief" not in out
+    assert "single line brief" in out
+    assert "cover_status: done" in out
+    # cover_status must be a plain scalar, not polluted by orphan continuations
+    fm = out.split("---\n", 2)[1]
+    status_line = next(l for l in fm.split("\n") if l.startswith("cover_status:"))
+    assert status_line.strip() == "cover_status: done"
+
+
+def test_upsert_roundtrips_multiline_prompt_then_overwrite():
+    mdx = """---
+title: T
+tags: ["a"]
+author: Mohan Sagar
+cover_status: none
+---
+body
+"""
+    mid = cs.upsert_cover_fields(
+        mdx,
+        cover_status="done",
+        image="/blog-images/t.jpg",
+        image_alt="alt",
+        image_prompt="first line\nsecond line",
+    )
+    assert "image_prompt: |" in mid
+    assert "  first line" in mid
+    out = cs.upsert_cover_fields(
+        mid,
+        cover_status="done",
+        image="/blog-images/t.jpg",
+        image_alt="alt2",
+        image_prompt="replacement only",
+    )
+    assert "first line" not in out
+    assert "second line" not in out
+    assert "replacement only" in out

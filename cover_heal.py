@@ -79,9 +79,7 @@ def seed_status(blog_root: str, *, dry_run: bool = False) -> dict:
     return {"buckets": buckets, "changed": changed}
 
 
-def select_batch(
-    blog_root: str, *, limit: int, slugs: list[str] | None
-) -> list[dict]:
+def select_eligible(blog_root: str, *, slugs: list[str] | None) -> list[dict]:
     wanted = set(slugs or [])
     eligible = []
     for row in _scan_posts(blog_root):
@@ -98,8 +96,13 @@ def select_batch(
                 "date": cs.parse_post_date(fm),
             }
         )
-    ordered = cs.sort_eligible(eligible)
-    return ordered[: max(0, limit)]
+    return cs.sort_eligible(eligible)
+
+
+def select_batch(
+    blog_root: str, *, limit: int, slugs: list[str] | None
+) -> list[dict]:
+    return select_eligible(blog_root, slugs=slugs)[: max(0, limit)]
 
 
 def heal_one(blog_root: str, row: dict, *, dry_run: bool) -> str:
@@ -226,9 +229,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    batch = select_batch(blog_root, limit=args.limit, slugs=slug_filter)
-    # Remaining eligible after this batch (approx): all eligible minus batch
-    all_eligible = select_batch(blog_root, limit=10_000, slugs=slug_filter)
+    all_eligible = select_eligible(blog_root, slugs=slug_filter)
+    batch = all_eligible[: max(0, args.limit)]
     remaining = max(0, len(all_eligible) - len(batch))
 
     attempted: list[str] = []

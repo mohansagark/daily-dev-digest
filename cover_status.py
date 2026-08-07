@@ -110,25 +110,36 @@ def classify_for_seed(fm: dict, blog_root: str, slug: str) -> str:
     return "eligible_wrong_size"
 
 
+def drop_fm_keys(lines: list[str], key_names: tuple[str, ...]) -> list[str]:
+    """Remove FM keys and any indented YAML `|`/`>` block-scalar continuation lines."""
+    prefixes = tuple(f"{k}:" for k in key_names)
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        matched = next((p for p in prefixes if line.startswith(p)), None)
+        if matched is None:
+            out.append(line)
+            i += 1
+            continue
+        after = line.split(":", 1)[1].lstrip()
+        i += 1
+        if after.startswith("|") or after.startswith(">"):
+            while i < len(lines) and (
+                lines[i].startswith(" ") or lines[i].startswith("\t")
+            ):
+                i += 1
+    return out
+
+
 def set_cover_status_in_fm_lines(lines: list[str], status: str) -> list[str]:
     """Insert or replace cover_status in a list of FM lines (no ---)."""
-    out = []
-    seen = False
-    for line in lines:
-        if line.startswith("cover_status:"):
-            if not seen:
-                out.append(f"cover_status: {status}")
-                seen = True
-            continue
-        out.append(line)
-    if not seen:
-        # Prefer after author:, else end
-        insert_at = next(
-            (i + 1 for i, l in enumerate(out) if l.startswith("author:")),
-            len(out),
-        )
-        out = out[:insert_at] + [f"cover_status: {status}"] + out[insert_at:]
-    return out
+    out = drop_fm_keys(lines, ("cover_status",))
+    insert_at = next(
+        (i + 1 for i, l in enumerate(out) if l.startswith("author:")),
+        len(out),
+    )
+    return out[:insert_at] + [f"cover_status: {status}"] + out[insert_at:]
 
 
 def upsert_cover_fields(
@@ -151,28 +162,24 @@ def upsert_cover_fields(
     rest = mdx_text[end:]  # \n---\n + body
     lines = fm.split("\n")
 
-    # Drop cover_status always; also drop image* when installing a new cover.
-    skip_prefixes: tuple[str, ...] = ("cover_status:",)
+    # Drop cover_status always; also drop image* (incl. block scalars) when installing a new cover.
+    drop_keys: tuple[str, ...] = ("cover_status",)
     if image is not None:
-        skip_prefixes = (
-            "image:",
-            "image_alt:",
-            "image_prompt:",
-            "cover_status:",
-        )
-    kept = [l for l in lines if not any(l.startswith(p) for p in skip_prefixes)]
+        drop_keys = ("image", "image_alt", "image_prompt", "cover_status")
+    kept = drop_fm_keys(lines, drop_keys)
 
     from yaml_utils import yaml_safe_value
 
     block: list[str] = []
     if image is not None:
-        block.extend(
-            [
-                f"image: {yaml_safe_value(image)}",
-                f"image_alt: {yaml_safe_value(image_alt or '')}",
-                f"image_prompt: {yaml_safe_value(image_prompt or '')}",
-            ]
-        )
+        # yaml_safe_value may emit a multi-line `|` block; join as FM lines.
+        for key, val in (
+            ("image", image),
+            ("image_alt", image_alt or ""),
+            ("image_prompt", image_prompt or ""),
+        ):
+            rendered = f"{key}: {yaml_safe_value(val)}"
+            block.extend(rendered.split("\n"))
     block.append(f"cover_status: {cover_status}")
 
     insert_at = next(
