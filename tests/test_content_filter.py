@@ -168,6 +168,100 @@ def test_main_skips_filtered_candidate_and_publishes_next(tmp_path, monkeypatch)
     assert "skipped" not in saved[ok_hash]
 
 
+def test_main_writes_selection_report_even_on_unexpected_error(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    article = {
+        "title": "CSS Grid Patterns",
+        "link": "https://example.test/grid",
+        "published": "",
+        "author": "B",
+        "content": "css javascript frontend layout " * 200,
+    }
+    monkeypatch.setattr(gd, "FEEDS", ["https://example.test/feed"])
+    monkeypatch.setattr(gd, "fetch_articles_from_feed", lambda *_a, **_k: [article])
+    monkeypatch.setattr(gd, "load_processed_articles", lambda: {})
+    monkeypatch.setattr(gd, "is_near_duplicate", lambda *_a, **_k: False)
+    monkeypatch.setattr(
+        gd.topic_focus,
+        "filter_hard_rejects",
+        lambda articles, _strategy=None, **_k: (list(articles), []),
+    )
+    monkeypatch.setattr(
+        gd,
+        "build_shortlist",
+        lambda articles, _strategy, k=5: (
+            [
+                {
+                    **articles[0],
+                    "_triage_id": 1,
+                    "_theme_hits": 1,
+                    "_title_hits": 1,
+                    "_body_hits": 0,
+                    "_matched_keywords": ["css"],
+                    "_score_breakdown": {"total": 0.9},
+                }
+            ],
+            articles,
+        ),
+    )
+    monkeypatch.setattr(
+        gd.selection_triage,
+        "triage_shortlist",
+        lambda *_a, **_k: {
+            "winner_id": 1,
+            "none_good_enough": False,
+            "reason": "test",
+            "rankings": [{"id": 1, "reject": False, "rewrite_worthiness": 0.9}],
+            "triage_fallback": None,
+        },
+    )
+    monkeypatch.setattr(
+        gd,
+        "get_content_strategy",
+        lambda: {
+            "key": "frontend",
+            "focus": ["css"],
+            "style": "energetic",
+            "description": "Frontend",
+        },
+    )
+    monkeypatch.setattr(
+        gd,
+        "generate_post",
+        lambda *_a, **_k: {
+            "headline": "CSS Grid Patterns",
+            "subtitle": "Layouts",
+            "meta_description": "Grid",
+            "tags": ["css"],
+            "body_markdown": "## Overview\n\nGrid.\n",
+        },
+    )
+    monkeypatch.setattr(
+        gd,
+        "verify_post",
+        lambda article, generated, dry_run=False: {
+            "verdict": "pass",
+            "issues": [],
+            "corrected_body_markdown": generated["body_markdown"],
+        },
+    )
+    monkeypatch.setattr(
+        gd,
+        "maybe_generate_cover",
+        lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("cover boom")),
+    )
+
+    try:
+        gd.main(dry_run=False)
+        assert False, "expected RuntimeError"
+    except RuntimeError as exc:
+        assert "cover boom" in str(exc)
+
+    report = (tmp_path / "selection-report.md").read_text(encoding="utf-8")
+    assert "strategy_key" in report
+    assert "CSS Grid Patterns" in report
+
+
 def test_main_exits_cleanly_when_all_candidates_filtered(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
