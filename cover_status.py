@@ -111,7 +111,14 @@ def classify_for_seed(fm: dict, blog_root: str, slug: str) -> str:
 
 
 def drop_fm_keys(lines: list[str], key_names: tuple[str, ...]) -> list[str]:
-    """Remove FM keys and any indented YAML `|`/`>` block-scalar continuation lines."""
+    """Remove FM keys and any indented continuation lines that follow them.
+
+    Covers both explicit `|`/`>` block scalars (yaml_utils.yaml_safe_value)
+    and PyYAML's own implicit line-wrapping of long plain scalars
+    (content_repair.py's yaml.safe_dump) — neither of these FM keys is ever
+    nested, so any indented line after a matched key is a continuation, not
+    a sibling key.
+    """
     prefixes = tuple(f"{k}:" for k in key_names)
     out: list[str] = []
     i = 0
@@ -122,13 +129,11 @@ def drop_fm_keys(lines: list[str], key_names: tuple[str, ...]) -> list[str]:
             out.append(line)
             i += 1
             continue
-        after = line.split(":", 1)[1].lstrip()
         i += 1
-        if after.startswith("|") or after.startswith(">"):
-            while i < len(lines) and (
-                lines[i].startswith(" ") or lines[i].startswith("\t")
-            ):
-                i += 1
+        while i < len(lines) and (
+            lines[i].startswith(" ") or lines[i].startswith("\t")
+        ):
+            i += 1
     return out
 
 

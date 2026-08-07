@@ -243,3 +243,36 @@ body
     assert "first line" not in out
     assert "second line" not in out
     assert "replacement only" in out
+
+
+def test_upsert_strips_pyyaml_implicit_line_wrap_without_orphans():
+    """content_repair.py writes FM via yaml.safe_dump, which line-wraps long
+    plain scalars with no `|`/`>` marker — drop_fm_keys must still treat the
+    indented continuation as part of the value, not leave it as an orphan
+    line that YAML then folds into the next key's scalar."""
+    import yaml
+
+    mdx = """---
+title: T
+tags: ["a"]
+image: /blog-images/t.jpg
+image_alt: old
+image_prompt: An off-center soft-focus editorial photograph of a vintage analog computer
+  terminal glowing warmly in a dim room, shot on 35mm film with shallow depth of field
+  and visible grain texture throughout the frame
+author: Mohan Sagar
+cover_status: none
+---
+body
+"""
+    out = cs.upsert_cover_fields(
+        mdx,
+        cover_status="done",
+        image="/blog-images/t.jpg",
+        image_alt="new alt",
+        image_prompt="single line brief",
+    )
+    assert "terminal glowing" not in out
+    assert "single line brief" in out
+    fm = yaml.safe_load(out.split("---\n", 2)[1])
+    assert fm["cover_status"] == "done"
