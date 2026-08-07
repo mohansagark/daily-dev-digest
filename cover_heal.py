@@ -206,7 +206,7 @@ def write_report(
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Editorial cover self-heal")
     p.add_argument("--blog-root", required=True)
-    p.add_argument("--limit", type=int, default=50)
+    p.add_argument("--limit", type=int, default=20)
     p.add_argument("--slugs", default="", help="Comma-separated slug filter")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--seed-status-only", action="store_true")

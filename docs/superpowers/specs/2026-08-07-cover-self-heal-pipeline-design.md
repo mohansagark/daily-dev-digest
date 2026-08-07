@@ -23,12 +23,12 @@ Keep every published blog post on an **editorial** 1200×630 cover over time —
 
 - Persistent queue of posts that need an editorial cover (missing or wrong template).
 - Separate GitHub Actions cron from `digest.yml` scrape/create.
-- Cap **50** editorial regenerations per heal run.
+- Cap **20** editorial regenerations per heal run (FLUX neuron budget).
 - Overwrite non-editorial images when regenerating.
 - On success: attach `image` / `image_alt` / `image_prompt` and mark `cover_status: done`.
 - On failure: mark `cover_status: failed` so the post is eligible again tomorrow.
 - Reuse the existing editorial path (Bedrock cover hook → FLUX photo → Playwright compose).
-- Drain the **true** backlog (missing + schematic/wrong-template) at ≤50/day — after a one-time status seed so already-editorial covers are not regenerated.
+- Drain the **true** backlog (missing + schematic/wrong-template) at ≤20/day — after a one-time status seed so already-editorial covers are not regenerated.
 - Stop `content_repair` from corrupting `cover_status` / clobbering editorial `image_prompt` metadata.
 
 ### Non-goals
@@ -51,7 +51,7 @@ Keep every published blog post on an **editorial** 1200×630 cover over time —
 | Queue source of truth | **`cover_status` on `portfolio-blog` post front-matter**, kept honest by repair + seed + eligibility guard |
 | Editorial-already-present | Shared classifier (§5.1) — **not** `origin == bot` alone |
 | Ops history | Per-run report artifact in the heal workflow (not a second queue of truth) |
-| Daily limit | **50** posts per heal run |
+| Daily limit | **20** posts per heal run (lowered from 50 for FLUX neuron budget) |
 | Selection priority | Tiered: `failed` → missing image → wrong-template; then oldest `date`, then slug |
 | Push target | Heal commits land on **`portfolio-blog` `main`** (same trust model as digest). Rationale vs repair’s preview-PR path: each heal write is a narrow FM + image binary patch, not an LLM body rewrite — failure mode is wrong/missing cover, not fabricated article content (§15 #8). |
 | Concurrency | Shared `concurrency` group for digest + heal writers to `portfolio-blog` main |
@@ -117,7 +117,7 @@ Among eligible posts, sort by:
 2. Oldest front-matter `date` first  
 3. Tie-break: slug ascending  
 
-Then take the first **N** (default `N=50`).
+Then take the first **N** (default `N=20`).
 
 This prevents a multi-day schematic backlog from starving new create-time failures.
 
@@ -161,7 +161,7 @@ python cover_heal.py --blog-root … --seed-status-only
   - `eligible_missing` — no usable local cover file
   - `already_done` — already `cover_status: done` (and still `1200×630` if file present)
 - Dimension check removes the false-positive risk §15 #7 originally worried about (prompt-text denylist) — it's exact and structural, not heuristic. Spot-check the `seeded_done` list in the seed report anyway (should be very small — **1** on 2026-08-07); only then commit to `portfolio-blog` main.
-- **Real counts, verified on 2026-08-07 corpus (249 posts, dimension-checked directly):** only **1** post is currently `1200×630` (today's `navigating-the-llm-landscape...`) → seeds to `done`. The other **248** — 21 non-`1200×630` imaged posts + ~227 with no usable image — remain eligible. This is intentional and expected, not a bug: the editorial template only shipped recently, so the backlog really is almost the entire catalog. At `≤50/day` that's **~5 days** to fully drain. `limit`/`workflow_dispatch` may be raised temporarily if a faster initial drain is wanted — see §12.
+- **Real counts, verified on 2026-08-07 corpus (249 posts, dimension-checked directly):** only **1** post is currently `1200×630` (today's `navigating-the-llm-landscape...`) → seeds to `done`. The other **248** — 21 non-`1200×630` imaged posts + ~227 with no usable image — remain eligible. This is intentional and expected, not a bug: the editorial template only shipped recently, so the backlog really is almost the entire catalog. At `≤20/day` that's **~13 days** to fully drain. `limit`/`workflow_dispatch` may be raised temporarily if a faster initial drain is wanted — see §12.
 
 ## 6. Architecture
 
@@ -170,7 +170,7 @@ digest.yml (existing cron)              heal-covers.yml (NEW cron)
 ─────────────────────────              ──────────────────────────
 scrape → rewrite → verify              clone portfolio-blog@main
        ↓                               scan MDX → eligible (§5)
- maybe_generate_cover                  tiered sort; take ≤50
+ maybe_generate_cover                  tiered sort; take ≤20
    ├─ ok  → cover_status: done              ↓
    └─ fail → cover_status: failed      editorial cover per slug
        ↓  push post (± image)            ├─ ok  → image + done
@@ -222,7 +222,7 @@ CLI:
 ```bash
 python cover_heal.py \
   --blog-root /path/to/portfolio-blog \
-  [--limit 50] \
+  [--limit 20] \
   [--slugs slug-a,slug-b] \
   [--dry-run] \
   [--seed-status-only]
@@ -245,7 +245,7 @@ Dry-run: no Bedrock/FLUX network (placeholder photo / mock hook as in digest dry
 | Trigger | Detail |
 |---|---|
 | `schedule` | Once daily, **offset** from digest cron (digest is `30 2 * * *`; heal e.g. `0 4 * * *` UTC). **Disabled or no-op until §11 step 6** (after the real limit-5 verification, not just the dry-run at step 4). |
-| `workflow_dispatch` | Inputs: `limit` (default 50), `dry_run` (boolean), `seed_status_only` (boolean), optional `slugs` |
+| `workflow_dispatch` | Inputs: `limit` (default 20), `dry_run` (boolean), `seed_status_only` (boolean), optional `slugs` |
 
 **Concurrency** (required):
 
@@ -324,14 +324,14 @@ Strict sequence (blocking):
 4. `workflow_dispatch` heal `dry_run=true`, `limit=3`.
 5. `workflow_dispatch` heal `dry_run=false`, `limit=5`; verify new images are exactly `1200×630` + `cover_status: done` + index rebuild.
 6. **Only then** enable `heal-covers.yml` schedule.
-7. Backlog drains at ≤50/day on the **true** eligible set (**248** on 2026-08-07 after seed — wrong-size + missing), not a false “already mostly done” count from prompt heuristics.
+7. Backlog drains at ≤20/day on the **true** eligible set (**248** on 2026-08-07 after seed — wrong-size + missing), not a false “already mostly done” count from prompt heuristics.
 8. Steady state: queue usually empty or holds only recent create/heal failures.
 
 ## 12. Cost / ops knobs
 
 ### Cost
 
-- **Backlog drain:** ≤50 editorial covers/day. Real eligible count after seed is **248** (verified 2026-08-07 — only 1 post is currently the true `1200×630` template; the rest, including 21 `origin: bot` posts with square photos, are eligible) — effectively the whole catalog, not a small residual. At 50/day that's **~5 days**. Unit cost ≈ one digest cover attempt (Bedrock hook + FLUX + Playwright minutes) per slug, so a full drain costs roughly 248× that unit cost regardless of how many days it's spread across.
+- **Backlog drain:** ≤20 editorial covers/day (FLUX neuron budget; ~6.5k neurons/day at 8 steps / 1024² vs ~16k at the old 50 cap). Remaining eligible after early heals is ~243 — at 20/day that's **~13 days**. Unit cost ≈ one digest cover attempt (Bedrock hook + FLUX + Playwright minutes) per slug.
 - **Steady state (ongoing cron):** typically **0–few** covers/day — only `failed` create/heal retries and rare manual resets. Idle runs still clone/scan but skip paid generation when eligible count is 0.
 
 ### Knobs
@@ -414,7 +414,7 @@ Cursor reviewed Claude’s §16 update against the live corpus and the in-progre
 
 ### 17.4 Non-gaps / no product decision needed
 
-- Raising `limit` above 50 for a faster first drain remains an ops knob (§12), not a spec change.
+- Raising `limit` above 20 for a faster drain remains an ops knob via `workflow_dispatch` (§12).
 - Direct push to `main` for heal remains accepted (§15 #8).
 - Schedule stays gated until §11 step 6.
 - Repair workflow may keep a separate concurrency group (ops risk accepted unless heal/digest races with a repair push become real).
