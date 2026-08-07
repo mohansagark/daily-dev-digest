@@ -366,9 +366,14 @@ IMAGE_SUBJECT_INSTRUCTION = (
 GENERATE_SYSTEM_PROMPT = (
     "You are a senior software engineer who writes a well-regarded developer "
     "blog. You transform source material into ORIGINAL, technically-accurate "
-    "posts in your own voice — you never copy sentences from the source. Your "
+    "knowledge articles — you never copy sentences from the source. Your "
     "voice is clear, pragmatic, and lightly opinionated, aimed at working "
     "developers. You always attribute the original source. "
+    "If the source is a first-person journal, diary, internship week-N log, "
+    "career-pivot story, or personal learning journey, extract the transferable "
+    "technical lessons and rewrite them as a general how-to / knowledge article "
+    "in second person or neutral third person. Never present someone else's "
+    "lived experience, employer, internship, or career timeline as your own. "
     "You respond with ONLY a single valid JSON object and no other text."
 )
 
@@ -382,6 +387,13 @@ Requirements:
   paragraphs with concrete detail and a short example where useful), and a
   takeaways list.
 - Tone/style: {style}. Audience: professional developers.
+- Voice: write a knowledge article, not a personal diary. If the source uses
+  first-person journal framing (my journey, week N, internship diary, I quit,
+  letter to my younger self, etc.), depersonalize it: keep the technical
+  substance, drop autobiographical claims, and prefer "you" / neutral guidance.
+  Do not invent that you lived the author's timeline, workplace, or identity.
+  Light tutorial phrasing ("I'll show", "I recommend") is fine; fabricated
+  autobiography is not.
 - Near the end, attribute the original with a Markdown link to the source URL.
 - Target 700-1000 words in body_markdown (do not exceed 1100). Prefer depth over
   filler. Do NOT include an H1 title (front-matter owns it).
@@ -481,15 +493,21 @@ VERIFY_SYSTEM_PROMPT = (
     "You are a meticulous technical fact-checker. You are given an ORIGINAL "
     "source text and a DRAFT blog post derived from it. Your job is to catch "
     "claims in the draft that the source does not support (hallucinations). "
-    "You do not add new information. "
+    "You do not add new information. Also flag first-person autobiography that "
+    "presents a source author's personal journey, internship, employer, or "
+    "career timeline as the draft author's own lived experience — rewrite those "
+    "passages into neutral knowledge-article guidance. "
     "You respond with ONLY a single valid JSON object and no other text."
 )
 
 VERIFY_USER_TEMPLATE = """\
 Check the DRAFT against the SOURCE. Identify any factual/technical claims in the
-draft that are NOT supported by the source. Then return a corrected body that
-removes or softens unsupported claims while preserving the source-grounded
-content, structure, and the source attribution link.
+draft that are NOT supported by the source. Also check voice: if the draft reads
+as a first-person journal/diary claiming someone else's lived experience as the
+blog author's own, depersonalize those passages into second-person or neutral
+knowledge-article guidance while keeping grounded technical content. Then return
+a corrected body that removes or softens unsupported claims, preserves the
+source-grounded content and structure, and keeps the source attribution link.
 
 Return ONLY this JSON object (no code fences, no commentary):
 {{
