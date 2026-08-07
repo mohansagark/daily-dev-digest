@@ -1,1 +1,121 @@
-{}
+{
+  "astrology-app-development-company": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "fbff809582104df7735a2ae3938775a7",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The post is primarily promotional content for a company rather than providing technical insights or tutorials. It lacks recoverable technical gist and is more suited for a marketing channel.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:37:47.728728+00:00",
+    "verdict": "junk"
+  },
+  "browser-tab-leader-pattern-stop-wasting-": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The body of the post is completely empty, making it impossible to assess any technical content or value.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:37:48.688973+00:00",
+    "verdict": "junk"
+  },
+  "css-questions": {
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "c71dd7f2ea4b0f84b171779777bd71ad",
+    "confidence": "high",
+    "reason": "The post contains repetitive and promotional content, lacks a clear technical focus, and has a broken structure. It needs significant editing to be useful.",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-07T11:38:00.627546+00:00",
+    "verdict": "rewrite"
+  },
+  "everyone-is-planning-to-build-an-ai-base": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "fe0fc5210b85fe2ceed2ac9508f2e08a",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The post contains significant boilerplate, repeated text, and non-recoverable content. It lacks a coherent structure and readable technical content.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:01.512537+00:00",
+    "verdict": "junk"
+  },
+  "react-india-2025-indias-premier-react-co": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "bc554666a7ba47ee0fec6cc01afcf9f1",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The post is primarily promotional content for an event rather than a technical blog post with recoverable insights or tutorials.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:02.415350+00:00",
+    "verdict": "junk"
+  },
+  "stories-of-august-2025-wallpapers-editio": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "f2545ee0f9dfe19d766b7b4eeb1da778",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The post is primarily promotional content for wallpapers, lacking substantial technical or educational value.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:03.240923+00:00",
+    "verdict": "junk"
+  },
+  "top-7-featured-dev-posts-of-the-week": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "65d0b9586c8d6d06c8f43ac0ac5e077c",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The post is a summary of other posts with minimal original content and technical value.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:04.327796+00:00",
+    "verdict": "junk"
+  },
+  "understanding-react-js-javascript-and-js": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "063b08d682c8adee99978b8345477678",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The post contains a lot of boilerplate, UI elements, and non-technical content that make it unreadable and non-recoverable as a technical blog post.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:05.379533+00:00",
+    "verdict": "junk"
+  },
+  "unlock-your-coding-potential-dive-into-284-expert-blog-posts": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "b249b3a54c51d90f27ffd3e6c91fea8b",
+    "confidence": "high",
+    "local_cover_deleted": true,
+    "reason": "The post is essentially a list of links to other articles with minimal added value or unique content.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:06.387534+00:00",
+    "verdict": "junk"
+  },
+  "use-codecrafters-to-learn-by-building-th": {
+    "action": "deleted",
+    "bedrock_calls": 1,
+    "body_hash": "9d138b04e4c80c0ee11009673db6cd99",
+    "confidence": "high",
+    "local_cover_deleted": false,
+    "reason": "The body contains mostly boilerplate, UI interaction prompts, and non-recoverable content. No discernible technical gist or valuable information present.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-07T11:38:07.411777+00:00",
+    "verdict": "junk"
+  }
+}
