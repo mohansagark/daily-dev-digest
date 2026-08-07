@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07  
 **Repo:** `daily-dev-digest` (job + secrets); queue state on `portfolio-blog` MDX  
-**Status:** Implemented — PR https://github.com/mohansagark/daily-dev-digest/pull/7 (schedule gated until rollout §11)  
+**Status:** Spec finalized (§16–§17). Implementation updated on PR https://github.com/mohansagark/daily-dev-digest/pull/7 to match §5.1/§10/§17.2 (Pillow `(1200, 630)` classifier; denylist removed; `eligible_wrong_size` seed buckets). Awaiting Claude code review before merge (schedule stays gated until rollout §11 step 6).  
 **Related:**  
 - `2026-08-06-editorial-cover-template-and-topic-focus-design.md` (editorial cover path; previously deferred D/E retry cron)  
 - `2026-08-07-legacy-content-repair-design.md` §8 (`cover_status` backlog; “later image batch” now this spec)  
@@ -81,29 +81,28 @@ Internal front-matter field on each `portfolio-blog` post (not exported to `blog
 
 **Verified against the real corpus (2026-08-07):** prompt-text denylist matching is not sufficient. Checked actual pixel dimensions of all 22 `origin: bot` posts — only **1** (`navigating-the-llm-landscape-open-source-vs-commercial-in-20`, today's post) is `1200×630`, the real Playwright-composed output (`cover_compose.py` hardcodes `COVER_W, COVER_H = 1200, 630`). The other 21 are `800×800` / `1024×1024` — square, raw FLUX-only photos from an earlier photo-brief iteration that never went through the diagonal-split/branded template at all. Their `image_prompt` text just doesn't happen to contain the old schematic keywords, so a text-only denylist would have wrongly classified all 21 as "already editorial" and permanently skipped them. **Editorial quality is a structural property of the compose step (exact dimensions, defined layout/brand pattern), not something prompt-text phrasing can reliably signal — dimension check is the authoritative test, not a heuristic alongside the denylist.**
 
-Shared helper (used by seed, repair FM stamping, and heal eligibility):
+Shared helper (used by seed, repair FM stamping, and heal eligibility). Signature (implementation must match):
 
 ```text
-is_editorial_cover(fm, blog_root) -> bool
+is_editorial_cover(fm, blog_root, slug) -> bool
 ```
 
 Rules (first match wins):
 
 1. No usable cover file/FM `image` pointing at `images/{slug}.jpg` / `/blog-images/{slug}.jpg` → **False**
-2. Actual on-disk image dimensions **≠ exactly `(1200, 630)`** → **False** (wrong template — old schematic, old FLUX-only square photo, or anything else not produced by the current `cover_compose.py` — regardless of what `image_prompt` says)
-3. Dimensions == `(1200, 630)` **and** `cover_status == done` → **True**
-4. Dimensions == `(1200, 630)` but `cover_status` is missing/`none`/`failed` (e.g. correctly-composed image whose status just was never stamped) → **True** (dimensions alone are sufficient proof; do not regenerate a real editorial cover just because the status field lagged)
+2. Actual on-disk image dimensions **≠ exactly `(1200, 630)`** → **False** (wrong template — old schematic, old FLUX-only square photo, or anything else not produced by the current `cover_compose.py` — regardless of what `image_prompt` says). Read size via `PIL.Image.open(path).size`.
+3. Dimensions == `(1200, 630)` → **True** (dimensions alone are sufficient proof of a real editorial compose; do not regenerate just because `cover_status` lagged as `none`/missing)
 
 The old prompt-text denylist (`isometric`, `schematic`, `node diagram`, `geometric forms`, `layered depth`) is **dropped** — it's redundant once dimensions are authoritative (nothing schematic or FLUX-only ever produces exact `1200×630`) and it was the source of the 21-post false-classification above.
 
-`cover_status: failed` **short-circuits eligibility to Yes** even when an image file still exists and happens to be `1200×630` (retry create/heal failure — a `failed` status means the *last* attempt didn't finish cleanly, so don't trust a possibly-partial file).
+`cover_status: failed` **short-circuits eligibility to Yes** even when an image file still exists and happens to be `1200×630` (retry create/heal failure — a `failed` status means the *last* attempt didn't finish cleanly, so don't trust a possibly-partial file). This short-circuit lives in `is_eligible`, not inside `is_editorial_cover`.
 
 ### 5.2 Enrollment rules
 
 A post is **eligible** when:
 
 1. `cover_status == failed`, **or**
-2. `is_editorial_cover` is **False** (missing image, schematic/wrong template, or unknown)
+2. `is_editorial_cover` is **False** (missing image, wrong size/template, or unknown)
 
 A post is **ineligible** when `is_editorial_cover` is **True** and `cover_status != failed`.
 
@@ -145,7 +144,7 @@ This prevents a multi-day schematic backlog from starving new create-time failur
 **Required fix (same implementation train as heal):**
 
 - Never downgrade `cover_status: done` → `none`.
-- If `is_editorial_cover(fm, blog_root)` → set/keep `cover_status: done`; do **not** replace an existing editorial `image_prompt` with a schematic `image_suggestion`.
+- If `is_editorial_cover(fm, blog_root, slug)` → set/keep `cover_status: done`; do **not** replace an existing editorial `image_prompt` with a schematic `image_suggestion`.
 - If usable image exists but classifier says wrong-template → `cover_status: none` (eligible).
 - If no usable image → `cover_status: none`.
 
@@ -156,9 +155,13 @@ python cover_heal.py --blog-root … --seed-status-only
 ```
 
 - Walk all posts; if `is_editorial_cover` and `cover_status != done`, set `cover_status: done` (FM only, no Bedrock/FLUX).
-- Report **must** list three buckets for human spot-check before commit: `seeded_done`, `eligible_schematic`, `eligible_missing` (and optionally `eligible_unknown`).
-- Dimension check removes the false-positive risk §15 #7 originally worried about (prompt-text denylist) — it's exact and structural, not heuristic. Spot-check the `seeded_done` list in the seed report anyway (should be very small); only then commit to `portfolio-blog` main.
-- **Real counts, verified on 2026-08-07 corpus (249 posts, dimension-checked directly):** only **1** post is currently `1200×630` (today's `navigating-the-llm-landscape...`) → seeds to `done`. The other **248** — 21 square `origin: bot` photos + 227 with no usable image — remain eligible. This is intentional and expected, not a bug: the editorial template only shipped today, so the backlog really is almost the entire catalog. At `≤50/day` that's **~5 days** to fully drain. `limit`/`workflow_dispatch` may be raised temporarily if a faster initial drain is wanted — see §12.
+- Report **must** list these buckets for human spot-check before commit:
+  - `seeded_done` — on-disk `1200×630`, status flipped/`kept` as done
+  - `eligible_wrong_size` — usable image whose pixels are not `(1200, 630)` (square FLUX / old schematic / other)
+  - `eligible_missing` — no usable local cover file
+  - `already_done` — already `cover_status: done` (and still `1200×630` if file present)
+- Dimension check removes the false-positive risk §15 #7 originally worried about (prompt-text denylist) — it's exact and structural, not heuristic. Spot-check the `seeded_done` list in the seed report anyway (should be very small — **1** on 2026-08-07); only then commit to `portfolio-blog` main.
+- **Real counts, verified on 2026-08-07 corpus (249 posts, dimension-checked directly):** only **1** post is currently `1200×630` (today's `navigating-the-llm-landscape...`) → seeds to `done`. The other **248** — 21 non-`1200×630` imaged posts + ~227 with no usable image — remain eligible. This is intentional and expected, not a bug: the editorial template only shipped recently, so the backlog really is almost the entire catalog. At `≤50/day` that's **~5 days** to fully drain. `limit`/`workflow_dispatch` may be raised temporarily if a faster initial drain is wanted — see §12.
 
 ## 6. Architecture
 
@@ -198,7 +201,7 @@ generate_editorial_cover(headline, tags, body, slug, *, dry_run=False)
 
 Flow unchanged: Bedrock `cover_hook` → FLUX photo (skip in dry-run) → Playwright `compose_cover` → JPEG under the caller’s image directory.
 
-Also ship `is_editorial_cover(fm, blog_root)` beside it (pure FM + filesystem; no network).
+Also ship `is_editorial_cover(fm, blog_root, slug)` beside it (FM + on-disk Pillow dimension check; no network).
 
 ### 7.2 Daily create wiring
 
@@ -277,7 +280,7 @@ Workflow `workflow_dispatch` inputs must be passed via env vars / `github.event.
 
 ### 7.6 `content_repair.py` FM stamping
 
-Update `apply_kept_frontmatter` per §5.5 (needs `blog_root` + slug, or precomputed classifier result). Covered by unit tests that prove: editorial+image is not forced to `none`; `done` is not downgraded; schematic+image stays `none`.
+Update `apply_kept_frontmatter` per §5.5 (needs `blog_root` + slug, or precomputed classifier result). Covered by unit tests that prove: `1200×630` editorial image is not forced to `none`; `done` is not downgraded; wrong-size image stays eligible (`none`).
 
 ## 8. Consumer / index impact
 
@@ -302,11 +305,12 @@ Batch is **best-effort per slug**. One failure never blocks the other 49.
 
 ## 10. Testing
 
-- Unit: `is_editorial_cover` matrix (done / schematic prompt / editorial prompt / missing image / failed status).
+- Unit: `is_editorial_cover` matrix using **fixture JPEGs** at `(1200, 630)`, `(800, 800)`, `(1024, 1024)`, missing file; plus `cover_status: failed` eligibility short-circuit.
 - Unit: eligibility + tiered selection order + limit.
 - Unit: FM patch success → `done` + image fields; failure → `failed` preserves prior image.
-- Unit: `--seed-status-only` flips editorial `none`→`done` without calling image APIs.
-- Unit: `apply_kept_frontmatter` does not corrupt editorial covers / does not downgrade `done`.
+- Unit: `--seed-status-only` flips `1200×630` + `none` → `done` without calling image APIs; wrong-size stays eligible.
+- Unit: seed report buckets are `seeded_done` / `eligible_wrong_size` / `eligible_missing` / `already_done` (not prompt-based `eligible_schematic`).
+- Unit: `apply_kept_frontmatter` does not corrupt `1200×630` covers / does not downgrade `done`.
 - Unit: daily `build_mdx` always emits `cover_status` (`done` or `failed`).
 - Optional CI dry-run / seed dispatch documented in PR.
 
@@ -316,11 +320,11 @@ Strict sequence (blocking):
 
 1. Land code on `daily-dev-digest` `master`: shared helpers, `cover_heal.py`, `apply_kept_frontmatter` fix, daily-create `cover_status` wiring, `heal-covers.yml` **with schedule commented or gated off**, concurrency on digest+heal, tests, this spec.
 2. Prove daily-create wiring: wait for **one real successful `digest.yml` run** (or dispatch) that writes a new/updated post with `cover_status: done` or `failed` as appropriate.
-3. `workflow_dispatch` heal with `seed_status_only=true` → commit FM-only corrections on `portfolio-blog` main; verify already-editorial posts are `done` and schematic/missing remain eligible.
+3. `workflow_dispatch` heal with `seed_status_only=true` → spot-check report buckets → commit FM-only corrections on `portfolio-blog` main; verify the single (or few) `1200×630` posts are `done` and wrong-size/missing remain eligible.
 4. `workflow_dispatch` heal `dry_run=true`, `limit=3`.
-5. `workflow_dispatch` heal `dry_run=false`, `limit=5`; verify images + `cover_status: done` + index rebuild.
+5. `workflow_dispatch` heal `dry_run=false`, `limit=5`; verify new images are exactly `1200×630` + `cover_status: done` + index rebuild.
 6. **Only then** enable `heal-covers.yml` schedule.
-7. Backlog drains at ≤50/day on the **true** eligible set (missing + wrong-template), not a false 249.
+7. Backlog drains at ≤50/day on the **true** eligible set (**248** on 2026-08-07 after seed — wrong-size + missing), not a false “already mostly done” count from prompt heuristics.
 8. Steady state: queue usually empty or holds only recent create/heal failures.
 
 ## 12. Cost / ops knobs
@@ -367,3 +371,46 @@ Typo fix note: §9 table uses “Slug” consistently (not “Spug”).
 | 6 | §7.4 cross-referenced "§11 step 4" as the schedule gate; §11's actual gate is step 6 (after the real limit-5 verification, not just the dry-run). | **Fixed** in §7.4 → "until §11 step 6." |
 | 7 | Schematic denylist on `image_prompt` may rare-false-positive an editorial brief. | **Superseded by §16 #9** — the denylist itself was dropped in favor of an exact dimension check (`== (1200, 630)`), which is structural rather than heuristic and closes this concern entirely rather than just accepting the risk. |
 | 8 | Heal pushes up to 50 posts/day to `main` without a PR, unlike content-repair’s preview path. | **Accepted with rationale** folded into §3 Push target: mechanical FM+image only; blast radius is cover quality, not article authenticity. |
+
+## 16. Third-pass finding (2026-08-07, post-approval) — URGENT, blocking, verify against in-progress implementation
+
+**Status note:** this doc was marked Approved and implementation started on `feature/cover-self-heal` before this finding. If Cursor's implementation was built against §5.1/§5.5/§12's earlier prompt-text-denylist numbers, it needs to be corrected before merge, not just the doc.
+
+| # | Finding | Fix applied to this doc |
+|---|---|---|
+| 9 | The originally-approved §5.1 classifier used `image_prompt` **substring denylist** matching to detect "wrong template" — verified against the real corpus this is not sufficient. Checked actual pixel dimensions of all 22 `origin: bot` posts directly: only **1** is genuinely `1200×630` (today's post, the real Playwright-composed output — `cover_compose.py` hardcodes `COVER_W, COVER_H = 1200, 630`). The other **21** are `800×800`/`1024×1024` square FLUX-only photos from an earlier photo-brief iteration that never went through the diagonal-split/branded template — their prompt text just doesn't happen to contain the old schematic keywords, so the denylist would have permanently misclassified all 21 as "already editorial" and skipped them. Editorial quality is a structural property of the compose step, not something prompt phrasing can reliably signal. | §5.1 rewritten: `is_editorial_cover` now requires exact on-disk dimensions `== (1200, 630)` as the sole authoritative test; the prompt-text denylist is dropped entirely, not just supplemented. §2 non-goals, §5.5 seed math, §12 cost estimate, and §11 step 7 updated to the real numbers: **1 post already done, 248 eligible** (not ~5 done / ~17 schematic / ~227 missing) — the backlog is effectively the whole catalog, ~5 days to drain at 50/day, same as before by coincidence of arithmetic but for a completely different (and much larger) real eligible count. |
+
+**Action needed:** confirm with whoever is implementing `is_editorial_cover` right now that it does an actual dimension check (`PIL.Image.open(path).size == (1200, 630)`), not a prompt-text keyword match — and that nobody hand-seeded the ~5/~17/~227 split anywhere (report format, test fixtures, cost comments) based on the superseded numbers.
+
+## 17. Fourth-pass gaps (2026-08-08) — doc consistency + implementation sync
+
+Cursor reviewed Claude’s §16 update against the live corpus and the in-progress PR (`feature/cover-self-heal` / PR #7). **Agree with #9.** The following gaps were still open after §16 landed in the doc; this section records them and the fixes applied above (or required in code once this spec is finalized).
+
+### 17.1 Spec consistency gaps (fixed in this doc revision)
+
+| # | Gap | Fix in this doc |
+|---|---|---|
+| 10 | §5.1 listed two overlapping “dimensions == 1200×630 → True” rules (old #3 required `done`, old #4 did not). | Collapsed to a single rule: dimensions == `(1200, 630)` → True. `failed` short-circuit stays in `is_eligible` only. |
+| 11 | §5.1 / §7.1 helper signature omitted `slug` while path resolution needs it. | Signature locked as `is_editorial_cover(fm, blog_root, slug)`; §7.1 updated. |
+| 12 | §5.5 seed report still named bucket `eligible_schematic` (prompt-era). | Renamed to `eligible_wrong_size`; buckets listed explicitly. |
+| 13 | §10 tests still described “schematic prompt / editorial prompt” matrices. | Rewritten around fixture JPEG dimensions + failed short-circuit. |
+| 14 | §7.6 / §11 step 7 still used “schematic” / “false 249” wording that fought §12’s verified **248 eligible**. | Aligned to wrong-size/missing + **248** after seed. |
+
+### 17.2 Implementation gaps vs this finalized §5.1 (do **not** merge PR until fixed)
+
+These are present on PR #7 as of the fourth pass and must be corrected **after** this spec revision is approved — not before:
+
+| # | Gap in current code | Required fix |
+|---|---|---|
+| 15 | [`cover_status.py`](cover_status.py) `is_editorial_cover` still uses `SCHEMATIC_DENYLIST` / `prompt_is_schematic` on `image_prompt` and never reads pixel size. | Replace with Pillow `Image.open(local_cover_path).size == (1200, 630)`; delete denylist path for enrollment. |
+| 16 | [`cover_heal.py`](cover_heal.py) / tests still classify seed buckets as `eligible_schematic` and assert prompt-based editorial detection. | Switch to `eligible_wrong_size`; add tiny fixture JPEGs (or generate in-test with Pillow) at 1200×630 / 800×800 / 1024×1024. |
+| 17 | [`tests/test_content_repair.py`](tests/test_content_repair.py) “editorial cover” case uses a non-schematic prompt string without a real `1200×630` file dimension guarantee in the classifier sense. | After #15, tests must create a real 1200×630 JPEG under `images/` for the “already editorial” case, and an 800×800 file for “wrong size stays none”. |
+| 18 | Any comments/docs in the PR that still cite “~5 editorial / ~17 schematic / ~227 missing” as the backlog split. | Replace with verified **1 / 21 wrong-size / ~227 missing** (248 eligible after seed). |
+
+### 17.3 Non-gaps / no product decision needed
+
+- Raising `limit` above 50 for a faster first drain remains an ops knob (§12), not a spec change.
+- Direct push to `main` for heal remains accepted (§15 #8).
+- Schedule stays gated until §11 step 6.
+
+**Gate:** finalize this doc (§16 + §17) with Claude → then update PR #7 implementation to match §5.1 / §10 / §17.2 → then continue rollout.

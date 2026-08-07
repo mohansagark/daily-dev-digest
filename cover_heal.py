@@ -58,9 +58,8 @@ def _scan_posts(blog_root: str) -> list[dict]:
 def seed_status(blog_root: str, *, dry_run: bool = False) -> dict:
     buckets = {
         "seeded_done": [],
-        "eligible_schematic": [],
+        "eligible_wrong_size": [],
         "eligible_missing": [],
-        "eligible_unknown": [],
         "already_done": [],
     }
     changed = 0
@@ -168,9 +167,8 @@ def write_report(
         lines.append("")
         for key in (
             "seeded_done",
-            "eligible_schematic",
+            "eligible_wrong_size",
             "eligible_missing",
-            "eligible_unknown",
             "already_done",
         ):
             slugs = buckets.get(key) or []

@@ -101,12 +101,12 @@ def apply_kept_frontmatter(
     else:
         out["cover_status"] = "none"
 
-    # Do not stamp a schematic image_suggestion over posts that already have
-    # an editorial cover (image_prompt stays the durable brief).
+    # Do not stamp a repair image_suggestion over posts that already have a
+    # real editorial cover (image_prompt stays the durable brief). §5.5.
     editorial = bool(
         blog_root and slug and cs.is_editorial_cover(fm, blog_root, slug)
     )
-    if editorial and image_suggestion and cs.prompt_is_schematic(image_suggestion):
+    if editorial:
         if "image_suggestion" in fm:
             out["image_suggestion"] = fm.get("image_suggestion")
         else:

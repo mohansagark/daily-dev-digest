@@ -88,10 +88,12 @@ def test_apply_kept_frontmatter_does_not_downgrade_done():
 
 
 def test_apply_kept_frontmatter_marks_editorial_cover_done(tmp_path):
+    from PIL import Image
+
     slug = "nav"
     images = tmp_path / "images"
     images.mkdir()
-    (images / f"{slug}.jpg").write_bytes(b"\xff\xd8\xffx")
+    Image.new("RGB", (1200, 630), (1, 2, 3)).save(images / f"{slug}.jpg", "JPEG")
     fm = {
         "title": "T",
         "slug": slug,
@@ -107,8 +109,33 @@ def test_apply_kept_frontmatter_marks_editorial_cover_done(tmp_path):
         slug=slug,
     )
     assert out["cover_status"] == "done"
-    # schematic suggestion must not be forced onto editorial posts
+    # repair suggestion must not be forced onto editorial posts
     assert out.get("image_suggestion") != "Isometric technical illustration schematic diagram"
+
+
+def test_apply_kept_frontmatter_wrong_size_stays_none(tmp_path):
+    from PIL import Image
+
+    slug = "square"
+    images = tmp_path / "images"
+    images.mkdir()
+    Image.new("RGB", (800, 800), (1, 2, 3)).save(images / f"{slug}.jpg", "JPEG")
+    fm = {
+        "title": "T",
+        "slug": slug,
+        "image": f"/blog-images/{slug}.jpg",
+        "image_prompt": "soft-focus photo without schematic keywords",
+        "cover_status": "none",
+    }
+    out = cr.apply_kept_frontmatter(
+        fm,
+        origin="bot",
+        image_suggestion="desk photo",
+        blog_root=str(tmp_path),
+        slug=slug,
+    )
+    assert out["cover_status"] == "none"
+    assert out["image_suggestion"] == "desk photo"
 
 
 def test_load_dump_mdx_roundtrip(tmp_path):

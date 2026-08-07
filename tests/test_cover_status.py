@@ -1,7 +1,13 @@
-import os
 from pathlib import Path
 
+from PIL import Image
+
 import cover_status as cs
+
+
+def _write_jpeg(path: Path, size: tuple[int, int]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", size, (10, 20, 30)).save(path, "JPEG")
 
 
 def _write_post(root: Path, slug: str, fm_lines: list[str], body: str = "## Hi\n\ntext\n"):
@@ -12,33 +18,46 @@ def _write_post(root: Path, slug: str, fm_lines: list[str], body: str = "## Hi\n
     (posts / f"{slug}.mdx").write_text(f"---\n{fm}\n---\n{body}", encoding="utf-8")
 
 
-def test_schematic_prompt_not_editorial(tmp_path: Path):
-    slug = "old-schematic"
+def test_wrong_size_800_not_editorial(tmp_path: Path):
+    slug = "square-flux"
     _write_post(
         tmp_path,
         slug,
         [
             "title: Old",
-            "slug: old-schematic",
+            f"slug: {slug}",
             "date: '2025-01-01'",
-            "image: /blog-images/old-schematic.jpg",
-            "image_prompt: Isometric technical illustration with schematic diagram and layered depth",
+            f"image: /blog-images/{slug}.jpg",
+            "image_prompt: soft-focus photo of a keyboard",
             "cover_status: none",
         ],
     )
-    (tmp_path / "images" / f"{slug}.jpg").write_bytes(b"\xff\xd8\xfffake")
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", (800, 800))
     fm = {
-        "image": "/blog-images/old-schematic.jpg",
-        "image_prompt": "Isometric technical illustration with schematic diagram and layered depth",
+        "image": f"/blog-images/{slug}.jpg",
+        "image_prompt": "soft-focus photo of a keyboard",
         "cover_status": "none",
     }
-    assert cs.prompt_is_schematic(fm["image_prompt"])
+    assert cs.cover_dimensions(str(tmp_path), slug) == (800, 800)
     assert cs.is_editorial_cover(fm, str(tmp_path), slug) is False
     assert cs.is_eligible(fm, str(tmp_path), slug) is True
     assert cs.selection_tier(fm, str(tmp_path), slug) == 2
+    assert cs.classify_for_seed(fm, str(tmp_path), slug) == "eligible_wrong_size"
 
 
-def test_editorial_photo_brief_counts_as_done_signal(tmp_path: Path):
+def test_wrong_size_1024_not_editorial(tmp_path: Path):
+    slug = "square-1024"
+    fm = {
+        "image": f"/blog-images/{slug}.jpg",
+        "image_prompt": "anything",
+        "cover_status": "none",
+    }
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", (1024, 1024))
+    assert cs.is_editorial_cover(fm, str(tmp_path), slug) is False
+    assert cs.classify_for_seed(fm, str(tmp_path), slug) == "eligible_wrong_size"
+
+
+def test_editorial_1200x630_counts_as_editorial(tmp_path: Path):
     slug = "nav-llm"
     prompt = "An off-center, soft-focus image of a vintage analog computer"
     _write_post(
@@ -53,7 +72,7 @@ def test_editorial_photo_brief_counts_as_done_signal(tmp_path: Path):
             "cover_status: none",
         ],
     )
-    (tmp_path / "images" / f"{slug}.jpg").write_bytes(b"\xff\xd8\xfffake")
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", cs.EDITORIAL_SIZE)
     fm = {
         "image": f"/blog-images/{slug}.jpg",
         "image_prompt": prompt,
@@ -64,22 +83,48 @@ def test_editorial_photo_brief_counts_as_done_signal(tmp_path: Path):
     assert cs.classify_for_seed(fm, str(tmp_path), slug) == "seeded_done"
 
 
-def test_failed_always_eligible_even_with_image(tmp_path: Path):
+def test_schematic_prompt_irrelevant_when_dimensions_wrong(tmp_path: Path):
+    """Prompt denylist is gone — only pixels matter."""
+    slug = "old-schematic"
+    fm = {
+        "image": f"/blog-images/{slug}.jpg",
+        "image_prompt": "Isometric technical illustration with schematic diagram",
+        "cover_status": "none",
+    }
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", (800, 800))
+    assert cs.is_editorial_cover(fm, str(tmp_path), slug) is False
+    assert not hasattr(cs, "prompt_is_schematic")
+
+
+def test_failed_always_eligible_even_with_editorial_image(tmp_path: Path):
     slug = "x"
     fm = {
         "image": "/blog-images/x.jpg",
         "image_prompt": "soft-focus photo of a laptop",
         "cover_status": "failed",
     }
-    (tmp_path / "images").mkdir(parents=True, exist_ok=True)
-    (tmp_path / "images" / "x.jpg").write_bytes(b"\xff\xd8\xfffake")
+    _write_jpeg(tmp_path / "images" / "x.jpg", cs.EDITORIAL_SIZE)
+    assert cs.is_editorial_cover(fm, str(tmp_path), slug) is True
     assert cs.is_eligible(fm, str(tmp_path), slug) is True
     assert cs.selection_tier(fm, str(tmp_path), slug) == 0
 
 
-def test_missing_image_tier():
+def test_missing_image_not_editorial():
     fm = {"cover_status": "none"}
+    assert cs.is_editorial_cover(fm, "/tmp", "nope") is False
     assert cs.selection_tier(fm, "/tmp", "nope") == 1
+    assert cs.classify_for_seed(fm, "/tmp", "nope") == "eligible_missing"
+
+
+def test_already_done_bucket(tmp_path: Path):
+    slug = "done-post"
+    fm = {
+        "image": f"/blog-images/{slug}.jpg",
+        "cover_status": "done",
+    }
+    _write_jpeg(tmp_path / "images" / f"{slug}.jpg", cs.EDITORIAL_SIZE)
+    assert cs.classify_for_seed(fm, str(tmp_path), slug) == "already_done"
+    assert cs.is_eligible(fm, str(tmp_path), slug) is False
 
 
 def test_sort_tiers_then_date():

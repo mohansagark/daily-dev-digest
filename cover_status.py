@@ -9,16 +9,8 @@ import os
 import re
 from typing import Any
 
-# Old schematic / isometric FLUX briefs (wrong template for heal enrollment).
-SCHEMATIC_DENYLIST = (
-    "isometric",
-    "schematic",
-    "node diagram",
-    "geometric forms",
-    "layered depth",
-    "precise geometric",
-    "clean linework",
-)
+# Exact Playwright compose output from cover_compose.py (COVER_W, COVER_H).
+EDITORIAL_SIZE = (1200, 630)
 
 
 def normalize_cover_status(raw: Any) -> str:
@@ -44,27 +36,29 @@ def has_usable_cover(fm: dict, blog_root: str, slug: str) -> bool:
     return os.path.isfile(local_cover_path(blog_root, slug))
 
 
-def prompt_is_schematic(image_prompt: str) -> bool:
-    blob = (image_prompt or "").lower()
-    return any(token in blob for token in SCHEMATIC_DENYLIST)
+def cover_dimensions(blog_root: str, slug: str) -> tuple[int, int] | None:
+    """Return on-disk (width, height), or None if missing/unreadable."""
+    path = local_cover_path(blog_root, slug)
+    if not os.path.isfile(path):
+        return None
+    try:
+        from PIL import Image
+
+        with Image.open(path) as img:
+            return img.size
+    except Exception:  # noqa: BLE001 — corrupt/unreadable → not editorial
+        return None
 
 
 def is_editorial_cover(fm: dict, blog_root: str, slug: str) -> bool:
-    """True when the post already has an acceptable editorial (non-schematic) cover.
+    """True when on-disk cover is exactly the editorial compose size (1200×630).
 
-    Does NOT use origin==bot — that only means image+image_prompt exist.
+    Does NOT use origin==bot or image_prompt text — those are unreliable.
+    cover_status: failed eligibility short-circuit lives in is_eligible, not here.
     """
-    status = normalize_cover_status(fm.get("cover_status"))
-    if status == "done":
-        return True
     if not has_usable_cover(fm, blog_root, slug):
         return False
-    prompt = str(fm.get("image_prompt") or "")
-    if prompt_is_schematic(prompt):
-        return False
-    if prompt.strip():
-        return True
-    return False
+    return cover_dimensions(blog_root, slug) == EDITORIAL_SIZE
 
 
 def is_eligible(fm: dict, blog_root: str, slug: str) -> bool:
@@ -105,17 +99,15 @@ def sort_eligible(rows: list[dict]) -> list[dict]:
 
 
 def classify_for_seed(fm: dict, blog_root: str, slug: str) -> str:
-    """Return seeded_done | eligible_schematic | eligible_missing | eligible_unknown | already_done."""
+    """Return seeded_done | eligible_wrong_size | eligible_missing | already_done."""
     status = normalize_cover_status(fm.get("cover_status"))
-    if status == "done":
-        return "already_done"
     if is_editorial_cover(fm, blog_root, slug):
+        if status == "done":
+            return "already_done"
         return "seeded_done"
     if not has_usable_cover(fm, blog_root, slug):
         return "eligible_missing"
-    if prompt_is_schematic(str(fm.get("image_prompt") or "")):
-        return "eligible_schematic"
-    return "eligible_unknown"
+    return "eligible_wrong_size"
 
 
 def set_cover_status_in_fm_lines(lines: list[str], status: str) -> list[str]:
