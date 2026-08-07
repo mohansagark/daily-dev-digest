@@ -10,6 +10,11 @@ permissions:
   contents: read
   id-token: write
 
+# Serialize writers to portfolio-blog main with heal-covers.yml.
+concurrency:
+  group: portfolio-blog-main-write
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest

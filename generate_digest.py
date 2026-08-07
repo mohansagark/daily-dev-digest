@@ -693,38 +693,58 @@ def save_cover_image(image_bytes, slug):
     return f"/blog-images/{filename}"
 
 
+def generate_editorial_cover(headline, tags, body, slug, *, dry_run=False, images_dir=None):
+    """Editorial cover pipeline. Returns {'image','alt','prompt'} or raises.
+
+    Flow: cover_hook → FLUX photo (skipped in dry-run) → Playwright compose → JPEG.
+    Shared by daily create and cover_heal.
+    """
+    hook = cover_hook.generate_cover_hook(
+        headline or "",
+        tags or [],
+        body or "",
+        dry_run=dry_run,
+    )
+    flux_prompt = cover_hook.build_flux_photo_prompt(hook)
+
+    if dry_run:
+        print("🧪 [dry-run] Skipping Cloudflare FLUX; using placeholder photo.")
+        photo_bytes = None
+    else:
+        photo_bytes = image_client.generate(flux_prompt)
+
+    composed = cover_compose.compose_cover(hook, photo_bytes)
+    out_dir = images_dir or IMAGES_SUBDIR
+    os.makedirs(out_dir, exist_ok=True)
+    filename = f"{slug}.{IMAGE_EXT}"
+    path = os.path.join(out_dir, filename)
+    with open(path, "wb") as f:
+        f.write(downscale_cover(composed))
+    return {
+        "image": f"/blog-images/{filename}",
+        "alt": hook["headline"],
+        "prompt": flux_prompt,
+    }
+
+
 def maybe_generate_cover(generated, verified, slug, dry_run=False):
     """Best-effort editorial cover. Returns {'image','alt','prompt'} or None.
 
-    Flow: cover_hook (Bedrock) → FLUX photo (skipped in dry-run) → Playwright
-    template compose (PNG) → single JPEG via save_cover_image. Never raises
-    unless IMAGE_REQUIRED=true.
+    Never raises unless IMAGE_REQUIRED=true.
     """
     try:
         body = (verified or {}).get("corrected_body_markdown") or ""
-        hook = cover_hook.generate_cover_hook(
+        cover = generate_editorial_cover(
             generated.get("headline") or "",
             generated.get("tags") or [],
             body,
+            slug,
             dry_run=dry_run,
+            images_dir=IMAGES_SUBDIR,
         )
-        flux_prompt = cover_hook.build_flux_photo_prompt(hook)
-
-        if dry_run:
-            print("🧪 [dry-run] Skipping Cloudflare FLUX; using placeholder photo.")
-            photo_bytes = None
-        else:
-            photo_bytes = image_client.generate(flux_prompt)
-
-        composed = cover_compose.compose_cover(hook, photo_bytes)
-        image_rel = save_cover_image(composed, slug)
-        print(f"🖼️  Cover image generated: {image_rel}")
+        print(f"🖼️  Cover image generated: {cover['image']}")
         print("COVER_STATUS=ok")
-        return {
-            "image": image_rel,
-            "alt": hook["headline"],
-            "prompt": flux_prompt,
-        }
+        return cover
     except Exception as e:  # noqa: BLE001 — image is best-effort
         print(f"⚠️ Cover image generation failed ({e}); publishing text-only.")
         print(f"COVER_STATUS=failed:{type(e).__name__}")
@@ -749,6 +769,9 @@ def build_mdx(article, strategy, generated, verified, slug, cover=None):
             f"image_alt: {yaml_safe_value(cover['alt'])}\n"
             f"image_prompt: {yaml_safe_value(cover['prompt'])}\n"
         )
+        cover_status = "done"
+    else:
+        cover_status = "failed"
 
     frontmatter = f"""---
 title: {yaml_safe_value(generated['headline'])}
@@ -763,6 +786,7 @@ tags: {json.dumps(tags)}
 {image_lines}source_url: {yaml_safe_value(article['link'])}
 published_date: {yaml_safe_value(article['published'])}
 author: {yaml_safe_value(AUTHOR_NAME)}
+cover_status: {cover_status}
 ---
 """
     return f"{frontmatter}\n{body}\n"

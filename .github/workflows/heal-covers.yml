@@ -1,0 +1,131 @@
+name: Heal editorial covers
+
+# Self-heal pipeline: regenerate missing / wrong-template covers on portfolio-blog.
+# Schedule stays commented until rollout §11 step 6 (after seed + real limit-5).
+# See docs/superpowers/specs/2026-08-07-cover-self-heal-pipeline-design.md
+
+on:
+  # schedule:
+  #   - cron: "0 4 * * *"  # enable only after rollout gate (§11 step 6)
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max covers to heal this run"
+        required: false
+        default: "50"
+      dry_run:
+        description: "Dry run (no FLUX / no writes)"
+        type: boolean
+        required: false
+        default: false
+      seed_status_only:
+        description: "FM-only seed: mark already-editorial covers done"
+        type: boolean
+        required: false
+        default: false
+      slugs:
+        description: "Optional comma-separated slug filter"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: portfolio-blog-main-write
+  cancel-in-progress: false
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Daily Dev Digest Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('requirements.txt') }}
+
+      - name: Install Playwright Chromium
+        if: ${{ github.event.inputs.seed_status_only != 'true' && github.event.inputs.dry_run != 'true' }}
+        run: playwright install --with-deps chromium
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ github.event.inputs.seed_status_only != 'true' && github.event.inputs.dry_run != 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Clone portfolio-blog
+        run: |
+          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/portfolio-blog.git blog
+          cd blog
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Run cover heal
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID || 'us.amazon.nova-pro-v1:0' }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_IMAGE_MODEL: ${{ secrets.CF_IMAGE_MODEL || '@cf/black-forest-labs/flux-1-schnell' }}
+          IMAGE_STEPS: ${{ secrets.IMAGE_STEPS || '8' }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          SLUGS: ${{ github.event.inputs.slugs }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          SEED_ONLY: ${{ github.event.inputs.seed_status_only }}
+        run: |
+          ARGS=(--blog-root blog --report cover_heal_report.md)
+          if [ -n "$LIMIT" ]; then
+            ARGS+=(--limit "$LIMIT")
+          fi
+          if [ -n "$SLUGS" ]; then
+            ARGS+=(--slugs "$SLUGS")
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS+=(--dry-run)
+          fi
+          if [ "$SEED_ONLY" = "true" ]; then
+            ARGS+=(--seed-status-only)
+          fi
+          python cover_heal.py "${ARGS[@]}"
+
+      - name: Upload heal report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cover-heal-report
+          path: cover_heal_report.md
+          if-no-files-found: warn
+
+      - name: Push to portfolio-blog main
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd blog
+          git add posts/*.mdx images/ 2>/dev/null || git add posts/*.mdx
+          if git diff --cached --quiet; then
+            echo "⚠️ Nothing to commit"
+            exit 0
+          fi
+          if [ "${{ github.event.inputs.seed_status_only }}" = "true" ]; then
+            MSG="chore: seed cover_status for editorial covers"
+          else
+            MSG="chore: heal up to ${{ github.event.inputs.limit || 50 }} editorial covers"
+          fi
+          git commit -m "$MSG"
+          git push origin main

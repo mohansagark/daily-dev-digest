@@ -81,6 +81,63 @@ def test_apply_kept_frontmatter_does_not_invent_source_url():
     assert "source_url" not in out
 
 
+def test_apply_kept_frontmatter_does_not_downgrade_done():
+    fm = {"title": "T", "cover_status": "done", "image": "/blog-images/t.jpg"}
+    out = cr.apply_kept_frontmatter(fm, origin="bot", image_suggestion="schematic isometric art")
+    assert out["cover_status"] == "done"
+
+
+def test_apply_kept_frontmatter_marks_editorial_cover_done(tmp_path):
+    from PIL import Image
+
+    slug = "nav"
+    images = tmp_path / "images"
+    images.mkdir()
+    Image.new("RGB", (1200, 630), (1, 2, 3)).save(images / f"{slug}.jpg", "JPEG")
+    fm = {
+        "title": "T",
+        "slug": slug,
+        "image": f"/blog-images/{slug}.jpg",
+        "image_prompt": "An off-center soft-focus photo of a vintage computer",
+        "cover_status": "none",
+    }
+    out = cr.apply_kept_frontmatter(
+        fm,
+        origin="bot",
+        image_suggestion="Isometric technical illustration schematic diagram",
+        blog_root=str(tmp_path),
+        slug=slug,
+    )
+    assert out["cover_status"] == "done"
+    # repair suggestion must not be forced onto editorial posts
+    assert out.get("image_suggestion") != "Isometric technical illustration schematic diagram"
+
+
+def test_apply_kept_frontmatter_wrong_size_stays_none(tmp_path):
+    from PIL import Image
+
+    slug = "square"
+    images = tmp_path / "images"
+    images.mkdir()
+    Image.new("RGB", (800, 800), (1, 2, 3)).save(images / f"{slug}.jpg", "JPEG")
+    fm = {
+        "title": "T",
+        "slug": slug,
+        "image": f"/blog-images/{slug}.jpg",
+        "image_prompt": "soft-focus photo without schematic keywords",
+        "cover_status": "none",
+    }
+    out = cr.apply_kept_frontmatter(
+        fm,
+        origin="bot",
+        image_suggestion="desk photo",
+        blog_root=str(tmp_path),
+        slug=slug,
+    )
+    assert out["cover_status"] == "none"
+    assert out["image_suggestion"] == "desk photo"
+
+
 def test_load_dump_mdx_roundtrip(tmp_path):
     path = tmp_path / "post.mdx"
     body = "# Hello\n\nParagraph.\n"
