@@ -14,7 +14,7 @@ Keep every published blog post on an **editorial** 1200×630 cover over time —
 
 1. Posts missing a cover, or carrying a wrong/old (non-editorial) cover, stay enrolled until healed.
 2. When the daily create job fails cover generation, the post still publishes text-only and is enrolled for heal.
-3. A **separate** daily cron (not the scrape→create digest) processes up to **50** enrolled posts per day with the editorial template.
+3. A **separate** daily cron (not the scrape→create digest) processes up to **20** enrolled posts per day with the editorial template.
 4. Heal failures re-enroll the post for the next day’s run.
 
 ## 2. Goals and non-goals
