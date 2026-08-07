@@ -28,6 +28,30 @@ def test_generate_and_verify_prompts_frame_search_notes_as_untrusted():
     assert needle in rp.VERIFY_SYSTEM_PROMPT.lower()
 
 
+def test_generate_prompts_depersonalize_first_person_journals():
+    sys_l = rp.GENERATE_SYSTEM_PROMPT.lower()
+    user_l = rp.GENERATE_USER_TEMPLATE.lower()
+    assert "knowledge article" in sys_l
+    assert "first-person journal" in sys_l
+    assert "never present someone else's" in sys_l
+    assert "knowledge article, not a personal diary" in user_l
+    assert "depersonalize" in user_l
+
+
+def test_verify_prompts_strip_fabricated_autobiography():
+    sys_l = rp.VERIFY_SYSTEM_PROMPT.lower()
+    user_l = rp.VERIFY_USER_TEMPLATE.lower()
+    assert "first-person autobiography" in sys_l
+    assert "knowledge-article" in sys_l
+    assert "depersonalize" in user_l
+
+
+def test_triage_prompt_keeps_technical_journals():
+    sys_l = rp.TRIAGE_USER_TEMPLATE.lower()
+    assert "not a reject by themselves" in sys_l or "not a reject" in sys_l
+    assert "first-person journal" in sys_l
+
+
 def test_is_valid_slug_rejects_path_traversal():
     assert cr.is_valid_slug("queues-in-practice") is True
     assert cr.is_valid_slug("10-truly-mind-blowing-javascript-tricks-") is True
