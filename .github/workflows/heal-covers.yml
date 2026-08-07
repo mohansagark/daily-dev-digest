@@ -1,12 +1,12 @@
 name: Heal editorial covers
 
 # Self-heal pipeline: regenerate missing / wrong-template covers on portfolio-blog.
-# Schedule stays commented until rollout §11 step 6 (after seed + real limit-5).
+# Schedule enabled after rollout §11 step 6 (seed + dry-run + real limit-5 verified).
 # See docs/superpowers/specs/2026-08-07-cover-self-heal-pipeline-design.md
 
 on:
-  # schedule:
-  #   - cron: "0 4 * * *"  # enable only after rollout gate (§11 step 6)
+  schedule:
+    - cron: "0 4 * * *"  # 04:00 UTC daily — offset from digest (30 2 * * *)
   workflow_dispatch:
     inputs:
       limit:

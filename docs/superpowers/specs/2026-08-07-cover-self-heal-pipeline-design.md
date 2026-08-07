@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07  
 **Repo:** `daily-dev-digest` (job + secrets); queue state on `portfolio-blog` MDX  
-**Status:** Spec finalized (§16–§17). PR https://github.com/mohansagark/daily-dev-digest/pull/7 implements §5.1/§10/§17.2 (Pillow `(1200, 630)` classifier; denylist removed; `eligible_wrong_size`) plus multiline FM upsert fix. Awaiting final code review before merge (schedule stays gated until rollout §11 step 6).  
+**Status:** Shipped. Rollout §11 steps 1–6 complete (seed + dry-run limit=3 + real heal limit=5 verified 2026-08-07/08). `heal-covers.yml` schedule enabled (`0 4 * * *` UTC).  
 **Related:**  
 - `2026-08-06-editorial-cover-template-and-topic-focus-design.md` (editorial cover path; previously deferred D/E retry cron)  
 - `2026-08-07-legacy-content-repair-design.md` §8 (`cover_status` backlog; “later image batch” now this spec)  
