@@ -25,6 +25,10 @@ on:
         description: "Overwrite preview branch if the dated name already exists"
         type: boolean
         default: false
+      force:
+        description: "Re-process posts even when repair_ledger.json already matches (needed if ledger says deleted but main still has the files)"
+        type: boolean
+        default: false
 
 concurrency:
   group: repair-content
@@ -75,6 +79,7 @@ jobs:
           SLUGS: ${{ github.event.inputs.slugs }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
           FULL_RUN: ${{ github.event.inputs.full_run }}
+          FORCE: ${{ github.event.inputs.force }}
         run: |
           ARGS=(--blog-root blog)
           if [ "$FULL_RUN" != "true" ] && [ -n "$LIMIT" ]; then
@@ -86,15 +91,18 @@ jobs:
           if [ "$DRY_RUN" = "true" ]; then
             ARGS+=(--dry-run)
           fi
+          if [ "$FORCE" = "true" ]; then
+            ARGS+=(--force)
+          fi
           python content_repair.py "${ARGS[@]}"
 
-      - name: Upload triage report (dry-run)
-        if: github.event.inputs.dry_run == 'true'
+      - name: Upload triage report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: triage-report
           path: blog/triage-report.md
-          if-no-files-found: ignore
+          if-no-files-found: warn
 
       - name: Push preview branch (skip on dry-run)
         if: github.event.inputs.dry_run != 'true'
