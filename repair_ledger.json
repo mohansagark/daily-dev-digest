@@ -629,14 +629,14 @@
     "verdict": "rewrite"
   },
   "capture-html-elements-to-images-using-sn": {
-    "action": "error",
-    "bedrock_calls": 3,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "63700514bd1a17a3887a61409d0ed3af",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft includes an 'Advanced Features' section that is not supported by the prior post gist or web search notes.\",\n    \"The draft mentions specific advan...",
+    "reason": "The post has a real topic and gist but contains redundant sections, broken structure, and extraneous content that needs to be removed or reorganized for clarity.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:38:16.774367+00:00",
+    "timestamp": "2026-08-07T12:50:06.177751+00:00",
     "verdict": "rewrite"
   },
   "charm-of-method-chaining-fluent-interfac": {
@@ -1015,25 +1015,25 @@
     "verdict": "rewrite"
   },
   "designing-with-ai-not-around-it-practica": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "1723e73d50098cc2ea59d9fad1cb8044",
-    "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Harnessing AI in Product Design: Advanced Techniques and Best Practices\",\n  \"subtitle\": \"Elevate your design process with AI-driven strategies\",\n  \"meta_description\": \"Discover how to...",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but contains repetitive and extraneous content, broken structure, and could be condensed for clarity and coherence.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:38:51.701748+00:00",
+    "timestamp": "2026-08-07T12:50:21.042559+00:00",
     "verdict": "rewrite"
   },
   "devops-journey-week-8-automating-configu": {
-    "action": "error",
-    "bedrock_calls": 3,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "886f0d08439141f7f1c92a59b79d8a29",
-    "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims 'Secure communication via SSH is fundamental to Ansible's operation, ensuring that tasks are executed safely across your infrastructure.' T...",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but contains duplicated content, unstructured sections, and extraneous elements that need cleaning up to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:39:03.283834+00:00",
+    "timestamp": "2026-08-07T12:50:34.359247+00:00",
     "verdict": "rewrite"
   },
   "dipping-your-toes-into-ai-here-s-what-yo": {
@@ -1136,14 +1136,14 @@
     "verdict": "clean"
   },
   "essential-programming-languages-and-skil": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "0fcf6546e8ea269b72f175e68b50f26a",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Future-Proof Programming Languages and Skills Every Developer Needs\",\n  \"subtitle\": \"Stay competitive in the tech job market with these essential languages and skills\",\n  \"meta_descri...",
+    "reason": "The post has a real topic and gist but contains duplicated content, lacks a coherent structure, and has abrupt endings.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:39:35.510463+00:00",
+    "timestamp": "2026-08-07T12:50:56.572299+00:00",
     "verdict": "rewrite"
   },
   "event-driven-architecture-pattern-applic": {
@@ -1225,14 +1225,14 @@
     "verdict": "clean"
   },
   "forget-manual-fixes-gitops-is-the-future": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "b24296afe0b34e5219f483a850e9a293",
-    "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Embrace GitOps: The Blueprint for Modern Software Management\",\n  \"subtitle\": \"Streamline your software deployment with GitOps principles\",\n  \"meta_description\": \"Discover how GitOps t...",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but contains repetitive content, incomplete sections, and lacks a coherent structure. It needs significant editing to meet current blog standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:39:43.573198+00:00",
+    "timestamp": "2026-08-07T12:51:08.649726+00:00",
     "verdict": "rewrite"
   },
   "from-data-to-decisions-ux-strategies-for": {
@@ -1357,14 +1357,14 @@
     "verdict": "rewrite"
   },
   "here-s-how-you-can-serialize-deserialize": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "ba4c76a7309f77a2c7828c9f23bce51f",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Serializing and Deserializing Errors in JavaScript: A Practical Guide\",\n  \"subtitle\": \"How to use the serialize-error package effectively\",\n  \"meta_description\": \"Learn how to seriali...",
+    "reason": "The post has a real topic but is repetitive, poorly structured, and contains extraneous content that detracts from the main subject.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:40:02.525742+00:00",
+    "timestamp": "2026-08-07T12:51:22.226238+00:00",
     "verdict": "rewrite"
   },
   "how-developers-can-support-localization-": {
@@ -1654,14 +1654,14 @@
     "verdict": "rewrite"
   },
   "making-a-masonry-layout-that-works-today": {
-    "action": "error",
-    "bedrock_calls": 3,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "8a42fc509aab2aac8ab63c84b9723080",
-    "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"verdict\": \"revise\",\n  \"issues\": [\n    \"The draft claims that 'Combining this solution with CSS frameworks like Tailwind CSS can add even more flexibility to your masonry grids.' This specific cla...",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but contains repeated content, promotional material, and incomplete code snippets. It needs restructuring and cleanup to meet current standards.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:40:20.950951+00:00",
+    "timestamp": "2026-08-07T12:51:36.687172+00:00",
     "verdict": "rewrite"
   },
   "mastering-angulars-httpresource-why-serv": {
@@ -2382,14 +2382,14 @@
     "verdict": "rewrite"
   },
   "tiny-screens-big-impact-the-forgotten-ar": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "548191e475b13565cb4328f5f1d3a244",
     "confidence": "high",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Revitalizing Web Apps for Feature Phones: Strategies for Tiny Screens\",\n  \"subtitle\": \"Unlock the potential of feature phones with practical development tips.\",\n  \"meta_description\": ...",
+    "reason": "The post has a real topic and gist but is incomplete and has a broken structure. It contains repeated sections and unfinished sentences.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:41:34.927218+00:00",
+    "timestamp": "2026-08-07T12:51:48.395067+00:00",
     "verdict": "rewrite"
   },
   "top-5-javascript-array-methods-every-dev": {
@@ -2728,14 +2728,14 @@
     "verdict": "rewrite"
   },
   "what-is-o4-mini-high-all-you-need-to-kno": {
-    "action": "error",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "9c62bf2e29ad6ecbd57c9555225f218f",
     "confidence": "medium",
-    "reason": "rewrite failed: Could not parse JSON from LLM response: {\n  \"headline\": \"Demystifying o4-mini-high: The Enhanced Reasoning Model\",\n  \"subtitle\": \"A deep dive into the capabilities and applications of o4-mini-high\",\n  \"meta_description\": \"Explore the o4-min...",
+    "reason": "The post has a real topic and provides valuable information about the o4-mini-high model, but it contains redundant content, lacks a clear structure, and has some incomplete sections. It needs editing for clarity, conciseness, and better organization.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:42:16.649742+00:00",
+    "timestamp": "2026-08-07T12:52:01.245823+00:00",
     "verdict": "rewrite"
   },
   "what-is-the-best-platform-to-learn-backe": {
