@@ -1,6 +1,8 @@
 .env
 venv/
+.venv/
 digests/
 __pycache__/
 .superpowers/
 .pytest_cache/
+cover_template/_runtime_photo.jpg

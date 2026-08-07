@@ -28,6 +28,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('requirements.txt') }}
+
+      - name: Install Playwright Chromium
+        run: playwright install --with-deps chromium
+
       # AWS auth for Bedrock via GitHub OIDC (preferred — no long-lived keys).
       # The IAM role in AWS_ROLE_ARN must trust this repo's OIDC subject and
       # allow bedrock:InvokeModel on the Nova Pro model / inference-profile ARN.
@@ -39,7 +48,7 @@ jobs:
         # Fallback for static keys (comment out the block above and set
         # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY as env on the step below).
 
-      - name: Generate Digest (scrape -> clean -> dedupe -> Bedrock LLM x2 -> mdx)
+      - name: Generate Digest (scrape -> filter -> Bedrock -> editorial cover -> mdx)
         env:
           FEED_SOURCES: ${{ secrets.FEED_SOURCES }}
           AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
