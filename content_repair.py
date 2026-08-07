@@ -73,14 +73,46 @@ def dump_mdx(fm: dict, body: str) -> str:
     return f"---\n{fm_yaml}\n---\n{body}"
 
 
-def apply_kept_frontmatter(fm: dict, *, origin: str, image_suggestion: str) -> dict:
-    """Return FM with repair stamps for kept posts; preserve existing ``source_url`` only."""
+def apply_kept_frontmatter(
+    fm: dict,
+    *,
+    origin: str,
+    image_suggestion: str,
+    blog_root: str | None = None,
+    slug: str | None = None,
+) -> dict:
+    """Return FM with repair stamps for kept/rewritten posts.
+
+    Preserves existing ``source_url``. Does not downgrade ``cover_status: done``
+    or force editorial covers back to ``none`` (see cover self-heal spec §5.5).
+    """
+    import cover_status as cs
+
     out = dict(fm)
     out["ai"] = True
     out["origin"] = origin
     out["author"] = "Mohan Sagar"
-    out["cover_status"] = "none"
-    out["image_suggestion"] = image_suggestion
+
+    prior_status = cs.normalize_cover_status(fm.get("cover_status"))
+    if prior_status == "done":
+        out["cover_status"] = "done"
+    elif blog_root and slug and cs.is_editorial_cover(fm, blog_root, slug):
+        out["cover_status"] = "done"
+    else:
+        out["cover_status"] = "none"
+
+    # Do not stamp a schematic image_suggestion over posts that already have
+    # an editorial cover (image_prompt stays the durable brief).
+    editorial = bool(
+        blog_root and slug and cs.is_editorial_cover(fm, blog_root, slug)
+    )
+    if editorial and image_suggestion and cs.prompt_is_schematic(image_suggestion):
+        if "image_suggestion" in fm:
+            out["image_suggestion"] = fm.get("image_suggestion")
+        else:
+            out.pop("image_suggestion", None)
+    else:
+        out["image_suggestion"] = image_suggestion
     return out
 
 
@@ -444,7 +476,11 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
             else:
                 suggestion = str(fm.get("image_suggestion") or "")
         updated_fm = apply_kept_frontmatter(
-            updated_fm, origin=detect_origin(fm), image_suggestion=suggestion
+            updated_fm,
+            origin=detect_origin(fm),
+            image_suggestion=suggestion,
+            blog_root=blog_root,
+            slug=slug,
         )
         with open(path, "w", encoding="utf-8") as f:
             f.write(dump_mdx(updated_fm, final_body))

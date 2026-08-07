@@ -14,14 +14,16 @@ def test_with_cover_emits_image_fields():
     assert "image: " in mdx and "/blog-images/h.jpg" in mdx
     assert "image_alt: " in mdx and "a prism" in mdx
     assert "image_prompt: " in mdx
+    assert "cover_status: done" in mdx
     assert "image_suggestion:" not in mdx          # old field is gone
 
 
-def test_without_cover_emits_no_image_fields():
+def test_without_cover_emits_failed_cover_status():
     mdx = build_mdx(ART, STRAT, GEN, VER, "h", cover=None)
     assert "image:" not in mdx
     assert "image_alt:" not in mdx
     assert "image_suggestion:" not in mdx
+    assert "cover_status: failed" in mdx
 
 
 def _frontmatter_block(mdx):
