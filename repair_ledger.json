@@ -1997,24 +1997,24 @@
   "project-pact-expedition-deep-dive": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "bfb446eba416d399ee2d0a19881d6b04",
+    "body_hash": "9e4c6b78095915281386c0c8d55a7654",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete, has a broken structure, and contains repetitive content. It needs significant editing to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear and detailed exploration of the topic without being a first-person journal or diary.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:40:56.611840+00:00",
+    "timestamp": "2026-08-08T12:31:18.571909+00:00",
     "verdict": "rewrite"
   },
   "prompting-is-a-design-act-how-to-brief-g": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "97d2bbb31d27139821485c5804e85318",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "63c2bc93488b7fb04f4112239cf32814",
     "confidence": "high",
-    "reason": "The post is coherent, well-structured, and provides valuable insights into prompting AI effectively. It has a clear topic, detailed explanations, and actionable takeaways.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:18:40.419076+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides valuable insights and is well-structured.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:31:30.586052+00:00",
+    "verdict": "rewrite"
   },
   "provide-private-storage-for-internal-com": {
     "action": "rewritten",
@@ -2064,23 +2064,23 @@
   "react-libraries-for-building-ai-powered-": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "c48aa5b4fdcc0ebd2e12b0696c7831db",
-    "confidence": "medium",
-    "reason": "The post has a real topic and provides useful information about React libraries for AI-powered apps, but it contains repetitive content, lacks a clear structure, and has an abrupt ending.",
+    "body_hash": "da947bcbdf2803c0e9992746c2dce806",
+    "confidence": "high",
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable information on integrating AI into React applications using specific libraries and tools.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:41:21.631278+00:00",
+    "timestamp": "2026-08-08T12:31:40.173095+00:00",
     "verdict": "rewrite"
   },
   "rediscovering-the-basics-my-week-1-journ": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "27bc4845fda0cf6a486da823bd3895d2",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains repetitive content, broken structure, and some irrelevant sections that need to be cleaned up to meet current standards.",
+    "body_hash": "99e707638af72c090481bf2e2907e117",
+    "confidence": "high",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides detailed information on design fundamentals without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:19:39.298183+00:00",
+    "timestamp": "2026-08-08T12:31:49.755102+00:00",
     "verdict": "rewrite"
   },
   "scammers-are-using-ton-to-steal-on-teleg": {
@@ -2095,47 +2095,47 @@
     "verdict": "rewrite"
   },
   "scroll-driven-sticky-heading": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "917541464d0602ac818f4c27a7338bd2",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "a4f9ecd328bb2c68cfb6fed74a684d6a",
     "confidence": "high",
-    "reason": "The post is coherent, detailed, and provides valuable technical insights into scroll-driven animations, including practical examples and considerations for accessibility and fallbacks.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:19:46.192856+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, technical explanation of scroll-driven animations and their implementation.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:32:02.127081+00:00",
+    "verdict": "rewrite"
   },
   "serpapi-a-complete-api-for-fetching-sear": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "9dd458254f8b271725bb8a4bbebda4d9",
+    "body_hash": "c892a3294fda118287e502e50876b577",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains repeated sections, incomplete sentences, and structural issues that need to be addressed to meet current standards.",
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides comprehensive coverage of the topic without being a first-person account.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:19:58.450542+00:00",
+    "timestamp": "2026-08-08T12:32:11.548406+00:00",
     "verdict": "rewrite"
   },
   "setting-line-length-in-css-and-fitting-t": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "60b22f10b87fb8a21c0667ab0df01cc0",
+    "body_hash": "f089457c4a797c4c3834de66601c51e7",
     "confidence": "high",
-    "reason": "The post contains valuable information but is marred by repeated boilerplate content, lacks a coherent structure, and has abrupt endings. It needs significant restructuring and editing to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable technical insights and is well-structured.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:20:09.882036+00:00",
+    "timestamp": "2026-08-08T12:32:22.155126+00:00",
     "verdict": "rewrite"
   },
   "should-the-css-light-dark-function-suppo": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "f2f2f8a1e39377da50caeb693dd33119",
+    "body_hash": "6b2097d9447c992175809e1c6fa08c7c",
     "confidence": "high",
-    "reason": "The post contains valuable information but is repetitive, poorly structured, and includes irrelevant promotional content. It needs significant editing to improve clarity and focus.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Key Takeaways` section near the top. It discusses a real topic with depth and provides practical considerations, making it a high-quality piece that meets current blog standards.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:20:22.374549+00:00",
+    "timestamp": "2026-08-08T12:32:35.448420+00:00",
     "verdict": "rewrite"
   },
   "single-core-high-concurrency": {
@@ -2152,12 +2152,12 @@
   "state-management-showdown-signals-ngrx-r": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "d902927306215e01eeb1cbf4112d60b1",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains repetitive content, lacks depth in comparisons, and has structural issues. It needs expansion and better organization to meet current standards.",
+    "body_hash": "95845550e0f8d9b21c3b7cdf3f04a851",
+    "confidence": "high",
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear comparison of three state management strategies with examples and explanations.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:20:52.433556+00:00",
+    "timestamp": "2026-08-08T12:32:47.979214+00:00",
     "verdict": "rewrite"
   },
   "stop-asking-for-coffee-chats-do-this-ins": {
@@ -2197,23 +2197,23 @@
   "supercharging-your-react-state-managemen": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "fd3df365689b77e3d993b3df416010da",
+    "body_hash": "56c134d5d9833f7d4daf64d3a2ca8bff",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains duplicated content, lacks a coherent structure, and has formatting issues that need to be addressed.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Key Takeaways` section near the top. It provides a clear, structured explanation of Zustand, its features, and how it compares to other state management solutions. The code examples are relevant and well-integrated into the text.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:21:28.100175+00:00",
+    "timestamp": "2026-08-08T12:33:02.758921+00:00",
     "verdict": "rewrite"
   },
   "ternary-operator-is-it-just-a-fading-if-": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "0d5982eff847c4cb8fa1dd0950922816",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains redundant information, incomplete sections, and formatting issues that need to be addressed to meet current standards.",
+    "body_hash": "0d29e095ab3231afcf757ed5ce7dbf88",
+    "confidence": "high",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, structured explanation of the ternary operator in JavaScript, including syntax, use cases, and best practices.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:21:41.847476+00:00",
+    "timestamp": "2026-08-08T12:33:12.054435+00:00",
     "verdict": "rewrite"
   },
   "the-case-for-apache-airflow-and-kafka-in": {
@@ -2239,15 +2239,15 @@
     "verdict": "rewrite"
   },
   "the-double-edged-sustainability-sword-of": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "82c45597c02809f0c5c7119bc5c57814",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "132e3c90d4b5e3849b161984b3c46f53",
     "confidence": "high",
-    "reason": "The post is coherent, well-structured, and provides valuable insights into the topic of AI in web design sustainability. It has a clear introduction, body, and key takeaways.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:22:05.541609+00:00",
-    "verdict": "clean"
+    "reason": "The post has a real topic and gist but lacks a cohesive multi-paragraph structure, has thin content under headings, and uses a plain `## Takeaways` heading instead of a more descriptive one. It needs restructuring and expansion to meet current standards.",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:33:20.198763+00:00",
+    "verdict": "rewrite"
   },
   "the-evolution-of-ai-memory-from-context-": {
     "action": "rewritten",
