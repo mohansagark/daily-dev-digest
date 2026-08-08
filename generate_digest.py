@@ -78,7 +78,9 @@ DUPLICATES_FILE = "processed_articles.json"
 BLOG_REPO_DIR = os.getenv("BLOG_REPO_DIR", "blog")
 # Params feeds bolt onto links for attribution; they do not identify content.
 TRACKING_PARAM_PREFIXES = ("utm_", "mc_")
-TRACKING_PARAMS = {"ref", "source", "fbclid", "gclid", "igshid", "at_medium"}
+# Intentionally omit bare "source" — some sites use ?source= as a real content
+# identifier. Feed attribution usually arrives as utm_* / ref / *clid.
+TRACKING_PARAMS = {"ref", "fbclid", "gclid", "igshid", "at_medium", "at_campaign"}
 AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Mohan Sagar")
 
 # Near-duplicate content guard: if a new article's cleaned text is >= this
@@ -141,6 +143,29 @@ def normalize_source_url(url):
     return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, query, ""))
 
 
+def _front_matter_block(text):
+    """Return the YAML front-matter body, or None.
+
+    Normalises CRLF/CR so Windows-checked-out posts still parse, and requires
+    a closing --- fence so a body mention of source_url cannot leak in.
+    """
+    normalised = text.replace("\r\n", "\n").replace("\r", "\n")
+    match = re.match(r"^---\n(.*?)\n---\s*(?:\n|$)", normalised, re.S)
+    return match.group(1) if match else None
+
+
+def _front_matter_source_url(block):
+    """Extract source_url from a front-matter block (bare or quoted)."""
+    match = re.search(
+        r"^source_url:\s*(?:'([^']*)'|\"([^\"]*)\"|(\S+))\s*$",
+        block,
+        re.M,
+    )
+    if not match:
+        return ""
+    return next(group for group in match.groups() if group is not None)
+
+
 def load_published_source_urls(blog_dir=None):
     """Source URLs of every post already published to portfolio-blog.
 
@@ -161,13 +186,11 @@ def load_published_source_urls(blog_dir=None):
                 text = f.read()
         except OSError:
             continue
-        front_matter = re.match(r"^---\n(.*?)\n---", text, re.S)
-        if not front_matter:
+        block = _front_matter_block(text)
+        if not block:
             continue
-        found = re.search(r"^source_url:\s*(\S+)", front_matter.group(1), re.M)
-        if not found:
-            continue
-        normalized = normalize_source_url(found.group(1).strip("\"'"))
+        raw = _front_matter_source_url(block)
+        normalized = normalize_source_url(raw)
         if normalized:
             urls.add(normalized)
     return urls

@@ -115,14 +115,23 @@ jobs:
       # only ever existed on the runner and was destroyed at teardown.
       - name: Commit dedupe ledger
         if: always()
+        # Stay on the digest repo root (prior step cds into blog/ only for itself).
+        # Retry once on a raced push so a concurrent manual dispatch cannot drop
+        # the ledger update that near-duplicate detection still needs.
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add processed_articles.json
           git diff --cached --quiet && echo "ℹ️ Ledger unchanged" && exit 0
           git commit -m "chore: update dedupe ledger $(date '+%Y-%m-%d %H:%M')"
-          git pull --rebase --autostash origin ${{ github.ref_name }}
-          git push origin HEAD:${{ github.ref_name }}
+          for attempt in 1 2; do
+            git pull --rebase --autostash origin "${{ github.ref_name }}" && \
+              git push origin "HEAD:${{ github.ref_name }}" && exit 0
+            echo "⚠️ Ledger push attempt ${attempt} failed; retrying"
+            sleep 2
+          done
+          echo "❌ Failed to push dedupe ledger"
+          exit 1
 
       # NOTE: Vercel deploy hook removed. Deployment is now triggered by
       # portfolio-blog's own CI after it rebuilds its generated/ artifacts.

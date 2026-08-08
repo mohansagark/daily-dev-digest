@@ -36,6 +36,11 @@ def test_normalize_source_url_drops_tracking_params_but_keeps_real_ones():
         == "https://ex.test/a"
     )
     assert gd.normalize_source_url("https://ex.test/a?id=7") == "https://ex.test/a?id=7"
+    # Bare ?source= can be a real content key on some sites — keep it.
+    assert (
+        gd.normalize_source_url("https://ex.test/a?source=canonical&ref=rss")
+        == "https://ex.test/a?source=canonical"
+    )
 
 
 def test_normalize_source_url_tolerates_empty_input():
@@ -78,6 +83,25 @@ def test_load_published_source_urls_only_reads_the_front_matter_block(tmp_path):
     )
     assert gd.load_published_source_urls(str(tmp_path / "blog")) == {
         "https://ex.test/real"
+    }
+
+
+def test_load_published_source_urls_handles_crlf_and_quoted_values(tmp_path):
+    posts = tmp_path / "blog" / "posts"
+    posts.mkdir(parents=True)
+    (posts / "crlf.mdx").write_bytes(
+        b"---\r\ntitle: CRLF\r\nsource_url: https://ex.test/crlf/\r\n---\r\n\r\nBody\r\n"
+    )
+    (posts / "quoted.mdx").write_text(
+        "---\n"
+        "title: Quoted\n"
+        'source_url: "https://ex.test/quoted?utm_source=rss"\n'
+        "---\n\nBody\n",
+        encoding="utf-8",
+    )
+    assert gd.load_published_source_urls(str(tmp_path / "blog")) == {
+        "https://ex.test/crlf",
+        "https://ex.test/quoted",
     }
 
 
