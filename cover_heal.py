@@ -206,7 +206,9 @@ def write_report(
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Editorial cover self-heal")
     p.add_argument("--blog-root", required=True)
-    p.add_argument("--limit", type=int, default=20)
+    # 35 covers x ~192 neurons (measured) = ~6.7k, plus the digest's daily cover,
+    # keeps a run under ~70% of the 10k/day Workers AI free tier.
+    p.add_argument("--limit", type=int, default=35)
     p.add_argument("--slugs", default="", help="Comma-separated slug filter")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--seed-status-only", action="store_true")

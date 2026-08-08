@@ -6,13 +6,13 @@ name: Heal editorial covers
 
 on:
   schedule:
-    - cron: "0 4 * * *"  # 04:00 UTC daily — offset from digest (30 2 * * *)
+    - cron: "30 22 * * *"  # 22:30 UTC = 4:00 AM IST — offset 2h after digest (30 20 * * *)
   workflow_dispatch:
     inputs:
       limit:
         description: "Max covers to heal this run"
         required: false
-        default: "20"
+        default: "35"
       dry_run:
         description: "Dry run (no FLUX / no writes)"
         type: boolean
@@ -125,7 +125,7 @@ jobs:
           if [ "${{ github.event.inputs.seed_status_only }}" = "true" ]; then
             MSG="chore: seed cover_status for editorial covers"
           else
-            MSG="chore: heal up to ${{ github.event.inputs.limit || 20 }} editorial covers"
+            MSG="chore: heal up to ${{ github.event.inputs.limit || 35 }} editorial covers"
           fi
           git commit -m "$MSG"
           git push origin main
