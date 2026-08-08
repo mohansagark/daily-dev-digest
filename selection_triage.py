@@ -2,9 +2,43 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterator
 
 import bedrock_client
+
+# How many ranked candidates to send to Bedrock per triage call.
+DEFAULT_BATCH_SIZE = 5
+# Cap Bedrock triage rounds per run so a bad day cannot burn unlimited calls.
+DEFAULT_MAX_BATCHES = 3
+
+
+def assign_triage_ids(batch: list[dict]) -> list[dict]:
+    """Copy batch items and stamp 1-based ``_triage_id`` for the prompt."""
+    shortlist = [dict(item) for item in batch]
+    for index, item in enumerate(shortlist, start=1):
+        item["_triage_id"] = index
+    return shortlist
+
+
+def iter_triage_batches(
+    ranked: list[dict],
+    *,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    max_batches: int = DEFAULT_MAX_BATCHES,
+) -> Iterator[tuple[int, list[dict]]]:
+    """Yield ``(batch_number_1based, shortlist)`` slices of the ranked list.
+
+    When triage returns ``none_good_enough`` for a batch, the caller advances
+    to the next yield so the day is not a dead end after one reject-all.
+    """
+    if batch_size < 1 or max_batches < 1 or not ranked:
+        return
+    for batch_num in range(1, max_batches + 1):
+        start = (batch_num - 1) * batch_size
+        chunk = ranked[start : start + batch_size]
+        if not chunk:
+            break
+        yield batch_num, assign_triage_ids(chunk)
 
 TRIAGE_SYSTEM_PROMPT = (
     "You select ONE source article for an original technical blog rewrite. "

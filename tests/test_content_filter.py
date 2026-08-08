@@ -74,47 +74,29 @@ def test_main_skips_filtered_candidate_and_publishes_next(tmp_path, monkeypatch)
         "filter_hard_rejects",
         lambda articles, _strategy=None, **_k: (list(articles), []),
     )
-    monkeypatch.setattr(
-        gd,
-        "build_shortlist",
-        lambda articles, _strategy, k=5: (
-            [
-                {
-                    **articles[0],
-                    "_triage_id": 1,
-                    "_theme_hits": 1,
-                    "_title_hits": 1,
-                    "_body_hits": 0,
-                    "_matched_keywords": ["javascript"],
-                    "_score_breakdown": {"total": 0.9},
-                },
-                {
-                    **articles[1],
-                    "_triage_id": 2,
-                    "_theme_hits": 1,
-                    "_title_hits": 1,
-                    "_body_hits": 0,
-                    "_matched_keywords": ["css"],
-                    "_score_breakdown": {"total": 0.8},
-                },
+    def triage_shortlist(shortlist, strategy, dry_run=False):
+        # Prefer the CSRF article first so generate hits content_filter, then falls
+        # through to the CSS article (regression for ordered attempts).
+        csrf_id = next(
+            item["_triage_id"] for item in shortlist if "csrf" in item["link"]
+        )
+        other_ids = [item["_triage_id"] for item in shortlist if item["_triage_id"] != csrf_id]
+        rankings = [
+            {"id": csrf_id, "reject": False, "rewrite_worthiness": 0.95},
+            *[
+                {"id": oid, "reject": False, "rewrite_worthiness": 0.8}
+                for oid in other_ids
             ],
-            articles,
-        ),
-    )
-    monkeypatch.setattr(
-        gd.selection_triage,
-        "triage_shortlist",
-        lambda shortlist, strategy, dry_run=False: {
-            "winner_id": 1,
+        ]
+        return {
+            "winner_id": csrf_id,
             "none_good_enough": False,
             "reason": "test",
-            "rankings": [
-                {"id": 1, "reject": False, "rewrite_worthiness": 0.9},
-                {"id": 2, "reject": False, "rewrite_worthiness": 0.8},
-            ],
+            "rankings": rankings,
             "triage_fallback": None,
-        },
-    )
+        }
+
+    monkeypatch.setattr(gd.selection_triage, "triage_shortlist", triage_shortlist)
     monkeypatch.setattr(
         gd,
         "get_content_strategy",

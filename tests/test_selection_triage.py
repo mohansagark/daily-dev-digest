@@ -117,3 +117,21 @@ def test_triage_prompts_keep_technical_journals():
     assert "knowledge articles" in sys_l
     assert "first-person journal" in user_l
     assert "not a reject by itself" in user_l
+
+
+def test_iter_triage_batches_slices_ranked_list():
+    ranked = [{"title": f"t{i}", "link": f"https://ex/{i}"} for i in range(12)]
+    batches = list(st.iter_triage_batches(ranked, batch_size=5, max_batches=3))
+    assert [n for n, _ in batches] == [1, 2, 3]
+    assert [item["title"] for item in batches[0][1]] == ["t0", "t1", "t2", "t3", "t4"]
+    assert [item["title"] for item in batches[1][1]] == ["t5", "t6", "t7", "t8", "t9"]
+    assert [item["title"] for item in batches[2][1]] == ["t10", "t11"]
+    assert batches[0][1][0]["_triage_id"] == 1
+    assert batches[1][1][0]["_triage_id"] == 1  # ids reset per batch
+
+
+def test_iter_triage_batches_respects_max_batches():
+    ranked = [{"title": f"t{i}"} for i in range(20)]
+    batches = list(st.iter_triage_batches(ranked, batch_size=5, max_batches=2))
+    assert len(batches) == 2
+    assert len(batches[1][1]) == 5

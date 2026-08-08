@@ -58,6 +58,9 @@ FEEDS = feed_sources.resolve_feed_sources()
 MAX_PER_FEED = 5
 MAX_TOTAL = 1  # exactly one post per day (single best candidate)
 SHORTLIST_K = 5
+# When triage says none_good_enough (or the whole batch fails generate), try the
+# next SHORTLIST_K scorers — up to this many Bedrock triage rounds per run.
+MAX_TRIAGE_BATCHES = int(os.getenv("MAX_TRIAGE_BATCHES", "3"))
 SELECTION_REPORT_PATH = "selection-report.md"
 OUTPUT_DIR = "digests"
 IMAGES_SUBDIR = os.path.join(OUTPUT_DIR, "images")
@@ -491,13 +494,15 @@ def write_selection_report(path: str, report: dict) -> str:
         f"- after_dedupe: {report.get('after_dedupe', 0)}",
         f"- after_hard_filters: {report.get('after_hard_filters', 0)}",
         f"- shortlist_size: {report.get('shortlist_size', 0)}",
+        f"- triage_batch: {report.get('triage_batch')}",
+        f"- triage_batches_tried: {report.get('triage_batches_tried', 0)}",
         f"- triage_fallback: {report.get('triage_fallback')}",
         f"- none_good_enough: {report.get('none_good_enough')}",
         f"- winner_id: {report.get('winner_id')}",
         f"- reason: {report.get('reason', '')}",
         f"- published_slug: {report.get('published_slug') or '(none)'}",
         "",
-        "## Shortlist",
+        "## Shortlist (winning / last triage batch)",
         "",
         "| id | topic | score | title_hits | body_hits | matched | title |",
         "| --- | --- | --- | --- | --- | --- | --- |",
@@ -515,6 +520,11 @@ def write_selection_report(path: str, report: dict) -> str:
     lines.extend(["", "## Triage rankings", ""])
     for row in report.get("rankings") or []:
         lines.append(f"- {row}")
+    batch_notes = report.get("triage_batch_notes") or []
+    if batch_notes:
+        lines.extend(["", "## Triage batch log", ""])
+        for note in batch_notes:
+            lines.append(f"- {note}")
     text = "\n".join(lines) + "\n"
     with open(path, "w", encoding="utf-8") as f:
         f.write(text)
@@ -1057,6 +1067,9 @@ def main(dry_run=False):
         "reason": "",
         "triage_fallback": None,
         "none_good_enough": False,
+        "triage_batch": None,
+        "triage_batches_tried": 0,
+        "triage_batch_notes": [],
         "published_slug": None,
     }
 
@@ -1112,87 +1125,138 @@ def main(dry_run=False):
             print("❌ No candidates after hard filters. Exiting.")
             return
 
-        shortlist, _ranked = build_shortlist(candidates, preferred, k=SHORTLIST_K)
-        report["shortlist_size"] = len(shortlist)
-        report["shortlist"] = shortlist
-        if not shortlist:
-            print("❌ Empty shortlist. Exiting.")
+        ranked = rank_articles(candidates, preferred)
+        if not ranked:
+            print("❌ Empty ranked list. Exiting.")
             return
 
-        print(f"📋 Shortlist top {len(shortlist)}:")
-        for item in shortlist:
-            bd = item.get("_score_breakdown") or {}
-            print(
-                f"  #{item['_triage_id']} topic={item.get('_strategy_key')} "
-                f"score={bd.get('total')} theme_hits={item.get('_theme_hits')} | "
-                f"{item['title'][:60]}"
-            )
-
-        # --- batch triage (1 Bedrock call); preferred weekday is soft only -
-        triage = selection_triage.triage_shortlist(
-            shortlist, preferred, dry_run=dry_run
-        )
-        report["rankings"] = triage.get("rankings") or []
-        report["reason"] = triage.get("reason") or ""
-        report["triage_fallback"] = triage.get("triage_fallback")
-        report["none_good_enough"] = bool(triage.get("none_good_enough"))
-        report["winner_id"] = triage.get("winner_id")
-
-        if triage.get("none_good_enough"):
-            print("⚠️ Triage: none_good_enough — no post today.")
-            if not dry_run:
-                by_id = {item["_triage_id"]: item for item in shortlist}
-                for rid in selection_triage.triage_rejects_to_mark(triage):
-                    art = by_id.get(rid)
-                    if not art:
-                        continue
-                    topic_desc = (
-                        get_content_strategy(key=art.get("_strategy_key")).get(
-                            "description"
-                        )
-                        if art.get("_strategy_key")
-                        else preferred["description"]
+        def _mark_triage_rejects(shortlist, triage):
+            if dry_run:
+                return
+            by_id = {item["_triage_id"]: item for item in shortlist}
+            marked = False
+            for rid in selection_triage.triage_rejects_to_mark(triage):
+                art = by_id.get(rid)
+                if not art:
+                    continue
+                topic_desc = (
+                    get_content_strategy(key=art.get("_strategy_key")).get(
+                        "description"
                     )
-                    processed_articles[art["hash"]] = {
-                        "title": art["title"],
-                        "link": art["link"],
-                        "processed_date": datetime.now().isoformat(),
-                        "strategy_used": topic_desc,
-                        "content_sample": _normalize_for_similarity(art["content"]),
-                        "skipped": "triage_reject",
-                    }
+                    if art.get("_strategy_key")
+                    else preferred["description"]
+                )
+                processed_articles[art["hash"]] = {
+                    "title": art["title"],
+                    "link": art["link"],
+                    "processed_date": datetime.now().isoformat(),
+                    "strategy_used": topic_desc,
+                    "content_sample": _normalize_for_similarity(art["content"]),
+                    "skipped": "triage_reject",
+                }
+                marked = True
+            if marked:
                 save_processed_articles(processed_articles)
-            return
-
-        winner_id = triage.get("winner_id")
-        try:
-            winner_id = int(winner_id) if winner_id is not None else None
-        except (TypeError, ValueError):
-            winner_id = shortlist[0]["_triage_id"]
-
-        attempt_ids = selection_triage.ordered_attempt_ids(
-            shortlist, triage, winner_id=winner_id
-        )
-        by_id = {item["_triage_id"]: item for item in shortlist}
 
         published = False
-        for triage_id in attempt_ids:
-            best = by_id[triage_id]
-            win_key = best.get("_strategy_key") or preferred_key
-            strategy = get_content_strategy(key=win_key)
-            breakdown = best.get("_score_breakdown") or {}
+        last_none_good_enough = False
+        for batch_num, shortlist in selection_triage.iter_triage_batches(
+            ranked,
+            batch_size=SHORTLIST_K,
+            max_batches=MAX_TRIAGE_BATCHES,
+        ):
+            report["triage_batch"] = batch_num
+            report["triage_batches_tried"] = batch_num
+            report["shortlist_size"] = len(shortlist)
+            report["shortlist"] = shortlist
+            rank_offset = (batch_num - 1) * SHORTLIST_K
             print(
-                f"🏆 Trying id={triage_id} topic={win_key} ({breakdown}): "
-                f"{best['title'][:60]}"
+                f"📋 Triage batch {batch_num}/{MAX_TRIAGE_BATCHES} "
+                f"(ranked #{rank_offset + 1}–#{rank_offset + len(shortlist)}):"
             )
-            print(f"📝 Generating post for: {best['title']}")
+            for item in shortlist:
+                bd = item.get("_score_breakdown") or {}
+                print(
+                    f"  #{item['_triage_id']} topic={item.get('_strategy_key')} "
+                    f"score={bd.get('total')} theme_hits={item.get('_theme_hits')} | "
+                    f"{item['title'][:60]}"
+                )
+
+            triage = selection_triage.triage_shortlist(
+                shortlist, preferred, dry_run=dry_run
+            )
+            report["rankings"] = triage.get("rankings") or []
+            report["reason"] = triage.get("reason") or ""
+            report["triage_fallback"] = triage.get("triage_fallback")
+            report["none_good_enough"] = bool(triage.get("none_good_enough"))
+            report["winner_id"] = triage.get("winner_id")
+            last_none_good_enough = bool(triage.get("none_good_enough"))
+
+            if triage.get("none_good_enough"):
+                note = (
+                    f"batch {batch_num}: none_good_enough "
+                    f"({triage.get('reason') or 'no reason'})"
+                )
+                report["triage_batch_notes"].append(note)
+                print(
+                    f"⚠️ Triage batch {batch_num}: none_good_enough — "
+                    "advancing to next scorers if any remain."
+                )
+                _mark_triage_rejects(shortlist, triage)
+                continue
+
+            winner_id = triage.get("winner_id")
             try:
-                generated = generate_post(best, strategy, dry_run=dry_run)
-                verified = verify_post(best, generated, dry_run=dry_run)
-            except bedrock_client.ContentFilterBlocked as exc:
-                print(f"⛔ Bedrock content filter blocked this source: {exc}")
+                winner_id = int(winner_id) if winner_id is not None else None
+            except (TypeError, ValueError):
+                winner_id = shortlist[0]["_triage_id"]
+
+            attempt_ids = selection_triage.ordered_attempt_ids(
+                shortlist, triage, winner_id=winner_id
+            )
+            by_id = {item["_triage_id"]: item for item in shortlist}
+
+            for triage_id in attempt_ids:
+                best = by_id[triage_id]
+                win_key = best.get("_strategy_key") or preferred_key
+                strategy = get_content_strategy(key=win_key)
+                breakdown = best.get("_score_breakdown") or {}
+                print(
+                    f"🏆 Trying batch={batch_num} id={triage_id} topic={win_key} "
+                    f"({breakdown}): {best['title'][:60]}"
+                )
+                print(f"📝 Generating post for: {best['title']}")
+                try:
+                    generated = generate_post(best, strategy, dry_run=dry_run)
+                    verified = verify_post(best, generated, dry_run=dry_run)
+                except bedrock_client.ContentFilterBlocked as exc:
+                    print(f"⛔ Bedrock content filter blocked this source: {exc}")
+                    if dry_run:
+                        print(
+                            "🧪 [dry-run] Would mark article skipped (content_filter)."
+                        )
+                    else:
+                        processed_articles[best["hash"]] = {
+                            "title": best["title"],
+                            "link": best["link"],
+                            "processed_date": datetime.now().isoformat(),
+                            "strategy_used": strategy["description"],
+                            "content_sample": _normalize_for_similarity(
+                                best["content"]
+                            ),
+                            "skipped": "content_filter",
+                        }
+                        save_processed_articles(processed_articles)
+                    continue
+
+                slug = make_slug(generated["headline"], best["title"])
+                cover = maybe_generate_cover(
+                    generated, verified, slug, dry_run=dry_run
+                )
+                save_to_mdx(best, strategy, generated, verified, slug, cover)
+
                 if dry_run:
-                    print("🧪 [dry-run] Would mark article skipped (content_filter).")
+                    print("🧪 [dry-run] Skipping processed_articles.json update.")
                 else:
                     processed_articles[best["hash"]] = {
                         "title": best["title"],
@@ -1200,41 +1264,45 @@ def main(dry_run=False):
                         "processed_date": datetime.now().isoformat(),
                         "strategy_used": strategy["description"],
                         "content_sample": _normalize_for_similarity(best["content"]),
-                        "skipped": "content_filter",
                     }
                     save_processed_articles(processed_articles)
-                continue
 
-            slug = make_slug(generated["headline"], best["title"])
-            cover = maybe_generate_cover(generated, verified, slug, dry_run=dry_run)
-            save_to_mdx(best, strategy, generated, verified, slug, cover)
+                report["strategy_key"] = strategy.get("key")
+                report["strategy_description"] = strategy.get("description")
+                report["focus"] = list(strategy.get("focus") or [])
+                report["published_slug"] = slug
+                report["triage_batch_notes"].append(
+                    f"batch {batch_num}: published id={triage_id} slug={slug}"
+                )
+                print(
+                    f"🎉 Done. Generated 1 post ({slug}.mdx) as topic [{win_key}] "
+                    f"(triage batch {batch_num})."
+                )
+                print(f"📝 Total processed articles: {len(processed_articles)}")
+                published = True
+                break
 
-            if dry_run:
-                print("🧪 [dry-run] Skipping processed_articles.json update.")
-            else:
-                processed_articles[best["hash"]] = {
-                    "title": best["title"],
-                    "link": best["link"],
-                    "processed_date": datetime.now().isoformat(),
-                    "strategy_used": strategy["description"],
-                    "content_sample": _normalize_for_similarity(best["content"]),
-                }
-                save_processed_articles(processed_articles)
+            if published:
+                break
 
-            report["strategy_key"] = strategy.get("key")
-            report["strategy_description"] = strategy.get("description")
-            report["focus"] = list(strategy.get("focus") or [])
-            report["published_slug"] = slug
-            print(f"🎉 Done. Generated 1 post ({slug}.mdx) as topic [{win_key}].")
-            print(f"📝 Total processed articles: {len(processed_articles)}")
-            published = True
-            break
+            note = f"batch {batch_num}: all generate attempts blocked/unusable"
+            report["triage_batch_notes"].append(note)
+            print(
+                f"⚠️ Triage batch {batch_num}: all candidates blocked — "
+                "advancing to next scorers if any remain."
+            )
 
         if not published:
-            print(
-                "⚠️ All eligible shortlist candidates were blocked or unusable. "
-                "No post today — exiting cleanly."
-            )
+            if last_none_good_enough:
+                print(
+                    "⚠️ All triage batches returned none_good_enough. "
+                    "No post today — exiting cleanly."
+                )
+            else:
+                print(
+                    "⚠️ All eligible shortlist candidates were blocked or unusable. "
+                    "No post today — exiting cleanly."
+                )
 
         if dry_run:
             print("🧪 Dry run complete — Bedrock was NOT called.")

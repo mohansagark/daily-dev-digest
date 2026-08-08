@@ -184,3 +184,93 @@ def test_main_intra_run_dedupes_duplicate_feed_urls(tmp_path, monkeypatch):
     report = (tmp_path / "selection-report.md").read_text(encoding="utf-8")
     assert "after_dedupe: 2" in report  # twin collapsed; other kept
     assert published["slug"]
+
+
+def test_main_advances_to_next_triage_batch_on_none_good_enough(tmp_path, monkeypatch):
+    """First Bedrock triage reject-all must not end the day — try next 5 scorers."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(gd, "MAX_TRIAGE_BATCHES", 3)
+    monkeypatch.setattr(gd, "SHORTLIST_K", 5)
+
+    def _art(i, topic_words):
+        return {
+            "title": f"Article {i} {topic_words.split()[0]}",
+            "link": f"https://example.test/a{i}",
+            "published": "",
+            "author": "A",
+            "content": (topic_words + " ") * 40,
+        }
+
+    # 6+ candidates so batch 2 exists after top-5 reject-all.
+    articles = [_art(i, "react javascript typescript frontend css") for i in range(1, 7)]
+    monkeypatch.setattr(gd, "FEEDS", ["https://example.test/feed"])
+    monkeypatch.setattr(gd, "fetch_articles_from_feed", lambda *_a, **_k: articles)
+    monkeypatch.setattr(gd, "load_processed_articles", lambda: {})
+    monkeypatch.setattr(gd, "load_published_source_urls", lambda *_a, **_k: set())
+    monkeypatch.setattr(gd, "is_near_duplicate", lambda *_a, **_k: False)
+
+    calls = {"n": 0}
+
+    def triage(shortlist, strategy, dry_run=False):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return {
+                "winner_id": None,
+                "none_good_enough": True,
+                "reason": "batch1 reject",
+                "rankings": [
+                    {"id": item["_triage_id"], "reject": True, "rewrite_worthiness": 0.1}
+                    for item in shortlist
+                ],
+                "triage_fallback": None,
+            }
+        return {
+            "winner_id": 1,
+            "none_good_enough": False,
+            "reason": "batch2 winner",
+            "rankings": [
+                {"id": item["_triage_id"], "reject": False, "rewrite_worthiness": 0.9}
+                for item in shortlist
+            ],
+            "triage_fallback": None,
+        }
+
+    monkeypatch.setattr(gd.selection_triage, "triage_shortlist", triage)
+    monkeypatch.setattr(
+        gd,
+        "generate_post",
+        lambda article, strategy, dry_run=False: {
+            "headline": "Batch Two Winner",
+            "subtitle": "s",
+            "meta_description": "m",
+            "tags": ["frontend"],
+            "body_markdown": "## Key Takeaways\n\n- x\n",
+        },
+    )
+    monkeypatch.setattr(
+        gd,
+        "verify_post",
+        lambda article, generated, dry_run=False: {
+            "verdict": "pass",
+            "issues": [],
+            "corrected_body_markdown": generated["body_markdown"],
+        },
+    )
+    monkeypatch.setattr(gd, "maybe_generate_cover", lambda *a, **k: None)
+    published = {}
+    monkeypatch.setattr(
+        gd,
+        "save_to_mdx",
+        lambda article, strategy, generated, verified, slug, cover: published.update(
+            {"slug": slug, "title": article["title"]}
+        ),
+    )
+    monkeypatch.setattr(gd, "save_processed_articles", lambda *_a, **_k: None)
+
+    gd.main(dry_run=False)
+
+    assert calls["n"] == 2
+    assert published["slug"] == "batch-two-winner"
+    report = (tmp_path / "selection-report.md").read_text(encoding="utf-8")
+    assert "triage_batches_tried: 2" in report
+    assert "batch 1: none_good_enough" in report
