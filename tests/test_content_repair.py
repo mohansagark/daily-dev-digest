@@ -38,6 +38,14 @@ def test_generate_prompts_depersonalize_first_person_journals():
     assert "depersonalize" in user_l
 
 
+def test_repair_generate_prompts_require_seo_structure():
+    user = rp.GENERATE_USER_TEMPLATE
+    assert "answer-first" in user
+    assert "## Key Takeaways" in user
+    assert "## FAQ" in user
+    assert "question-style" in user
+
+
 def test_verify_prompts_strip_fabricated_autobiography():
     sys_l = rp.VERIFY_SYSTEM_PROMPT.lower()
     user_l = rp.VERIFY_USER_TEMPLATE.lower()

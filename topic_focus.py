@@ -92,12 +92,31 @@ CONTENT_DENYLIST_CHARS = 2000
 MIN_BODY_CHARS = 400
 
 
-def get_content_strategy(now=None):
-    """Pick the daily strategy from weekday (deterministic). Includes ``key``."""
+def allowed_strategy_keys() -> list[str]:
+    """Every topic eligible for selection on any day (#16)."""
+    return list(STRATEGIES.keys())
+
+
+def preferred_strategy_key(now=None) -> str:
+    """Soft weekday preference — used only as a tiny ranking bias, not a gate."""
     now = now or datetime.now()
-    key = WEEKDAY_STRATEGY[now.weekday()]
-    strategy = dict(STRATEGIES[key])
-    strategy["key"] = key
+    return WEEKDAY_STRATEGY[now.weekday()]
+
+
+def get_content_strategy(now=None, key=None):
+    """Resolve a strategy pack.
+
+    - ``key`` set → that pack (winning topic after multi-topic scoring).
+    - otherwise → weekday pack as a soft default for callers that still want
+      a single strategy (tests, repair scripts). Selection itself scores all
+      topics via ``score_against_all_topics``.
+    """
+    now = now or datetime.now()
+    resolved = key or WEEKDAY_STRATEGY[now.weekday()]
+    if resolved not in STRATEGIES:
+        raise KeyError(f"Unknown strategy key: {resolved}")
+    strategy = dict(STRATEGIES[resolved])
+    strategy["key"] = resolved
     return strategy
 
 
@@ -142,8 +161,35 @@ def title_body_hits(title, content, focus) -> tuple[int, int, list[str]]:
 
 
 def theme_score(title_hits: int, body_hits: int) -> float:
-    """Soft theme score from title-weighted distinct keyword hits."""
-    return min(1.0, (2 * title_hits + body_hits) / 4.0)
+    """Soft theme score from title-weighted distinct keyword hits.
+
+    A lone incidental body hit (e.g. the word "saas" inside a security post)
+    must not outrank a real on-title match — require a title hit or ≥2 body
+    hits before awarding any theme credit (#16).
+    """
+    if title_hits <= 0 and body_hits < 2:
+        return 0.0
+    return min(1.0, (3 * title_hits + body_hits) / 6.0)
+
+
+def best_topic_for_article(title: str, content: str, *, preferred_key: str | None = None):
+    """Return (strategy_key, title_hits, body_hits, matched, theme) for best fit.
+
+    Scores every allowed topic; a tiny bonus keeps the weekday preference as a
+    tie-breaker only when theme strength is otherwise equal.
+    """
+    preferred_key = preferred_key or preferred_strategy_key()
+    best = ("frontend", 0, 0, [], 0.0)
+    best_rank = -1.0
+    for key in allowed_strategy_keys():
+        focus = STRATEGIES[key]["focus"]
+        title_hits, body_hits, matched = title_body_hits(title, content, focus)
+        theme = theme_score(title_hits, body_hits)
+        rank = theme + (0.03 if key == preferred_key else 0.0)
+        if rank > best_rank:
+            best_rank = rank
+            best = (key, title_hits, body_hits, matched, theme)
+    return best
 
 
 def filter_hard_rejects(articles, strategy=None, *, min_body_chars: int = MIN_BODY_CHARS):

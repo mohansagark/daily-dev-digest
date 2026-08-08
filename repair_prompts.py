@@ -84,9 +84,18 @@ Grounding:
 Requirements:
 - Genuinely rewrite and restructure — do NOT reproduce the gist's wording.
 - Keep it technically accurate; do not invent facts not in the gist or notes.
-- Structure the body with a short intro, 3-5 `##` sections (each 2-3 focused
-  paragraphs with concrete detail and a short example where useful), and a
-  takeaways list.
+- Structure body_markdown in this order:
+  1. Opening paragraph: a 40–60 word direct answer to the post's core question
+     (answer-first; no throat-clearing preamble).
+  2. Immediately after: a single `## Key Takeaways` section with 3–5 bullets.
+     Use that exact heading — never "Takeaways" alone, never a second takeaways
+     section.
+  3. Then 3–5 `##` sections with question-style headings when natural
+     (PAA-shaped, e.g. "How does X work?" not "Overview"). Each section: 2–3
+     focused paragraphs with concrete detail and a short example where useful.
+  4. Near the end: a short `## FAQ` with 2–4 `###` question headings and concise
+     answers when the material supports it. Keep strict H2→H3 hierarchy
+     (no body H1, no skipped levels).
 - Tone/style: {style}. Audience: professional developers.
 - Voice: write a knowledge article, not a personal diary. If the gist uses
   first-person journal framing (my journey, week N, internship diary, I quit,
@@ -155,6 +164,13 @@ those passages into second-person or neutral knowledge-article guidance while
 keeping grounded technical content. Then return a corrected body that removes
 or softens unsupported claims while preserving supported content and
 structure. Do not add a mandatory original-source attribution link.
+
+Also enforce structure hygiene when fixing the body:
+- Keep a 40–60 word answer-first opener.
+- Exactly one `## Key Takeaways` section near the top (rename/merge any plain
+  "Takeaways" or duplicate takeaway sections into that single heading).
+- Prefer question-style `##` headings; keep `## FAQ` with `###` questions if
+  present; no body H1 and no skipped heading levels.
 
 Return ONLY this JSON object (no code fences, no commentary):
 {{

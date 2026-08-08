@@ -118,7 +118,7 @@ def test_main_skips_filtered_candidate_and_publishes_next(tmp_path, monkeypatch)
     monkeypatch.setattr(
         gd,
         "get_content_strategy",
-        lambda: {
+        lambda *a, **k: {
             "key": "frontend",
             "focus": ["javascript", "css", "frontend"],
             "style": "energetic",
@@ -218,7 +218,7 @@ def test_main_writes_selection_report_even_on_unexpected_error(tmp_path, monkeyp
     monkeypatch.setattr(
         gd,
         "get_content_strategy",
-        lambda: {
+        lambda *a, **k: {
             "key": "frontend",
             "focus": ["css"],
             "style": "energetic",
@@ -314,7 +314,7 @@ def test_main_exits_cleanly_when_all_candidates_filtered(tmp_path, monkeypatch):
     monkeypatch.setattr(
         gd,
         "get_content_strategy",
-        lambda: {
+        lambda *a, **k: {
             "key": "frontend",
             "focus": ["javascript"],
             "style": "energetic",

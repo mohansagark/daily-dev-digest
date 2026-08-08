@@ -175,7 +175,7 @@ def _stub_pipeline(monkeypatch, articles, published):
     monkeypatch.setattr(
         gd,
         "get_content_strategy",
-        lambda: {
+        lambda *a, **k: {
             "key": "frontend",
             "focus": ["javascript", "css", "frontend"],
             "style": "energetic",
