@@ -13,7 +13,11 @@ def test_default_feeds_cover_every_allowed_topic_bucket():
     assert "react.dev/rss.xml" in urls
     assert "netflixtechblog.com" in urls
     assert "openai.com" in urls
-    assert "anthropic.com" in urls
+    assert "lilianweng.github.io" in urls
+    assert "pytorch.org/blog/feed.xml" in urls
+    assert "medium.com/feed/airbnb-engineering" in urls
+    assert "dropbox.tech/feed" in urls
+    assert "ycombinator.com/blog/feed" in urls
     assert "kubernetes.io/feed.xml" in urls
     assert "security.googleblog.com" in urls
     assert "hnrss.org/show" in urls

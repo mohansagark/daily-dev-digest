@@ -35,10 +35,12 @@ FEED_CATALOG: dict[str, list[dict[str, str]]] = {
         {"name": "BAIR", "url": "https://bair.berkeley.edu/blog/feed.xml"},
         {"name": "Jack Clark", "url": "https://jack-clark.net/feed/"},
         {"name": "OpenAI", "url": "https://openai.com/news/rss.xml"},
-        {"name": "Anthropic", "url": "https://www.anthropic.com/news/rss.xml"},
+        # anthropic.com has no public RSS; Lilian Weng is a strong applied-LLM alternate.
+        {"name": "Lilian Weng", "url": "https://lilianweng.github.io/index.xml"},
         {"name": "Google DeepMind", "url": "https://deepmind.google/blog/rss.xml"},
         {"name": "Google AI", "url": "https://blog.google/technology/ai/rss/"},
-        {"name": "Meta AI", "url": "https://ai.meta.com/blog/rss/"},
+        # ai.meta.com/blog/rss returns 400; PyTorch blog is Meta's public ML feed.
+        {"name": "PyTorch", "url": "https://pytorch.org/blog/feed.xml"},
         {"name": "NVIDIA Developer", "url": "https://developer.nvidia.com/blog/feed/"},
         {"name": "Microsoft Research", "url": "https://www.microsoft.com/en-us/research/feed/"},
     ],
@@ -55,8 +57,10 @@ FEED_CATALOG: dict[str, list[dict[str, str]]] = {
         {"name": "Stack Overflow Blog", "url": "https://stackoverflow.blog/feed/"},
         {"name": "Meta Engineering", "url": "https://engineering.fb.com/feed/"},
         {"name": "Spotify Engineering", "url": "https://engineering.atspotify.com/feed/"},
-        {"name": "Shopify Engineering", "url": "https://shopify.engineering/blogs/engineering.atom"},
-        {"name": "Uber Engineering", "url": "https://www.uber.com/blog/engineering/rss/"},
+        # shopify.engineering atom redirects to HTML; Airbnb eng is a working peer feed.
+        {"name": "Airbnb Engineering", "url": "https://medium.com/feed/airbnb-engineering"},
+        # uber.com engineering RSS is 404; Dropbox Tech is a working peer feed.
+        {"name": "Dropbox Tech", "url": "https://dropbox.tech/feed"},
     ],
     # ============================================================
     # CLOUD / DEVOPS / INFRASTRUCTURE
@@ -103,7 +107,8 @@ FEED_CATALOG: dict[str, list[dict[str, str]]] = {
         {"name": "Hacker News Frontpage", "url": "https://hnrss.org/frontpage"},
         {"name": "SaaStr", "url": "https://www.saastr.com/feed/"},
         {"name": "Sive", "url": "https://sive.rs/en.atom"},
-        {"name": "Indie Hackers", "url": "https://www.indiehackers.com/feed"},
+        # indiehackers.com/feed serves HTML, not RSS; YC blog is a working substitute.
+        {"name": "Y Combinator Blog", "url": "https://www.ycombinator.com/blog/feed"},
         {"name": "Product Hunt", "url": "https://www.producthunt.com/feed"},
     ],
     # ============================================================
