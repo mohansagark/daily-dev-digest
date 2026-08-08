@@ -2429,34 +2429,34 @@
   "typescript-express-headaches-lessons-fro": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "7a23f7b54730979dc5ce2dead0008b2d",
+    "body_hash": "0e663f4323e4578e3357f407d89d3373",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete, has a broken structure, and is below current blog standards. It contains repeated sections and ends abruptly.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides valuable technical insights and best practices without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:24:47.000236+00:00",
+    "timestamp": "2026-08-08T12:37:00.604782+00:00",
     "verdict": "rewrite"
   },
   "uncovering-the-true-vulnerability-of-ai-agents-the-importanc": {
-    "action": "kept",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "9bd4d053c2bfce61a2a6eccfd10e9312",
     "confidence": "high",
-    "reason": "The post is well-structured, coherent, and provides valuable insights into the importance of behavioral testing for AI agents. It includes specific examples, detailed explanations, and a clear lifecycle approach.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:24:49.662904+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Key Takeaways` section near the top. It is not a first-person journal or diary.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:37:10.541448+00:00",
+    "verdict": "rewrite"
   },
   "understanding-browser-networking-cors-co": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "761920a328801bc5f2c16466ee2b3ddb",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains redundant information, incomplete sections, and could be structured better to meet current blog standards.",
+    "body_hash": "0923939ffaf4472a00dd888d6aa131e4",
+    "confidence": "high",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener, a single '## Key Takeaways' section near the top, and no first-person narrative.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:25:01.903559+00:00",
+    "timestamp": "2026-08-08T12:37:18.969158+00:00",
     "verdict": "rewrite"
   },
   "understanding-derivatives-the-slope-of-c": {
@@ -2485,12 +2485,12 @@
   "unlock-the-future-of-authentication-a-gu": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "f0d0bfc4b220d1317a9210bbe5cb91b3",
+    "body_hash": "1fccc2df2d5b52cb6798dd15afb19f87",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete and has a broken structure. It also needs to be updated to current blog standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable technical information without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:25:23.948392+00:00",
+    "timestamp": "2026-08-08T12:37:30.884772+00:00",
     "verdict": "rewrite"
   },
   "unlock-your-coding-potential-dive-into-284-expert-blog-posts": {
@@ -2508,23 +2508,23 @@
   "unmasking-the-magic-the-wizard-of-oz-met": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "a1a99e5e67f82203669ac7786a1d6a97",
+    "body_hash": "3f853cb912eddc882a4eae82f3e8e1df",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains repetitive and extraneous content, broken structure, and could be streamlined for clarity and coherence.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener, a single '## Key Takeaways' section near the top, and provides a comprehensive overview of the topic without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:25:36.148810+00:00",
+    "timestamp": "2026-08-08T12:37:42.289081+00:00",
     "verdict": "rewrite"
   },
   "upstox-frontend-interview-r1-for-javascr": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "fcc3400f8d0faa6a648c6104fda26266",
+    "body_hash": "c13a785b81754229cd4424887606c851",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains repeated sections, incomplete sentences, and broken structure. It needs significant cleanup and restructuring to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Key Takeaways` section near the top. It provides clear, actionable insights and examples relevant to a JavaScript interview.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:25:50.281034+00:00",
+    "timestamp": "2026-08-08T12:37:56.350425+00:00",
     "verdict": "rewrite"
   },
   "use-codecrafters-to-learn-by-building-th": {
@@ -2553,12 +2553,12 @@
   "using-css-cascade-layers-with-tailwind-u": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "c4320a2587ff44e09eb696e4524032f1",
+    "body_hash": "f4455eaf38fc148928d99713683b28d1",
     "confidence": "high",
-    "reason": "The post contains valuable information but has structural issues, repetitive content, and promotional material that detracts from the technical content. It needs significant editing for clarity and coherence.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear comparison between two approaches and is well-structured.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:26:13.807521+00:00",
+    "timestamp": "2026-08-08T12:38:06.793810+00:00",
     "verdict": "rewrite"
   },
   "using-socket-io-for-real-time-apps": {
@@ -2598,12 +2598,12 @@
   "wallaby-js-an-ai-ready-test-runner-with-": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "820855f04dc798e3e61915578f665851",
+    "body_hash": "914a1fbd33b0a7ea89dc742fe78ef551",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete, has a broken structure, and includes irrelevant sections like 'Hide child comments as well Confirm'. It needs significant cleanup and reorganization to meet current standards.",
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides valuable information about Wallaby.js and its benefits.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:26:48.391259+00:00",
+    "timestamp": "2026-08-08T12:38:18.616479+00:00",
     "verdict": "rewrite"
   },
   "we-might-need-something-between-root-and": {
@@ -2631,45 +2631,45 @@
   "web-components-in-angular-the-good-and-b": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "bd87e4219cac7836ba48a4aeb53871cd",
+    "body_hash": "dc0ad066aa42786946fd5ff09ef25f19",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains redundant information, incomplete sentences, and lacks a coherent structure. It needs significant editing to meet current blog standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Key Takeaways` section near the top. It provides a comprehensive overview of using Web Components in Angular, including benefits, challenges, and best practices.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:27:16.959035+00:00",
+    "timestamp": "2026-08-08T12:38:31.201002+00:00",
     "verdict": "rewrite"
   },
   "web-components-working-with-shadow-dom": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "083513997f7e2fe58fdb8760690f418b",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "3d5a1dd75d5622c2673fada5133b65da",
     "confidence": "high",
-    "reason": "The post is coherent, well-structured, and provides valuable insights into working with Shadow DOM in Web Components.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:27:18.717032+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides a clear and structured explanation of Web Components and Shadow DOM.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:38:39.889476+00:00",
+    "verdict": "rewrite"
   },
   "week-1-picking-a-stack-breaking-things-l": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "08c08f7ea25e99323d63157fa9ed0cd3",
+    "body_hash": "0325e43ef3b5606ea6b900941a2653d6",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is repetitive, poorly structured, and contains incomplete sections. It needs significant editing to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Key Takeaways` section near the top. It provides practical advice and insights without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:41:58.583164+00:00",
+    "timestamp": "2026-08-08T12:38:50.770787+00:00",
     "verdict": "rewrite"
   },
   "weekly-34-2025-lockfiles-debate-dockers-": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "4e349442380cbc81791db1fa03c9cb7c",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains duplicated content, is somewhat disorganized, and could be streamlined for better readability and coherence.",
+    "body_hash": "e65609a2bad112cfdcf052f382d27c27",
+    "confidence": "high",
+    "reason": "The post has a real topic and gist but lacks a cohesive multi-paragraph structure, has a plain `## Takeaways` heading, and reads like a slide outline with many `##` headings each followed by roughly one paragraph.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:27:35.166081+00:00",
+    "timestamp": "2026-08-08T12:39:01.793609+00:00",
     "verdict": "rewrite"
   },
   "welcome-to-dev-community-whatsapp-channe": {
