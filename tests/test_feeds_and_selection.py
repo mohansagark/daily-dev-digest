@@ -17,7 +17,7 @@ def test_default_feeds_cover_every_allowed_topic_bucket():
     assert "pytorch.org/blog/feed.xml" in urls
     assert "medium.com/feed/airbnb-engineering" in urls
     assert "dropbox.tech/feed" in urls
-    assert "ycombinator.com/blog/feed" in urls
+    assert "ycombinator.com" not in urls
     assert "kubernetes.io/feed.xml" in urls
     assert "security.googleblog.com" in urls
     assert "hnrss.org/show" in urls

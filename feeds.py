@@ -107,8 +107,6 @@ FEED_CATALOG: dict[str, list[dict[str, str]]] = {
         {"name": "Hacker News Frontpage", "url": "https://hnrss.org/frontpage"},
         {"name": "SaaStr", "url": "https://www.saastr.com/feed/"},
         {"name": "Sive", "url": "https://sive.rs/en.atom"},
-        # indiehackers.com/feed serves HTML, not RSS; YC blog is a working substitute.
-        {"name": "Y Combinator Blog", "url": "https://www.ycombinator.com/blog/feed"},
         {"name": "Product Hunt", "url": "https://www.producthunt.com/feed"},
     ],
     # ============================================================
