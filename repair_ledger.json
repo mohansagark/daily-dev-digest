@@ -1909,12 +1909,12 @@
   "open-letter-to-microsoft-visual-studio-n": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "c6f3c3247a264fc0d5c9ad15c1377378",
+    "body_hash": "2de9e3980d35baf93d6a8a722139e116",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, structured argument for reimagining Visual Studio to better serve new developers, without being a first-person journal or diary.; deterministic guard: fragmented outline or takeaways hygiene",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It discusses a clear topic with structured sections and FAQs, making it recoverable and of high quality.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-08T12:29:31.338133+00:00",
+    "timestamp": "2026-08-08T12:44:58.349499+00:00",
     "verdict": "rewrite"
   },
   "optimized-videos-in-vue-with-cloudinary": {
