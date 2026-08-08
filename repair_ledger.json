@@ -1337,12 +1337,12 @@
   "handling-javascript-event-listeners-with": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "aeddb5b23be8352a076245e67327cf68",
+    "body_hash": "7f2899b9057452b037580008e71ac956",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete, has a broken structure, and contains repeated and irrelevant content.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides clear, actionable advice on handling JavaScript event listeners and parameters effectively.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:07:52.260042+00:00",
+    "timestamp": "2026-08-08T12:22:34.105252+00:00",
     "verdict": "rewrite"
   },
   "here-s-how-to-build-fullstack-agent-apps": {
@@ -1403,23 +1403,23 @@
   "how-to-build-a-cross-platform-fence-inst": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "1c57cb0b58f68d3e3dd03fe1956902fb",
+    "body_hash": "899338699d72bfc23eed133e1e23faad",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete, has a broken structure, and is below current blog standards. It contains duplicated content, unfinished code snippets, and lacks a coherent conclusion.",
+    "reason": "The post is a cohesive, multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, technical guide on building a cross-platform quote calculator.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:08:56.568414+00:00",
+    "timestamp": "2026-08-08T12:22:47.985426+00:00",
     "verdict": "rewrite"
   },
   "how-to-check-if-the-browser-is-safari-pr": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "f8a6986b55b2af6b2a9a75453d5ea444",
+    "body_hash": "73d10b41179aede1cfc099bf8f077727",
     "confidence": "high",
-    "reason": "The post has a real topic but contains redundant sections, incomplete explanations, and extraneous content that needs to be removed or reorganized for clarity.",
+    "reason": "The article is a cohesive multi-paragraph guide with an answer-first opener, a single '## Key Takeaways' section, and provides valuable technical insights.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:09:07.314761+00:00",
+    "timestamp": "2026-08-08T12:22:57.019564+00:00",
     "verdict": "rewrite"
   },
   "how-to-create-a-flexible-and-extensible-": {
@@ -1436,12 +1436,12 @@
   "how-to-create-azure-app-service-by-publi": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "3f1e33f2c8615c02bdb61dd75e379701",
+    "body_hash": "e63e07b3a24fed4046d79d54a851ca11",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains redundant information, lacks a coherent structure, and has several formatting issues. It needs significant cleanup and restructuring to meet current standards.",
+    "reason": "The post is a cohesive, multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, step-by-step guide on deploying a game web app using Azure App Service.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:09:27.879643+00:00",
+    "timestamp": "2026-08-08T12:23:05.545972+00:00",
     "verdict": "rewrite"
   },
   "how-to-prepare-for-css-specific-intervie": {
@@ -1467,15 +1467,15 @@
     "verdict": "rewrite"
   },
   "how-to-set-up-a-cross-platform-dev-envir": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "afa2c59e60fb8b9b5cfd86e4f4c5a593",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "5fb0ecff9c2aed24fbf41dcdfe29b01e",
     "confidence": "high",
-    "reason": "The post is detailed, coherent, and provides a comprehensive guide on setting up a cross-platform development environment using Termux. It includes clear steps, useful tips, and relevant security practices.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:10:01.229943+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive, multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a comprehensive guide with clear, actionable steps and explanations.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:23:18.150469+00:00",
+    "verdict": "rewrite"
   },
   "how-to-stay-relevant-in-2025-mastering-m": {
     "action": "rewritten",
@@ -1502,12 +1502,12 @@
   "http-fundamentals-for-frontend-developer": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "145e0ecc9226892d4f4dd5ef26de4082",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains repetitive content, incomplete sections, and could be structured better to meet current standards.",
+    "body_hash": "c56262d369b1bdc60eb6b08905bb779e",
+    "confidence": "high",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides valuable information on HTTP for frontend developers and is well-structured.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:10:43.855790+00:00",
+    "timestamp": "2026-08-08T12:23:27.539530+00:00",
     "verdict": "rewrite"
   },
   "i-built-a-leadership-simulator-for-aspir": {
@@ -1522,25 +1522,25 @@
     "verdict": "rewrite"
   },
   "i-built-a-reactive-no-code-flow-engine-t": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "5d8a4df3815d62fda8cfe6c55a3873f4",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "49958358d15b9fa76a2c10a1be7463e9",
     "confidence": "high",
-    "reason": "The post is coherent, provides a clear description of the project, its features, use cases, tech stack, and a call to action. It is well-structured and offers valuable information.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:10:56.876278+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear and detailed explanation of the topic without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:23:37.115157+00:00",
+    "verdict": "rewrite"
   },
   "i-quit-leetcode-and-got-better-at-coding": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "2923ecb030d2cd5d883e0de4bd0333bc",
+    "body_hash": "4f9886677bd769e35e901be5731be8f3",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is incomplete and has a broken structure. It repeats the same paragraph and ends abruptly.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides valuable insights and is well-structured.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:11:08.430772+00:00",
+    "timestamp": "2026-08-08T12:23:44.630667+00:00",
     "verdict": "rewrite"
   },
   "igniting-a-react-app-with-parcel-and-npm": {
@@ -1557,12 +1557,12 @@
   "integrating-ai-into-your-react-applicati": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "3b27e0bfc4f182280bffabb7a83de7ac",
+    "body_hash": "59273682288b3028f97a8d06e4afa10a",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains duplicated content, formatting issues, and some sections are incomplete or poorly structured.",
+    "reason": "The post is a cohesive, multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, step-by-step guide on integrating AI into a React application.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:11:36.065450+00:00",
+    "timestamp": "2026-08-08T12:23:56.280299+00:00",
     "verdict": "rewrite"
   },
   "introducing-the-official-dev-community-w": {
@@ -1590,34 +1590,34 @@
   "javascript-closures-explained-simply-wit": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "92884ee987e248af7afa4e6f5013a38f",
+    "body_hash": "dfaa8b6c81eb33b66f6c20ec1974351f",
     "confidence": "high",
-    "reason": "The post has a real topic and provides valuable examples, but it contains redundant text, formatting issues, and incomplete code snippets that need to be fixed.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides practical examples and explanations, making it a valuable resource as-is.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:12:12.486142+00:00",
+    "timestamp": "2026-08-08T12:24:07.730090+00:00",
     "verdict": "rewrite"
   },
   "jenkins-x-the-future-of-cloud-native-ci-": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "c64cc802b7b557b1395da0945fc4bb4c",
+    "body_hash": "335d567dd20ad9e0a7e9a543520f5f33",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains duplicated sections, is incomplete at the end, and has structural issues.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a comprehensive overview of Jenkins X and its features without being a first-person journal or diary.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:12:23.036148+00:00",
+    "timestamp": "2026-08-08T12:24:18.406209+00:00",
     "verdict": "rewrite"
   },
   "jstack-appwrite-a-match-made-in-heaven-f": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "2fc1f94c01143dd0c4ed24fb0ba97505",
+    "body_hash": "aeccaafbeada3a25f7c02da22a5fa2ac",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains redundant content, lacks a coherent structure, and has incomplete sections.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides clear, actionable steps and explanations.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:12:33.754812+00:00",
+    "timestamp": "2026-08-08T12:24:28.937721+00:00",
     "verdict": "rewrite"
   },
   "keeping-article-demos-alive-when-third-p": {
