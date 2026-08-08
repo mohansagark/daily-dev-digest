@@ -38,6 +38,69 @@ def test_generate_prompts_depersonalize_first_person_journals():
     assert "depersonalize" in user_l
 
 
+def test_repair_generate_prompts_require_seo_structure():
+    user = rp.GENERATE_USER_TEMPLATE
+    assert "answer-first" in user
+    assert "## Key Takeaways" in user
+    assert "## FAQ" in user
+    assert "question-style" in user
+    assert "cohesive article" in user.lower() or "slide deck" in user.lower()
+
+
+def test_triage_prompt_flags_fragmented_outline():
+    user = rp.TRIAGE_USER_TEMPLATE.lower()
+    assert "slide outline" in user or "h2" in user
+    assert "key takeaways" in user
+
+
+def test_needs_structure_rewrite_detects_thin_h2_outline():
+    body = """## Intro
+In 2026 choosing models is hard.
+
+## The Landscape
+One thin paragraph about open-source and commercial models available now.
+
+## TCO Analysis
+One thin paragraph about monthly token cost versus GPU hosting overhead.
+
+## Performance
+One thin paragraph about benches closing the gap this year for many teams.
+
+## Deployment
+One thin paragraph about APIs versus self-hosting trade-offs in production.
+
+## Takeaways
+- The market offers many options with different cost profiles for teams.
+- TCO beats brand loyalty when you plan for sustained production traffic.
+"""
+    assert cr.needs_structure_rewrite(body) is True
+
+
+def test_needs_structure_rewrite_accepts_cohesive_key_takeaways():
+    para = (
+        "This section explains the trade-offs in enough depth that a working "
+        "engineer can act on it. " * 8
+    )
+    body = f"""Choosing between open-source and commercial LLMs in 2026 comes down to
+TCO, ops burden, and model quality for your workload — not brand loyalty alone.
+
+## Key Takeaways
+- First takeaway with enough words to count.
+- Second takeaway with enough words to count.
+- Third takeaway with enough words to count.
+
+## How should you compare TCO?
+{para}
+
+## What about performance gaps?
+{para}
+
+## How do you deploy either option?
+{para}
+"""
+    assert cr.needs_structure_rewrite(body) is False
+
+
 def test_verify_prompts_strip_fabricated_autobiography():
     sys_l = rp.VERIFY_SYSTEM_PROMPT.lower()
     user_l = rp.VERIFY_USER_TEMPLATE.lower()

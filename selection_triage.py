@@ -2,16 +2,51 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterator
 
 import bedrock_client
+
+# How many ranked candidates to send to Bedrock per triage call.
+DEFAULT_BATCH_SIZE = 5
+# Cap Bedrock triage rounds per run so a bad day cannot burn unlimited calls.
+DEFAULT_MAX_BATCHES = 3
+
+
+def assign_triage_ids(batch: list[dict]) -> list[dict]:
+    """Copy batch items and stamp 1-based ``_triage_id`` for the prompt."""
+    shortlist = [dict(item) for item in batch]
+    for index, item in enumerate(shortlist, start=1):
+        item["_triage_id"] = index
+    return shortlist
+
+
+def iter_triage_batches(
+    ranked: list[dict],
+    *,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    max_batches: int = DEFAULT_MAX_BATCHES,
+) -> Iterator[tuple[int, list[dict]]]:
+    """Yield ``(batch_number_1based, shortlist)`` slices of the ranked list.
+
+    When triage returns ``none_good_enough`` for a batch, the caller advances
+    to the next yield so the day is not a dead end after one reject-all.
+    """
+    if batch_size < 1 or max_batches < 1 or not ranked:
+        return
+    for batch_num in range(1, max_batches + 1):
+        start = (batch_num - 1) * batch_size
+        chunk = ranked[start : start + batch_size]
+        if not chunk:
+            break
+        yield batch_num, assign_triage_ids(chunk)
 
 TRIAGE_SYSTEM_PROMPT = (
     "You select ONE source article for an original technical blog rewrite. "
     "Priorities in order: (1) substantial, specific technical or industry "
-    "substance worth a 700-1000 word rewrite; (2) fit to today's theme when "
-    "quality is comparable; (3) reject thin intros, linkdumps, fluff, or "
-    "mostly attack/exploit walkthroughs likely to trip safety filters. "
+    "substance worth a 700-1000 word rewrite; (2) fit to each candidate's "
+    "best_fit_topic when quality is comparable (weekday preference is only a "
+    "soft tie-break); (3) reject thin intros, linkdumps, fluff, or mostly "
+    "attack/exploit walkthroughs likely to trip safety filters. "
     "First-person journals are fine when they carry real technical lessons — "
     "the rewrite will convert them into knowledge articles; reject diaries "
     "with little transferable substance. "
@@ -20,9 +55,12 @@ TRIAGE_SYSTEM_PROMPT = (
 )
 
 TRIAGE_USER_TEMPLATE = """\
-Today's theme key: {strategy_key}
+Preferred weekday topic (soft tie-break only): {strategy_key}
 Description: {strategy_description}
 Focus keywords (soft preference): {focus}
+
+Each candidate already has a best_fit_topic from deterministic multi-topic
+scoring. Judge theme_fit against THAT topic — not a single fixed daily theme.
 
 Candidates (id is 1-based shortlist index):
 {candidates_block}
@@ -47,7 +85,8 @@ Return ONLY this JSON object:
 Rules:
 - Scores are 0.0-1.0.
 - winner_id must be one of the candidate ids, or null when none_good_enough is true.
-- Prefer on-theme when rewrite quality is comparable.
+- Prefer strong best_fit_topic match when rewrite quality is comparable; use the
+  preferred weekday topic only as a tie-break.
 - First-person journal / diary / week-N journey framing is NOT a reject by itself
   when the piece has solid transferable technical lessons — the rewrite step will
   turn it into a knowledge article. Reject personal diaries that lack technical
@@ -59,12 +98,18 @@ def _format_candidates(shortlist: list[dict]) -> str:
     blocks = []
     for item in shortlist:
         sid = item["_triage_id"]
+        best_topic = (
+            item.get("_strategy_key")
+            or (item.get("_score_breakdown") or {}).get("strategy_key")
+            or ""
+        )
         blocks.append(
             "\n".join(
                 [
                     f"### id={sid}",
                     f"title: {item.get('title') or ''}",
                     f"url: {item.get('link') or ''}",
+                    f"best_fit_topic: {best_topic}",
                     f"theme_hits: {item.get('_theme_hits', 0)}",
                     f"matched_keywords: {', '.join(item.get('_matched_keywords') or [])}",
                     f"deterministic_score: {(item.get('_score_breakdown') or {}).get('total')}",

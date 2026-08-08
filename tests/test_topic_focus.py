@@ -110,9 +110,37 @@ def test_ai_news_pack_matches_ai_and_chatgpt_not_industry_alone():
 
 
 def test_title_weighting_in_theme_score():
-    assert tf.theme_score(1, 0) == 0.5  # 2/4
-    assert tf.theme_score(0, 1) == 0.25  # 1/4
-    assert tf.theme_score(1, 0) > tf.theme_score(0, 1)
+    assert tf.theme_score(1, 0) == 0.5  # (3*1+0)/6
+    assert tf.theme_score(0, 1) == 0.0  # lone body hit earns no credit
+    assert abs(tf.theme_score(0, 2) - (2 / 6)) < 1e-9
+    assert tf.theme_score(1, 0) > tf.theme_score(0, 2)
+
+
+def test_preferred_strategy_is_soft_weekday_only():
+    from datetime import datetime
+
+    assert tf.preferred_strategy_key(datetime(2026, 8, 3)) == "ai"  # Monday
+    assert "architecture" in tf.allowed_strategy_keys()
+    s = tf.get_content_strategy(key="architecture")
+    assert s["key"] == "architecture"
+
+
+def test_best_topic_for_article_picks_architecture_over_weekday_bias():
+    from datetime import datetime
+
+    title = "Designing scalable microservices architecture patterns"
+    content = (
+        "system design distributed microservices patterns scalability "
+        "architecture decisions for production systems. " * 20
+    )
+    key, title_hits, body_hits, matched, theme = tf.best_topic_for_article(
+        title,
+        content,
+        preferred_key=tf.preferred_strategy_key(datetime(2026, 8, 8)),  # Saturday
+    )
+    assert key == "architecture"
+    assert title_hits >= 1
+    assert theme > 0
 
 
 def test_filter_allowlisted_alias_matches_hard_rejects():

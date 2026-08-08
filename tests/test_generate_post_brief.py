@@ -32,12 +32,22 @@ def test_generate_prompts_depersonalize_first_person_journals():
     assert "depersonalize" in user_l
 
 
+def test_generate_prompts_require_seo_structure():
+    user = gd.GENERATE_USER_TEMPLATE
+    assert "answer-first" in user
+    assert "## Key Takeaways" in user
+    assert "## FAQ" in user
+    assert "question-style" in user
+    assert "never \"Takeaways\" alone" in user
+
+
 def test_verify_prompts_strip_fabricated_autobiography():
     sys_l = gd.VERIFY_SYSTEM_PROMPT.lower()
     user_l = gd.VERIFY_USER_TEMPLATE.lower()
     assert "first-person autobiography" in sys_l
     assert "knowledge-article" in sys_l
     assert "depersonalize" in user_l
+    assert "key takeaways" in user_l
 
 
 def test_malformed_extra_image_brief_ignored(monkeypatch):

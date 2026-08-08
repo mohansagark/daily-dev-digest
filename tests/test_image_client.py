@@ -36,7 +36,22 @@ def test_generate_returns_decoded_bytes(monkeypatch):
     assert image_client.generate("a robot reading") == raw
     assert "acct" in captured["url"]
     assert captured["json"]["steps"] == 4          # IMAGE_STEPS default
+    assert "seed" not in captured["json"]
     assert captured["json"]["prompt"] == "a robot reading"
+
+
+def test_generate_passes_seed(monkeypatch):
+    monkeypatch.setenv("CF_ACCOUNT_ID", "acct")
+    monkeypatch.setenv("CF_API_TOKEN", "tok")
+    seen = {}
+    monkeypatch.setattr(
+        image_client.requests,
+        "post",
+        lambda url, **k: seen.update(k["json"]) or _FakeResp(200, _ok_payload(b"x")),
+    )
+    image_client.generate("scene", seed=42)
+    assert seen["seed"] == 42
+    assert seen["steps"] == 4
 
 
 def test_generate_truncates_prompt_to_2048(monkeypatch):

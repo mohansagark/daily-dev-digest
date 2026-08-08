@@ -235,6 +235,43 @@ def _has_unclosed_code_fence(body: str) -> bool:
     return any(count % 2 for count in open_fences.values())
 
 
+_H2_RE = re.compile(r"^##\s+(.+)$", re.M)
+_PLAIN_TAKEAWAYS_RE = re.compile(r"^##\s+Takeaways\s*$", re.M | re.I)
+_KEY_TAKEAWAYS_RE = re.compile(r"^##\s+Key\s+Takeaways\s*$", re.M | re.I)
+
+
+def needs_structure_rewrite(body: str) -> bool:
+    """True when body is a thin H2 outline or missing Key Takeaways hygiene.
+
+    Used as a deterministic override so fragmented slide-deck posts are not
+    left ``clean`` by triage. Does not apply to empty/near-empty junk stubs.
+    """
+    text = body or ""
+    compact = re.sub(r"\s+", " ", text).strip()
+    if len(compact) < 400:
+        return False
+
+    if _PLAIN_TAKEAWAYS_RE.search(text) and not _KEY_TAKEAWAYS_RE.search(text):
+        return True
+
+    # Split on ## headings; measure non-heading prose length per section.
+    parts = _H2_RE.split(text)
+    # parts: [preamble, h2title1, body1, h2title2, body2, ...]
+    section_bodies = [parts[i].strip() for i in range(2, len(parts), 2)]
+    h2_count = len(section_bodies)
+
+    if not _KEY_TAKEAWAYS_RE.search(text) and not _PLAIN_TAKEAWAYS_RE.search(text):
+        # Substantial posts must have a takeaways section under current standards.
+        if h2_count >= 2 or len(compact) >= 800:
+            return True
+
+    if h2_count < 3:
+        return False
+    # Count "thin" sections: little prose (under ~280 chars ≈ one short para).
+    thin = sum(1 for b in section_bodies if len(re.sub(r"\s+", " ", b)) < 280)
+    return thin >= max(3, (h2_count + 1) // 2)
+
+
 def _search_notes(title: str, body: str) -> tuple[str, bool]:
     query = f"{title}\n{_gist(body, limit=1000)}".strip()
     try:
@@ -390,6 +427,11 @@ def repair_one(blog_root: str, slug: str, *, dry_run: bool = False, force: bool 
     if verdict in {"clean", "junk"} and _has_unclosed_code_fence(original_body):
         verdict = "rewrite"
         reason = f"{reason}; deterministic guard: unclosed code fence".lstrip("; ")
+    if verdict == "clean" and needs_structure_rewrite(original_body):
+        verdict = "rewrite"
+        reason = (
+            f"{reason}; deterministic guard: fragmented outline or takeaways hygiene"
+        ).lstrip("; ")
     result = {"slug": slug, "verdict": verdict, "confidence": confidence, "reason": reason}
 
     if should_delete(verdict, confidence):
