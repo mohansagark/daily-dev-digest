@@ -39,8 +39,6 @@ FEED_CATALOG: dict[str, list[dict[str, str]]] = {
         {"name": "Lilian Weng", "url": "https://lilianweng.github.io/index.xml"},
         {"name": "Google DeepMind", "url": "https://deepmind.google/blog/rss.xml"},
         {"name": "Google AI", "url": "https://blog.google/technology/ai/rss/"},
-        # ai.meta.com/blog/rss returns 400; PyTorch blog is Meta's public ML feed.
-        {"name": "PyTorch", "url": "https://pytorch.org/blog/feed.xml"},
         {"name": "NVIDIA Developer", "url": "https://developer.nvidia.com/blog/feed/"},
         {"name": "Microsoft Research", "url": "https://www.microsoft.com/en-us/research/feed/"},
     ],
@@ -59,8 +57,6 @@ FEED_CATALOG: dict[str, list[dict[str, str]]] = {
         {"name": "Spotify Engineering", "url": "https://engineering.atspotify.com/feed/"},
         # shopify.engineering atom redirects to HTML; Airbnb eng is a working peer feed.
         {"name": "Airbnb Engineering", "url": "https://medium.com/feed/airbnb-engineering"},
-        # uber.com engineering RSS is 404; Dropbox Tech is a working peer feed.
-        {"name": "Dropbox Tech", "url": "https://dropbox.tech/feed"},
     ],
     # ============================================================
     # CLOUD / DEVOPS / INFRASTRUCTURE
