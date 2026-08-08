@@ -5,5 +5,12 @@
     "processed_date": "2026-07-18T14:47:55.123087",
     "strategy_used": "Backend, cloud, and systems engineering",
     "content_sample": "most esp32 energy-meter tutorials you'll find are built on platforms that have since changed out from under them — deprecated app flows, retired tokens, code that no longer compiles as written. this build has no such dependency. a pzem-004t does the metering, the esp32 reports over plain https/websocket, and the dashboard, history, and alerts run in nodrix on your own cloudflare account — nothing in the path can be discontinued on you. what you get: live volts, amps, watts, and a lifetime kwh counter on a dashboard you can open from anywhere, a 24-hour load curve, and a telegram message when something draws more than it should. safety first this project meters mains electricity. the esp32 side is all low-voltage, but the pzem's input terminals connect to live line and neutral: de-energize "
+  },
+  "a21111bb44f94e240e7fac3831095a8e": {
+    "title": "How to proxy OpenAI image generation on Webflow Cloud without exposing your API key",
+    "link": "https://webflowmarketingmain.com/blog/ai-image-generator-webflow-cloud",
+    "processed_date": "2026-08-08T21:03:06.166911",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "calling openai for image generation from the browser exposes your api key to anyone with devtools. webflow cloud solves this with a server-side architecture that keeps the key private, the stack unified, and the deployment tied to your webflow site. one of the most common requests i get when adding ai to a webflow project is to let users generate images from their own prompts. however, you cannot call openai from the browser without exposing your api key in the page source. anyone who opens devtools can copy it, and from that point, your quota is theirs. the workaround most teams reach for (a serverless function hosted separately) works, but it fragments the stack and adds a deployment you have to manage independently of the webflow site. with webflow cloud apps, you can have a next.js rou"
   }
 }
