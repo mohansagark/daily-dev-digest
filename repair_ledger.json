@@ -2695,26 +2695,26 @@
     "verdict": "rewrite"
   },
   "what-i-took-from-the-state-of-dev-2025-s": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "053697b58deedbba8e3b76aa23636d51",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "823c7b44c55ecbba89282cd150deee08",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable insights and is well-structured.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:40:01.431002+00:00",
-    "verdict": "rewrite"
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides comprehensive insights into the survey's findings.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:31.614033+00:00",
+    "verdict": "clean"
   },
   "what-is-automated-functional-testing-typ": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "4a3d4cb4665c8218ae7c1ba21838ba28",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "fb0f9f04f307c767cdbc19c5fe034d52",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a comprehensive guide on automated functional testing without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:40:12.621385+00:00",
-    "verdict": "rewrite"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener, a single '## Key Takeaways' section near the top, and provides comprehensive information on automated functional testing.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:35.034588+00:00",
+    "verdict": "clean"
   },
   "what-is-html": {
     "action": "rewritten",
@@ -2728,26 +2728,26 @@
     "verdict": "rewrite"
   },
   "what-is-o4-mini-high-all-you-need-to-kno": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "9abf389337bf5d6119e05515caef2f4d",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "01b808af5d679f9878c3458e7c5afc3b",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides a clear and detailed explanation of the o4-mini-high model, its architecture, and its practical applications.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:40:28.917592+00:00",
-    "verdict": "rewrite"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides detailed information about the o4-mini-high model, its differences from o4-mini, architectural foundations, practical applications, and an FAQ section.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:37.842545+00:00",
+    "verdict": "clean"
   },
   "what-is-the-best-platform-to-learn-backe": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "a361c7ec7cf8295e3cd45500ccf31603",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "57d10712f697010e8ce96f7e25764522",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable information on choosing the right platform for learning backend development.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:40:37.333615+00:00",
-    "verdict": "rewrite"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable information and is well-structured.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:41.404958+00:00",
+    "verdict": "clean"
   },
   "what-programming-language-is-used-for-ra": {
     "action": "rewritten",
@@ -2772,37 +2772,37 @@
     "verdict": "rewrite"
   },
   "whatre-your-top-4-css-properties": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "14013e336219889afb53158552d7ab4c",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but is incomplete and lacks a cohesive multi-paragraph structure. It also uses a plain `### Takeaways` heading instead of a single `## Key Takeaways` near the top.",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:40:47.706216+00:00",
-    "verdict": "rewrite"
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "b7d738704c0283fff472a1081c728d28",
+    "confidence": "high",
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides detailed insights into essential CSS properties.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:44.978840+00:00",
+    "verdict": "clean"
   },
   "whos-that-pokemon-the-twist": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "fdd1dfe8bfe49202a5e0097e369118fb",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "ec560c8b85125df2b713244f47921adc",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear and detailed explanation of the technical process and benefits of integrating AI into a Pok\u00e9mon quiz game.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:40:56.774135+00:00",
-    "verdict": "rewrite"
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides detailed explanations of the game mechanics and technical implementation.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:47.963036+00:00",
+    "verdict": "clean"
   },
   "why-building-ai-agents-with-uipath-is-mo": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "4393082dbf153f9e8db82ee604397b6a",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "a0b47bbf0f587dcd3e192338232ce4e7",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a comprehensive comparison between UiPath and low-code tools, making it a valuable resource as is.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:41:06.337675+00:00",
-    "verdict": "rewrite"
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides detailed comparisons and benefits of UiPath over low-code tools.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:50.561369+00:00",
+    "verdict": "clean"
   },
   "why-developers-should-learn-pr-thinking-": {
     "action": "rewritten",
@@ -2816,26 +2816,26 @@
     "verdict": "rewrite"
   },
   "why-i-built-wuchale-protobuf-like-i18n-f": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "00324a2d7b0db548a71e441ba63f8f83",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "2cbd895f64f1e0b836981659ddf0357a",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides a clear and structured explanation of Wuchale's approach to internationalization, its benefits, and advanced features.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:41:16.146347+00:00",
-    "verdict": "rewrite"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener, a single '## Key Takeaways' section near the top, and provides detailed explanations and benefits of using Wuchale for internationalization.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:53.343273+00:00",
+    "verdict": "clean"
   },
   "why-i-switched-from-windows-to-macos-a-t": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "3ed0720731344f5ae0a1c9ce950fa9de",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "c35e1bb06542e2a21e9c3009caa29aad",
     "confidence": "high",
-    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a detailed and technical comparison between Windows and macOS for developers.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:41:28.588135+00:00",
-    "verdict": "rewrite"
+    "reason": "The article is a cohesive multi-paragraph piece with an answer-first opener, a single '## Key Takeaways' section near the top, and provides a detailed technical evaluation of Windows vs macOS for developers.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:56.705549+00:00",
+    "verdict": "clean"
   },
   "why-risc-v-is-perfect-for-your-next-scri": {
     "action": "rewritten",
@@ -2882,14 +2882,14 @@
     "verdict": "rewrite"
   },
   "yoga-ai-assistant-bot": {
-    "action": "rewritten",
-    "bedrock_calls": 4,
-    "body_hash": "e71eb883dc222be0865a1645d9be1b33",
+    "action": "kept",
+    "bedrock_calls": 2,
+    "body_hash": "4e20b7db3599170d14a3c648e7497a74",
     "confidence": "high",
-    "reason": "The post is a cohesive, multi-paragraph article with an answer-first opener, a single '## Key Takeaways' section near the top, and provides detailed information about the YOGA AI Assistant.; deterministic guard: fragmented outline or takeaways hygiene",
-    "search_calls": 1,
-    "search_failed": true,
-    "timestamp": "2026-08-08T12:41:38.161055+00:00",
-    "verdict": "rewrite"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' near the top. It provides detailed information about the YOGA AI Assistant, its features, and the technologies powering it.",
+    "search_calls": 0,
+    "search_failed": false,
+    "timestamp": "2026-08-08T12:42:59.719037+00:00",
+    "verdict": "clean"
   }
 }
