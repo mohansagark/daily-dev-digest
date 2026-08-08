@@ -9,17 +9,37 @@ import topic_focus as tf
 
 def test_default_feeds_cover_every_allowed_topic_bucket():
     urls = "\n".join(feeds.DEFAULT_FEEDS)
-    assert "simonwillison.net" in urls
+    assert "simonwillison.net/atom/entries" in urls
+    assert "react.dev/rss.xml" in urls
     assert "netflixtechblog.com" in urls
     assert "openai.com" in urls
+    assert "anthropic.com" in urls
+    assert "kubernetes.io/feed.xml" in urls
+    assert "security.googleblog.com" in urls
     assert "hnrss.org/show" in urls
     assert "webflow.com" in urls
     assert "jetbrains.com" in urls
+    assert "jvns.ca/atom.xml" in urls
     assert "techcrunch.com" not in urls
     assert "feedburner.com" not in urls
     assert "hackernoon.com" not in urls
     assert "dev.to/feed\n" not in urls + "\n"
     assert "dev.to/feed/tag/architecture" in urls
+    # Cross-group duplicates collapse (Cloudflare / Josh Comeau / Overreacted / AWS).
+    assert feeds.DEFAULT_FEEDS.count("https://blog.cloudflare.com/rss/") == 1
+    assert feeds.DEFAULT_FEEDS.count("https://joshwcomeau.com/rss.xml") == 1
+    assert set(feeds.FEED_CATALOG) >= {
+        "frontend",
+        "ai",
+        "architecture",
+        "cloud_devops",
+        "tools",
+        "security",
+        "business",
+        "web_design",
+        "dev_community",
+        "independent",
+    }
 
 
 def test_resolve_feed_sources_env_overrides_defaults(monkeypatch):
