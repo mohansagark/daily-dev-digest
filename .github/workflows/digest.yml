@@ -7,7 +7,9 @@ on:
 
 # Least-privilege by default; `id-token: write` is required for AWS OIDC.
 permissions:
-  contents: read
+  # `write` so the run can commit the dedupe ledger back (issue #18);
+  # `id-token: write` is required for AWS OIDC.
+  contents: write
   id-token: write
 
 # Serialize writers to portfolio-blog main with heal-covers.yml.
@@ -53,6 +55,14 @@ jobs:
         # Fallback for static keys (comment out the block above and set
         # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY as env on the step below).
 
+      # Repointed: push generated .mdx into the portfolio-blog repo (the single
+      # source of truth), NOT next-gen-portfolio. Cloned *before* generation:
+      # historical dedupe derives the covered-source-URL set from the posts
+      # already published there (issue #18).
+      - name: Clone portfolio-blog Repo
+        run: |
+          git clone --depth 1 https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/portfolio-blog.git blog
+
       - name: Generate Digest (scrape -> filter -> Bedrock -> editorial cover -> mdx)
         env:
           FEED_SOURCES: ${{ secrets.FEED_SOURCES }}
@@ -78,12 +88,6 @@ jobs:
           path: selection-report.md
           if-no-files-found: warn
 
-      # Repointed: push generated .mdx into the portfolio-blog repo (the single
-      # source of truth), NOT next-gen-portfolio.
-      - name: Clone portfolio-blog Repo
-        run: |
-          git clone https://x-access-token:${{ secrets.BLOG_REPO_TOKEN }}@github.com/mohansagark/portfolio-blog.git blog
-
       - name: Ensure posts folder exists
         run: mkdir -p blog/posts/
 
@@ -104,6 +108,21 @@ jobs:
           git add posts/*.mdx images/ 2>/dev/null || git add posts/*.mdx
           git commit -m "🔁 daily dev digest $(date '+%Y-%m-%d %H:%M')" || echo "⚠️ Nothing to commit"
           git push origin main
+
+      # The blog gives us covered source URLs; the ledger additionally holds the
+      # source text samples near-duplicate detection compares against, and those
+      # cannot be derived from a published post. Without this step the ledger
+      # only ever existed on the runner and was destroyed at teardown.
+      - name: Commit dedupe ledger
+        if: always()
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add processed_articles.json
+          git diff --cached --quiet && echo "ℹ️ Ledger unchanged" && exit 0
+          git commit -m "chore: update dedupe ledger $(date '+%Y-%m-%d %H:%M')"
+          git pull --rebase --autostash origin ${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }}
 
       # NOTE: Vercel deploy hook removed. Deployment is now triggered by
       # portfolio-blog's own CI after it rebuilds its generated/ artifacts.

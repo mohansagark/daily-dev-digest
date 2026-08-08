@@ -27,6 +27,7 @@ import difflib
 import hashlib
 from datetime import datetime
 from email.utils import parsedate_to_datetime
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 import requests
 from bs4 import BeautifulSoup
@@ -71,6 +72,13 @@ REQUEST_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
 DUPLICATES_FILE = "processed_articles.json"
+# portfolio-blog checkout made by the workflow before generation runs. Every
+# published post carries `source_url`, so the blog is the authoritative record
+# of what has already shipped — see load_published_source_urls().
+BLOG_REPO_DIR = os.getenv("BLOG_REPO_DIR", "blog")
+# Params feeds bolt onto links for attribution; they do not identify content.
+TRACKING_PARAM_PREFIXES = ("utm_", "mc_")
+TRACKING_PARAMS = {"ref", "source", "fbclid", "gclid", "igshid", "at_medium"}
 AUTHOR_NAME = os.getenv("BLOG_AUTHOR", "Mohan Sagar")
 
 # Near-duplicate content guard: if a new article's cleaned text is >= this
@@ -102,6 +110,77 @@ def save_processed_articles(processed_articles):
     """Persist processed articles to prevent future duplicates."""
     with open(DUPLICATES_FILE, "w", encoding="utf-8") as f:
         json.dump(processed_articles, f, indent=2, ensure_ascii=False)
+
+
+def normalize_source_url(url):
+    """Canonical form of a source link, so the same article matches itself.
+
+    Feeds hand out the same story with a trailing slash, a #fragment or utm_*
+    attribution params bolted on. Comparing raw strings let those through as
+    "new" articles.
+    """
+    if not url:
+        return ""
+    try:
+        parts = urlsplit(url.strip())
+    except ValueError:
+        return url.strip()
+    if not parts.netloc:
+        return url.strip()
+    query = urlencode(
+        [
+            (k, v)
+            for k, v in parse_qsl(parts.query, keep_blank_values=True)
+            if k.lower() not in TRACKING_PARAMS
+            and not k.lower().startswith(TRACKING_PARAM_PREFIXES)
+        ]
+    )
+    path = parts.path.rstrip("/") or "/"
+    if path == "/":
+        path = ""
+    return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, query, ""))
+
+
+def load_published_source_urls(blog_dir=None):
+    """Source URLs of every post already published to portfolio-blog.
+
+    The JSON ledger lived only on the CI runner and was never committed back
+    (issue #18), so it reset to a stale file on every run and historical dedupe
+    silently did nothing. The blog repo is the real record of what shipped, and
+    it is already cloned during the run.
+    """
+    posts_dir = os.path.join(blog_dir or BLOG_REPO_DIR, "posts")
+    if not os.path.isdir(posts_dir):
+        return set()
+    urls = set()
+    for name in sorted(os.listdir(posts_dir)):
+        if not name.endswith(".mdx"):
+            continue
+        try:
+            with open(os.path.join(posts_dir, name), "r", encoding="utf-8") as f:
+                text = f.read()
+        except OSError:
+            continue
+        front_matter = re.match(r"^---\n(.*?)\n---", text, re.S)
+        if not front_matter:
+            continue
+        found = re.search(r"^source_url:\s*(\S+)", front_matter.group(1), re.M)
+        if not found:
+            continue
+        normalized = normalize_source_url(found.group(1).strip("\"'"))
+        if normalized:
+            urls.add(normalized)
+    return urls
+
+
+def known_source_urls(processed_articles, blog_dir=None):
+    """Every source URL already covered, from the blog and the JSON ledger."""
+    urls = load_published_source_urls(blog_dir)
+    for entry in (processed_articles or {}).values():
+        normalized = normalize_source_url(entry.get("link"))
+        if normalized:
+            urls.add(normalized)
+    return urls
 
 
 def get_article_hash(article):
@@ -817,7 +896,17 @@ def main(dry_run=False):
     print(f"🏷️  Focus (soft): {', '.join(strategy['focus'])}")
 
     processed_articles = load_processed_articles()
+    covered_urls = known_source_urls(processed_articles)
+    published_count = len(load_published_source_urls())
     print(f"📚 Loaded {len(processed_articles)} previously processed articles")
+    print(f"🔗 {len(covered_urls)} source URL(s) already covered ({published_count} from the blog)")
+    if not published_count:
+        # Not fatal — a local run has no blog checkout — but in CI it means the
+        # clone step is missing or ran late, and historical dedupe is blind.
+        print(
+            f"⚠️ No published posts found in '{BLOG_REPO_DIR}/posts'. "
+            "Historical dedupe is running on the JSON ledger alone."
+        )
 
     report = {
         "strategy_key": strategy.get("key"),
@@ -854,6 +943,9 @@ def main(dry_run=False):
         candidates = []
         for article in all_articles:
             article_hash = get_article_hash(article)
+            if normalize_source_url(article.get("link")) in covered_urls:
+                print(f"⚠️ Skipping already-covered source: {article['title'][:50]}")
+                continue
             if article_hash in processed_articles:
                 print(f"⚠️ Skipping exact duplicate: {article['title'][:50]}")
                 continue
