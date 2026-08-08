@@ -576,6 +576,9 @@ Rewrite the following source material into an original technical blog post.
 Requirements:
 - Genuinely rewrite and restructure — do NOT reproduce the source's wording.
 - Keep it technically accurate; do not invent facts not in the source.
+- Write ONE cohesive article, not a slide deck: sections must flow with
+  connective tissue; each `##` section needs 2–3 full paragraphs (not a single
+  thin sentence-block under each heading).
 - Structure body_markdown in this order:
   1. Opening paragraph: a 40–60 word direct answer to the post's core question
      (answer-first; no throat-clearing preamble).

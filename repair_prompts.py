@@ -26,9 +26,14 @@ Guidance:
   personal learning journeys that carry transferable technical lessons —
   even if otherwise coherent — so generate can depersonalize them into a
   knowledge article (never keep someone else's lived experience as clean).
-- **clean** — already coherent enough to keep without rewrite, AND not a
-  first-person journal/diary/autobiography that would misattribute another
-  author's personal timeline under this blog's byline.
+  Also rewrite when the body reads like a slide outline: many `##` headings
+  each followed by roughly one short paragraph, little connective tissue,
+  or missing answer-first opener / single `## Key Takeaways` near the top,
+  or still using a plain `## Takeaways` heading.
+- **clean** — already a cohesive multi-paragraph article (not an H2 outline),
+  with answer-first opener and a single `## Key Takeaways` near the top,
+  AND not a first-person journal/diary/autobiography that would misattribute
+  another author's personal timeline under this blog's byline.
 
 Return ONLY this JSON object (no code fences, no commentary):
 {{
@@ -84,6 +89,9 @@ Grounding:
 Requirements:
 - Genuinely rewrite and restructure — do NOT reproduce the gist's wording.
 - Keep it technically accurate; do not invent facts not in the gist or notes.
+- Write ONE cohesive article, not a slide deck: sections must flow with
+  connective tissue; each `##` section needs 2–3 full paragraphs (not a single
+  thin sentence-block under each heading).
 - Structure body_markdown in this order:
   1. Opening paragraph: a 40–60 word direct answer to the post's core question
      (answer-first; no throat-clearing preamble).
@@ -171,6 +179,8 @@ Also enforce structure hygiene when fixing the body:
   "Takeaways" or duplicate takeaway sections into that single heading).
 - Prefer question-style `##` headings; keep `## FAQ` with `###` questions if
   present; no body H1 and no skipped heading levels.
+- Expand thin H2+one-paragraph outline sections into 2–3 paragraph flowing
+  sections so the draft reads as one article, not a slide deck.
 
 Return ONLY this JSON object (no code fences, no commentary):
 {{
