@@ -1819,15 +1819,15 @@
     "verdict": "clean"
   },
   "navigating-the-llm-landscape-open-source-vs-commercial-in-20": {
-    "action": "kept",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "8e96a02259cc0e0d40da7e472ba6f2db",
     "confidence": "high",
-    "reason": "The post is well-structured, comprehensive, and provides valuable insights into the LLM landscape in 2026. It covers key topics such as TCO analysis, performance benchmarks, and deployment strategies, making it coherent and valuable as is.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:15:25.079419+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Takeaways' section near the top. It provides a comprehensive overview of the topic without being a first-person journal.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T11:56:45.824708+00:00",
+    "verdict": "rewrite"
   },
   "navigating-the-node-js-package-manager-m": {
     "action": "rewritten",
