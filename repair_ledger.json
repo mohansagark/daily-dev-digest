@@ -1797,26 +1797,26 @@
     "verdict": "rewrite"
   },
   "navigating-authorization-in-the-ai-agent-era-with-id-jag": {
-    "action": "kept",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "4581c7045633a2e39193d84a74366c3f",
     "confidence": "high",
-    "reason": "The post is well-structured, provides a clear explanation of ID-JAG, its foundations, and implementation steps. It is coherent and valuable as is.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:15:18.946606+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear and structured explanation of ID-JAG, its necessity, and implementation details.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:28:18.027331+00:00",
+    "verdict": "rewrite"
   },
   "navigating-the-complex-landscape-of-financial-privacy-in-dig": {
-    "action": "kept",
-    "bedrock_calls": 2,
+    "action": "rewritten",
+    "bedrock_calls": 4,
     "body_hash": "8e3c67ed1b5761513870062f99219323",
     "confidence": "high",
-    "reason": "The post is well-structured, coherent, and provides valuable insights into the topic of financial privacy in digital assets. It includes detailed information, references to credible sources, and actionable recommendations.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:15:21.691642+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener, a single '## Takeaways' section near the top, and provides a comprehensive overview of the topic without being a first-person account.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:28:28.240253+00:00",
+    "verdict": "rewrite"
   },
   "navigating-the-llm-landscape-open-source-vs-commercial-in-20": {
     "action": "rewritten",
@@ -1832,34 +1832,34 @@
   "navigating-the-node-js-package-manager-m": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "022c13585421ef0ff384d355e06aa2fc",
-    "confidence": "medium",
-    "reason": "The post has a real topic and gist but contains redundant sections, incomplete sentences, and lacks a coherent structure. It needs significant editing to meet current standards.",
+    "body_hash": "a792ada34281fc9c5541bc5555576d6a",
+    "confidence": "high",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, structured comparison of the three Node.js package managers.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:40:42.664931+00:00",
+    "timestamp": "2026-08-08T12:28:39.149778+00:00",
     "verdict": "rewrite"
   },
   "nexus-framework-coordinating-multiple-sc": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "095baed813d1b7874cadca2a56d5334d",
+    "body_hash": "86634806875818a8226ac7855b675753",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains duplicated content, incomplete sections, and formatting issues that need to be addressed to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear and comprehensive explanation of the Nexus Framework, its components, and practical implementation tips.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:15:47.120838+00:00",
+    "timestamp": "2026-08-08T12:28:49.492337+00:00",
     "verdict": "rewrite"
   },
   "node-js-just-got-cooler-imports-and-pack": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "13dd2bc783c756a973ac6bb4bd0ba20d",
+    "body_hash": "8bffb25073ed537ba01fea1522a0587c",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains incomplete sections, broken structure, and formatting issues. It needs significant cleanup and restructuring to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single `## Takeaways` section near the top. It provides clear, actionable advice on using package.json aliases in Node.js projects.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:16:00.789522+00:00",
+    "timestamp": "2026-08-08T12:28:59.292427+00:00",
     "verdict": "rewrite"
   },
   "node-red-kubernetes-deployment-password-": {
@@ -1876,12 +1876,12 @@
   "nodejs-fundamentals-debugger": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "56d361903717eb9b95a911a7ad5e81a1",
+    "body_hash": "d4f0f0ab3a8aa9b164a97820e38cd3ca",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains structural issues, repetition, and is below current blog standards. It needs significant editing for clarity and coherence.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides detailed, actionable insights into advanced Node.js debugging techniques.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:16:37.966580+00:00",
+    "timestamp": "2026-08-08T12:29:09.589708+00:00",
     "verdict": "rewrite"
   },
   "offload-with-confidence-architecting-web": {
@@ -1896,58 +1896,58 @@
     "verdict": "rewrite"
   },
   "oltp-vs-olap-when-transaction-meets-anal": {
-    "action": "kept",
-    "bedrock_calls": 2,
-    "body_hash": "e66948c4c595a9a94a1ce4c1659d523a",
+    "action": "rewritten",
+    "bedrock_calls": 4,
+    "body_hash": "9044b9c75be5ed62b5d0fcef43e4e0b5",
     "confidence": "high",
-    "reason": "The post is coherent, well-structured, and provides valuable insights into OLTP and OLAP systems. It includes clear definitions, examples, and key differences, making it a high-quality piece that doesn't require a rewrite.",
-    "search_calls": 0,
-    "search_failed": false,
-    "timestamp": "2026-08-07T12:16:52.853632+00:00",
-    "verdict": "clean"
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides clear, structured information on OLTP vs OLAP, including definitions, key differences, and how they can work together.; deterministic guard: fragmented outline or takeaways hygiene",
+    "search_calls": 1,
+    "search_failed": true,
+    "timestamp": "2026-08-08T12:29:21.379956+00:00",
+    "verdict": "rewrite"
   },
   "open-letter-to-microsoft-visual-studio-n": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "71cad9daa0be96e1a745069943291ee3",
+    "body_hash": "c6f3c3247a264fc0d5c9ad15c1377378",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains redundant sections, broken structure, and could be streamlined for clarity and coherence.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides a clear, structured argument for reimagining Visual Studio to better serve new developers, without being a first-person journal or diary.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:17:04.049301+00:00",
+    "timestamp": "2026-08-08T12:29:31.338133+00:00",
     "verdict": "rewrite"
   },
   "optimized-videos-in-vue-with-cloudinary": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "4547abc56f9e18d94058054ca7d7e840",
+    "body_hash": "fb11a6e4e2c26d30969299e26fb8aff4",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains repeated content, incomplete sentences, and structural issues that need to be addressed to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides practical techniques and code examples for integrating and optimizing videos in Vue applications using Cloudinary.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:17:18.749721+00:00",
+    "timestamp": "2026-08-08T12:29:46.091065+00:00",
     "verdict": "rewrite"
   },
   "overcoming-imposter-syndrome-a-guide-for": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "4a13ecca07d0443e137daf63a1231c15",
+    "body_hash": "1233d9623af85c7090cba4557fa3c61d",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but contains repetitive content, lacks a clear structure, and has sections that are incomplete or poorly organized.",
+    "reason": "The post has a real topic and gist but reads like a slide outline with many headings each followed by a short paragraph. It also uses a plain '### Takeaways' heading instead of a single '## Key Takeaways' near the top. Additionally, it is written in a first-person style which should be depersonalized.",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:17:33.225865+00:00",
+    "timestamp": "2026-08-08T12:29:56.072140+00:00",
     "verdict": "rewrite"
   },
   "part-21-compute-engine-storage-key-manag": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "8a2a2a848f77f79d02891dbe0d374dba",
+    "body_hash": "3642085be0183d57f719867006a0c52f",
     "confidence": "high",
-    "reason": "The post contains relevant information but has significant structural issues, repetition, and formatting problems that need to be addressed.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener and a single '## Key Takeaways' section near the top. It provides valuable information on using Google Cloud KMS for encryption, covering essential concepts and best practices.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:17:46.374668+00:00",
+    "timestamp": "2026-08-08T12:30:07.817164+00:00",
     "verdict": "rewrite"
   },
   "part-51-to-configure-vpc-firewall-rules-": {
@@ -1964,12 +1964,12 @@
   "perfect-combination-of-message-queue-and": {
     "action": "rewritten",
     "bedrock_calls": 4,
-    "body_hash": "71cd1347d4023aa58f18b46ac0096164",
+    "body_hash": "e3b4e14c5a7a01c8b8d11703d2b21452",
     "confidence": "high",
-    "reason": "The post has a real topic and gist but is repetitive, incomplete, and lacks a coherent structure. It needs significant editing to meet current standards.",
+    "reason": "The post is a cohesive multi-paragraph article with an answer-first opener, a single '## Key Takeaways' section near the top, and provides detailed technical content on the Hyperlane framework.; deterministic guard: fragmented outline or takeaways hygiene",
     "search_calls": 1,
     "search_failed": true,
-    "timestamp": "2026-08-07T12:18:16.481611+00:00",
+    "timestamp": "2026-08-08T12:30:18.290856+00:00",
     "verdict": "rewrite"
   },
   "pluralsight-vs-udemy-which-platform-actu": {
