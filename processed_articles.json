@@ -12,5 +12,12 @@
     "processed_date": "2026-08-08T21:03:06.166911",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "calling openai for image generation from the browser exposes your api key to anyone with devtools. webflow cloud solves this with a server-side architecture that keeps the key private, the stack unified, and the deployment tied to your webflow site. one of the most common requests i get when adding ai to a webflow project is to let users generate images from their own prompts. however, you cannot call openai from the browser without exposing your api key in the page source. anyone who opens devtools can copy it, and from that point, your quota is theirs. the workaround most teams reach for (a serverless function hosted separately) works, but it fragments the stack and adds a deployment you have to manage independently of the webflow site. with webflow cloud apps, you can have a next.js rou"
+  },
+  "37a6ec189968b186710103a326dfbe24": {
+    "title": "AI doesn't make programming easier - It moves the bottleneck to where it cannot see",
+    "link": "https://dev.to/azank1/ai-doesnt-make-programming-easier-it-moves-the-bottleneck-to-where-it-cannot-see-3lpo",
+    "processed_date": "2026-08-09T21:04:59.639266",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "field notes from the harness layer. the guard that killed the run last month i watched an agent write a preflight guard for a database script. good idea, cleanly written: check that the host is reachable before anything touches it, and abort with useful advice if it is not. the script ran, prompted for credentials, and exited with no message, no output, nothing attempted. it looked exactly like an authentication failure. it was not. the guard itself had aborted the run it was written to protect, two lines after the credential prompt, because one of its own checks returned an exit code the script's strict mode treated as fatal. the host had been reachable the whole time. nothing about that failure was a code generation failure. the model wrote the code fine, and fast. the hours went somewhe"
   }
 }
