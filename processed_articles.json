@@ -19,5 +19,12 @@
     "processed_date": "2026-08-09T21:04:59.639266",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "field notes from the harness layer. the guard that killed the run last month i watched an agent write a preflight guard for a database script. good idea, cleanly written: check that the host is reachable before anything touches it, and abort with useful advice if it is not. the script ran, prompted for credentials, and exited with no message, no output, nothing attempted. it looked exactly like an authentication failure. it was not. the guard itself had aborted the run it was written to protect, two lines after the credential prompt, because one of its own checks returned an exit code the script's strict mode treated as fatal. the host had been reachable the whole time. nothing about that failure was a code generation failure. the model wrote the code fine, and fast. the hours went somewhe"
+  },
+  "c37d0ec0e4abba734d52743ef5468e1d": {
+    "title": "When Agents Can Run Anywhere, Where Should Organizational Judgment Live?",
+    "link": "https://dev.to/kikashy/when-agents-can-run-anywhere-where-should-organizational-judgment-live-161c",
+    "processed_date": "2026-08-10T21:17:24.161520",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "two developments today came from very different parts of the agent stack. meta released muse glimmer, a 30b open model designed for local, always-on agent workflows. it can run on consumer hardware and is trained for tool use, long-running execution, multimodal input, and failure recovery. at the enterprise layer, realpage introduced the lumina ai suite, combining agents, a governed knowledge graph, operational intelligence, institutional intelligence, and mcp-based access to external models. one development is pushing agents down onto local hardware. the other is building more enterprise infrastructure around them. together they make an architectural question easier to see. if the model can increasingly run anywhere, where should the organization's actual decision criteria live? the model"
   }
 }
