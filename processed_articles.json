@@ -26,5 +26,52 @@
     "processed_date": "2026-08-10T21:17:24.161520",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "two developments today came from very different parts of the agent stack. meta released muse glimmer, a 30b open model designed for local, always-on agent workflows. it can run on consumer hardware and is trained for tool use, long-running execution, multimodal input, and failure recovery. at the enterprise layer, realpage introduced the lumina ai suite, combining agents, a governed knowledge graph, operational intelligence, institutional intelligence, and mcp-based access to external models. one development is pushing agents down onto local hardware. the other is building more enterprise infrastructure around them. together they make an architectural question easier to see. if the model can increasingly run anywhere, where should the organization's actual decision criteria live? the model"
+  },
+  "4479275c73a5c58883ca52bd77b925a2": {
+    "title": "Show HN: Tmux-agent-switcher: see which Claude/Codex agents need your attention",
+    "link": "https://github.com/Ymirke/tmux-agent-switcher",
+    "processed_date": "2026-08-12T21:23:16.313999",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "a tmux sidebar that lets you switch between windows and keep an eye on your running ai coding agents (claude code, codex, and opencode) from one full-screen popup. press ctrl+n and you get a list of every window across all your sessions on the left, a live preview of the selected window on the right, and a status badge on any pane running an agent: working, blocked (waiting on you), or idle (done). jump straight to the agent that needs you. note detection is fully passive (see how it works). the plugin never wraps, shims, or launches your agents. you run claude , codex , or opencode as usual; the sidebar reads tmux and the process table. - cross-session window switcher in a full-screen popup with a live, scaled preview of the highlighted window. - agent monitoring: each pane running claude",
+    "skipped": "triage_reject"
+  },
+  "9c5edac78149cd6a7150a4609d87842a": {
+    "title": "Building Security Agents That Cannot Escape Their Trust Boundary",
+    "link": "https://cynative.com/blog/agent-trust-boundaries/",
+    "processed_date": "2026-08-12T21:23:16.314246",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "the \"models being untamed hackers\" headlines are all over your feed, and the argument is mostly about intent. intent is the least interesting part. what matters is that you are about to hand that same class of model direct access to your own infrastructure, and when it comes to automating your security it would be insane to let them make the final call on their actions. until they stop making mistakes, you can't afford to let your agent hallucinate into deleting your data or changing your cloud infrastructure configurations. one way around this is to mirror key parts of your infrastructure into a data lake and have the agent operate there, not touching your live infrastructure directly. that's how all saas security products operate: palo alto networks, crowdstrike, wiz and the ai-native ch",
+    "skipped": "triage_reject"
+  },
+  "d8e9d1ddf27765a73daa025b3b254d13": {
+    "title": "Write your first prompt with the GitHub Copilot app",
+    "link": "https://github.blog/ai-and-ml/github-copilot/write-your-first-prompt-with-the-github-copilot-app/",
+    "processed_date": "2026-08-12T21:23:16.314386",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "write your first prompt with the github copilot app learn how to write your first prompt in the github copilot app, choose the right context and model, and start your first task with confidence. opening a new ai tool can feel a little like staring at a blank page. you know you want help with something, but figuring out exactly what to ask can be its own task. the good news is that you don’t need to write the perfect prompt to get started. a prompt is simply a description of what you want to accomplish. start with what you know, give copilot some context, and refine the request as you go. let’s walk through what it looks like to start your first task in the github copilot app. start with the right context before you can ask copilot to make a change, it needs something to work on. agent sess",
+    "skipped": "triage_reject"
+  },
+  "3f2ee49c8cf0e727b3283ef136d37dc2": {
+    "title": "Your contributors are AI-first now. Is your project?",
+    "link": "https://github.blog/open-source/maintainers/your-contributors-are-ai-first-now-is-your-project/",
+    "processed_date": "2026-08-12T21:23:16.314549",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "the same question keeps coming up in maintainer conversations: what do you do when the pull request queue fills with work written by agents? it’s something nicholas tindle, founding ai engineer at autogpt, also deals with every day. i spoke with him in may for maintainer month. at the time of the interview, autogpt had over 180,000 stars and around 150 open pull requests. a big chunk of those pull requests were written by agents, including copilot, openclaw, and autogpt’s own internal tooling, among others. most maintainers i talk to have the same reaction: close the door. turn off pull requests. don’t tax the team with reviewing slop. nicholas saw an upside: it’s basically somebody else paying for your compute. nicholas tindle, founding ai engineer at autogpt the way he sees it, if a cont",
+    "skipped": "triage_reject"
+  },
+  "b639713657b48d7e7d545a300296fe9d": {
+    "title": "How to Build an AI Agent with Per-User OAuth Access [Full Handbook]",
+    "link": "https://www.freecodecamp.org/news/ai-agent-per-user-oauth-slack-github/",
+    "processed_date": "2026-08-12T21:23:16.314890",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "when your ai agent serves more than one person, every tool call must answer: who's the agent acting for? let's learn how to solve this by building an ai agent that connects with slack and github. a slack read uses that user's workspace. a github issue is created as that user, in a repository they can access. an agent can make the wrong call, but it must never act with the wrong user's access. the fix has two parts, and both appear in the first half of this tutorial: each user grants access separately. alice authorizes slack for herself. bob authorizes it for himself. your agent passes an identifier, not a token. a string like alice@example.com selects whose grant to use. one function turns it into a token at the moment of the call, and that token never reaches your model inputs, your tool ",
+    "skipped": "triage_reject"
+  },
+  "f63080d37994924034ee0ceb1acb2899": {
+    "title": "How to Build a Browser-Based PDF Filter Studio with JavaScript",
+    "link": "https://www.freecodecamp.org/news/build-pdf-filter-studio-javascript/",
+    "processed_date": "2026-08-12T21:23:36.077291",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "pdf editing isn't limited to adding signatures or merging documents. sometimes you simply want to improve the appearance of a pdf by increasing brightness, boosting contrast, adding blur, converting it to grayscale, or applying creative visual effects – all without opening photoshop or installing desktop software. in this tutorial, you'll build a browser-based pdf filter studio using javascript, pdf.js, the canvas api, and pdf-lib. users can upload a pdf, preview each page, stack multiple filter layers, apply preset effects, process selected pages, preview the final document, rename it, and download the edited pdf directly from the browser. since every step runs locally, the uploaded pdf never leaves the user's device, making the application both fast and privacy-friendly. table of content"
   }
 }
