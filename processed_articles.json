@@ -73,5 +73,12 @@
     "processed_date": "2026-08-12T21:23:36.077291",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "pdf editing isn't limited to adding signatures or merging documents. sometimes you simply want to improve the appearance of a pdf by increasing brightness, boosting contrast, adding blur, converting it to grayscale, or applying creative visual effects – all without opening photoshop or installing desktop software. in this tutorial, you'll build a browser-based pdf filter studio using javascript, pdf.js, the canvas api, and pdf-lib. users can upload a pdf, preview each page, stack multiple filter layers, apply preset effects, process selected pages, preview the final document, rename it, and download the edited pdf directly from the browser. since every step runs locally, the uploaded pdf never leaves the user's device, making the application both fast and privacy-friendly. table of content"
+  },
+  "4bf21095544fb46d851ea147211f2cf2": {
+    "title": "Vercel AI Gateway Alternatives for Self-Hosted LLM Infra",
+    "link": "https://dev.to/kuldeep_paul/vercel-ai-gateway-alternatives-for-self-hosted-llm-infra-2coj",
+    "processed_date": "2026-08-13T21:25:20.183799",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "compare the best vercel ai gateway alternatives for self-hosted llm infrastructure. bifrost leads with microsecond performance and enterprise-ready governance. production applications built on vercel ai gateway eventually encounter architectural ceilings when compliance mandates, high latencies, or private network routing require moving llm infrastructure off managed cloud environments. when evaluating vercel ai gateway alternatives for self-hosted llm infrastructure, teams often prioritize data residency, sub-millisecond network overhead, and granular governance. a 2025 cloud native computing foundation survey highlights the growing enterprise transition toward running core data-plane components on private infrastructure. for engineering teams evaluating these alternatives, bifrost, an op"
   }
 }
