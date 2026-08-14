@@ -80,5 +80,12 @@
     "processed_date": "2026-08-13T21:25:20.183799",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "compare the best vercel ai gateway alternatives for self-hosted llm infrastructure. bifrost leads with microsecond performance and enterprise-ready governance. production applications built on vercel ai gateway eventually encounter architectural ceilings when compliance mandates, high latencies, or private network routing require moving llm infrastructure off managed cloud environments. when evaluating vercel ai gateway alternatives for self-hosted llm infrastructure, teams often prioritize data residency, sub-millisecond network overhead, and granular governance. a 2025 cloud native computing foundation survey highlights the growing enterprise transition toward running core data-plane components on private infrastructure. for engineering teams evaluating these alternatives, bifrost, an op"
+  },
+  "64ffe9cd39a2704730c1682e8c719aa3": {
+    "title": "How to Use Vector Databases for AI Applications",
+    "link": "https://dev.to/qingluan/how-to-use-vector-databases-for-ai-applications-2e72",
+    "processed_date": "2026-08-14T20:59:54.069021",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "how to use vector databases for ai applications tags: ai, database, python, tutorial tags: ai, database, python, tutorial tags: ai, database, python, tutorial tags: ai, database, python, tutorial you’ve probably built an ai chatbot that hallucinates facts, a search feature that returns “banana” when you ask for “fruit,” or a recommendation engine that just… doesn’t. the missing piece isn’t a better model—it’s a vector database. these specialized systems turn text, images, and audio into mathematical vectors so your ai can find semantically similar content instantly, not just exact keyword matches. whether you’re building a rag (retrieval-augmented generation) app, a semantic search tool, or a smart recommendation system, vector databases are the backbone that makes ai actually useful. why "
   }
 }
