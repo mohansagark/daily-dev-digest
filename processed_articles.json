@@ -87,5 +87,12 @@
     "processed_date": "2026-08-14T20:59:54.069021",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "how to use vector databases for ai applications tags: ai, database, python, tutorial tags: ai, database, python, tutorial tags: ai, database, python, tutorial tags: ai, database, python, tutorial you’ve probably built an ai chatbot that hallucinates facts, a search feature that returns “banana” when you ask for “fruit,” or a recommendation engine that just… doesn’t. the missing piece isn’t a better model—it’s a vector database. these specialized systems turn text, images, and audio into mathematical vectors so your ai can find semantically similar content instantly, not just exact keyword matches. whether you’re building a rag (retrieval-augmented generation) app, a semantic search tool, or a smart recommendation system, vector databases are the backbone that makes ai actually useful. why "
+  },
+  "729a2b0a98ec3b0860c0da273969da59": {
+    "title": "Build a Model Registry Before Someone Asks You For One",
+    "link": "https://dev.to/jam-techcirkle/build-a-model-registry-before-someone-asks-you-for-one-25ce",
+    "processed_date": "2026-08-15T20:51:56.537177",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "try this on your own system right now. which model version produced this specific customer-facing output on 14 march? if you cannot answer that in under five minutes, you have the problem this post is about. and it is not primarily a compliance problem — it is a debugging problem, a cost attribution problem, and an incident response problem that happens to also be a compliance problem. most teams cannot answer it. the usual reason is mundane: the model name is interpolated from an environment variable that has been updated in place several times, so the historical record simply does not exist. we watched a team spend more on remediating exactly that than the original feature cost to build. two pieces of infrastructure almost every question a regulator, enterprise customer, or post-incident"
   }
 }
