@@ -94,5 +94,12 @@
     "processed_date": "2026-08-15T20:51:56.537177",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "try this on your own system right now. which model version produced this specific customer-facing output on 14 march? if you cannot answer that in under five minutes, you have the problem this post is about. and it is not primarily a compliance problem — it is a debugging problem, a cost attribution problem, and an incident response problem that happens to also be a compliance problem. most teams cannot answer it. the usual reason is mundane: the model name is interpolated from an environment variable that has been updated in place several times, so the historical record simply does not exist. we watched a team spend more on remediating exactly that than the original feature cost to build. two pieces of infrastructure almost every question a regulator, enterprise customer, or post-incident"
+  },
+  "2ee829787fbc4bd4a15fbf487fff3b99": {
+    "title": "Microservices Architecture Patterns Cheat Sheet: Circuit Breaker, Saga, Outbox, Bulkhead & CQRS",
+    "link": "https://dev.to/architect_bytes/microservices-architecture-patterns-cheat-sheet-circuit-breaker-saga-outbox-bulkhead-cqrs-3h85",
+    "processed_date": "2026-08-16T20:51:18.345314",
+    "strategy_used": "Software architecture and system design",
+    "content_sample": "building scalable, resilient distributed systems requires navigating complex trade-offs around state, network partitions, and service failures. when migrating from monoliths to microservices, traditional single-database acid guarantees disappear, and network latencies become variable. this guide serves as an architectural cheat sheet covering six core design patterns for distributed systems: circuit breaker, two-phase commit (2pc), saga pattern, transactional outbox with debezium cdc, bulkhead pattern, and cqrs. 1. circuit breaker pattern the circuit breaker pattern is a fail-fast strategy designed to prevent cascading failures across distributed services. when an upstream dependency degrades or fails, the circuit breaker opens to bypass requests to that service for a predetermined recover"
   }
 }
