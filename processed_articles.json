@@ -101,5 +101,12 @@
     "processed_date": "2026-08-16T20:51:18.345314",
     "strategy_used": "Software architecture and system design",
     "content_sample": "building scalable, resilient distributed systems requires navigating complex trade-offs around state, network partitions, and service failures. when migrating from monoliths to microservices, traditional single-database acid guarantees disappear, and network latencies become variable. this guide serves as an architectural cheat sheet covering six core design patterns for distributed systems: circuit breaker, two-phase commit (2pc), saga pattern, transactional outbox with debezium cdc, bulkhead pattern, and cqrs. 1. circuit breaker pattern the circuit breaker pattern is a fail-fast strategy designed to prevent cascading failures across distributed services. when an upstream dependency degrades or fails, the circuit breaker opens to bypass requests to that service for a predetermined recover"
+  },
+  "aff9e22fba3bbffad0a4d98736cab517": {
+    "title": "2026 Multi-Model Gateway and Direct Provider Routing Billing Token Cost Estimates",
+    "link": "https://dev.to/ethanbrooks1486/2026-multi-model-gateway-and-direct-provider-routing-billing-token-cost-estimates-2lhf",
+    "processed_date": "2026-08-17T20:58:45.358936",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "short answer: use a gateway when a logistics knowledge-base app needs fast model switching and one place to attribute token cost per tenant; stay direct when provider-specific controls matter more than consolidated billing. the unit of comparison isn't the headline token rate. it is the cost of answering one tenant's question, with enough metadata to explain the charge later. a cheap request that lands on the wrong model, loses a provider feature, or can't be tied back to a customer is bad routing. how should a node.js app compare multi-model gateway routing and direct providers? start with the operating model. this compact matrix is the decision note i would keep next to the architecture diagram: my default for the stated case is a gateway: private logistics retrieval, several candidate c"
   }
 }
