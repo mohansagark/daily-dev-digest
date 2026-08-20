@@ -115,5 +115,12 @@
     "processed_date": "2026-08-18T20:54:48.356393",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "a website can look polished, work perfectly with a mouse, and still be difficult for some people to use. a form might use colour as the only indication that something went wrong. a sticky header might completely cover the element that currently has keyboard focus. a login form might prevent users from pasting a password from their password manager. or a custom button might work when clicked with a mouse but do nothing when someone uses a keyboard. these are development decisions, not problems that only appear during an accessibility audit. the web content accessibility guidelines (wcag) provide a common standard for identifying and reducing many of these barriers. wcag 2.2 is the latest wcag 2 recommendation, and the world wide web consortium (w3c) advises developers and organisations to u"
+  },
+  "6a78421f782d25579ad83bc0be310d3a": {
+    "title": "Vercel AI Gateway OpenRouter and Direct Providers for Portable Multi-Model Review",
+    "link": "https://dev.to/paswkeria/vercel-ai-gateway-openrouter-and-direct-providers-for-portable-multi-model-review-1i8d",
+    "processed_date": "2026-08-20T20:59:39.247529",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "short answer: make the structured finding schema your portability boundary, then run the same logistics patch through a gateway adapter and a direct-provider adapter before choosing. a small node.js team should begin with a gateway when fast model changes and consolidated usage records matter; it should keep a direct path when native provider controls are part of the product. this reverses the usual buying process. don't pick vercel ai gateway, openrouter, infrai, openai, anthropic, gemini, or together ai from a catalogue and then bend the application around it. first define what cannot change: the input is a code patch, the output is a validated array of findings, and stored review records do not contain gateway-specific objects. provider portability then becomes something a test can prov"
   }
 }
