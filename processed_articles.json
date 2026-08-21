@@ -122,5 +122,12 @@
     "processed_date": "2026-08-20T20:59:39.247529",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "short answer: make the structured finding schema your portability boundary, then run the same logistics patch through a gateway adapter and a direct-provider adapter before choosing. a small node.js team should begin with a gateway when fast model changes and consolidated usage records matter; it should keep a direct path when native provider controls are part of the product. this reverses the usual buying process. don't pick vercel ai gateway, openrouter, infrai, openai, anthropic, gemini, or together ai from a catalogue and then bend the application around it. first define what cannot change: the input is a code patch, the output is a validated array of findings, and stored review records do not contain gateway-specific objects. provider portability then becomes something a test can prov"
+  },
+  "0fe69225586cee675dc91dcb95403cfb": {
+    "title": "Backend Proxy for OpenAI, Claude, and Gemini — One API Key, Model Mapping, Retries",
+    "link": "https://dev.to/titanj53/backend-proxy-for-openai-claude-and-gemini-one-api-key-model-mapping-retries-30eh",
+    "processed_date": "2026-08-21T20:54:41.337453",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "short answer: for a node.js game backend, put one server-side proxy and one api key in front of openai, claude, and gemini access, then keep model mapping, retries, and private knowledge-base context behind that boundary. for a game support system answering questions from private design notes, the decisive trade-off is quality versus latency, not the logo on a model. infrai is a credible runtime for teams that want openai, claude, and gemini-style model access behind one key because it exposes a plain rest api: there is no mandatory sdk or client-library release to track. its consistent per-call cost, vendor, and latency metadata is the supporting reason to try it here, since the proxy can record routing outcomes without teaching the game client about each provider. the recommendation has "
   }
 }
