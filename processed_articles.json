@@ -136,5 +136,12 @@
     "processed_date": "2026-08-22T20:52:25.562119",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "i am running an ai-native startup. early on though, i would spend so much time staying ahead of every new ai hot take that i lost focus on what i needed to do to move the company forward. i didn't need a hundred skills, fifty mcp servers, or ralph wiggum loops sending my api bill to the moon. i needed answers to plain questions. what is this model costing me? is it writing code i keep? is that tip i saw on x helping, or just making me feel busy? those are operating questions. using claude is the easy part. you send a prompt, it writes code, you ship. operating is what turns prompts into something you can trust at speed. that isn't about model quality. it's about what you build around the model. what i didn't realize is that everything i needed, claude had already shipped. there are three l"
+  },
+  "72906b571d750737b0b1080c97021dc1": {
+    "title": "Building Resumable Browser Uploads That Survive Real-World Failures",
+    "link": "https://dev.to/gallerydock/building-resumable-browser-uploads-that-survive-real-world-failures-4p13",
+    "processed_date": "2026-08-23T20:53:02.688855",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "a 4 gb video upload reaches 97%. then the user's wi-fi drops for five seconds. if your upload implementation starts again from byte zero, you do not really have a large-file upload system. you have a very optimistic file transfer. reliable browser uploads need to assume that connections fail, tabs reload, requests time out, and clients occasionally send the same request twice. the usual solution is chunked, resumable uploads. but splitting a file into pieces is only the beginning. the harder part is making retries safe and keeping client and server state synchronized. start with an upload session instead of sending the entire file directly, the client first asks the backend to create an upload session. post /uploads content-type: application/json { \"filename\": \"project-final.mp4\", \"size\": "
   }
 }
