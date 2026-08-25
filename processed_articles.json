@@ -150,5 +150,12 @@
     "processed_date": "2026-08-24T21:02:45.479869",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "a free llm endpoint will eventually return 429 too many requests . the question is not whether it happens — it is whether your client survives it. most agent code treats the model api as a reliable dependency: one call, one response, no surprises. on a free tier, that assumption breaks in three predictable ways, and each one needs a different countermeasure. this post is a reliability playbook for anyone building on a free model tier. the artifact is a small python client that combines exponential backoff, a circuit breaker, and quota-aware degradation — the three patterns that turn an unreliable free endpoint into a tolerable one. the three failure modes of a free tier free endpoints fail differently from paid ones. paid apis fail rarely and briefly. free tiers fail constantly and predict"
+  },
+  "01d554513cbd4d61522f5a77f33b3c1f": {
+    "title": "Build a Vite Plugin to Catch Broken SVG Assets Before Production",
+    "link": "https://www.sitepoint.com/build-a-vite-plugin-to-catch-broken-svg-assets-before-production/?utm_source=rss",
+    "processed_date": "2026-08-25T21:00:02.271973",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "svg files have an unusual position in frontend projects. they look like ordinary static assets, but they're also structured documents. they can contain paths, styles, ids, embedded images, masks, filters, scripts, dimensions, and metadata. that flexibility is one of svg's strengths, but it also means a seemingly harmless asset change can introduce problems that aren't discovered until much later. a designer replaces a logo, and suddenly dark mode stops working. an exported svg has no view box , so responsive sizing behaves unexpectedly. another export contains hundreds of kilobytes of unnecessary editor metadata. a third includes markup that your team's asset policy doesn't allow. none of these failures necessarily breaks the javascript build. vite happily starts. the application renders. "
   }
 }
