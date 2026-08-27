@@ -157,5 +157,12 @@
     "processed_date": "2026-08-25T21:00:02.271973",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "svg files have an unusual position in frontend projects. they look like ordinary static assets, but they're also structured documents. they can contain paths, styles, ids, embedded images, masks, filters, scripts, dimensions, and metadata. that flexibility is one of svg's strengths, but it also means a seemingly harmless asset change can introduce problems that aren't discovered until much later. a designer replaces a logo, and suddenly dark mode stops working. an exported svg has no view box , so responsive sizing behaves unexpectedly. another export contains hundreds of kilobytes of unnecessary editor metadata. a third includes markup that your team's asset policy doesn't allow. none of these failures necessarily breaks the javascript build. vite happily starts. the application renders. "
+  },
+  "df1204fa624ee4695bb3d0a3dd21a9c5": {
+    "title": "Gallup scales real-time coaching for thousands with Amazon Bedrock",
+    "link": "https://aws.amazon.com/blogs/architecture/gallup-delivers-real-time-workplace-coaching-to-thousands-of-leaders-with-amazon-bedrock/",
+    "processed_date": "2026-08-27T00:01:04.003483",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "aws architecture blog gallup scales real-time coaching for thousands with amazon bedrock how gallup turned 90 years of workplace science into an ai assistant that gives leaders personalized guidance in seconds, powered by amazon bedrock. gallup delivers analytics and advice to help leaders and organizations solve their most pressing problems. with more than 90 years of experience and a global reach, gallup has developed a uniquely deep understanding of workplace behavior and performance. however, this knowledge wasn’t centralized or delivered in context. leaders had to navigate multiple resources to find relevant insights and then translate them into action without guidance. the lack of real-time, personalized recommendations meant workplace challenges were often handled reactively instead"
   }
 }
