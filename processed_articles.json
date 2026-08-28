@@ -164,5 +164,12 @@
     "processed_date": "2026-08-27T00:01:04.003483",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "aws architecture blog gallup scales real-time coaching for thousands with amazon bedrock how gallup turned 90 years of workplace science into an ai assistant that gives leaders personalized guidance in seconds, powered by amazon bedrock. gallup delivers analytics and advice to help leaders and organizations solve their most pressing problems. with more than 90 years of experience and a global reach, gallup has developed a uniquely deep understanding of workplace behavior and performance. however, this knowledge wasn’t centralized or delivered in context. leaders had to navigate multiple resources to find relevant insights and then translate them into action without guidance. the lack of real-time, personalized recommendations meant workplace challenges were often handled reactively instead"
+  },
+  "cccd374bfffcadf14302b98c4d5c0364": {
+    "title": "How to Get Reliable Structured Data Out of an LLM",
+    "link": "https://www.freecodecamp.org/news/how-to-get-reliable-structured-data-out-of-an-llm/",
+    "processed_date": "2026-08-28T04:29:07.261738",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "most tutorials about calling a language model end at json.parse(response.content) . that line works on your first ten test cases. then you ship, and somewhere around request four hundred the model returns a date it invented, or eight array items when your schema allows five, or a perfectly valid json object with one field quietly missing. i ran into this while building temploracraft, a résumé tool that takes an uploaded document and turns it into structured data the application can edit. the input is genuinely unpredictable: two-column pdfs, tables that aren't really tables, and dates written in about fourteen different formats. the output has to be strict, because every extracted field lands in a form that a person is going to look at. when the model gets a date wrong, the user notices in"
   }
 }
