@@ -178,5 +178,12 @@
     "processed_date": "2026-08-29T02:56:46.245408",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "seo bugs in javascript applications rarely look like normal software bugs. a broken checkout throws an error. a failed api call produces a 500. a missing canonical tag often produces nothing at all. the application loads. the page looks correct. every component test passes. the deployment goes green. meanwhile, several public routes may be shipping: <title>dashboard</title> instead of route-specific titles, pointing canonical tags at the wrong hostname, inheriting a staging noindex , or producing structured data that no longer matches the page. these problems are easy to create because metadata is often treated as decoration around the application rather than part of the application itself. a better approach is to model search metadata like any other piece of production data: route data ↓ "
+  },
+  "8e812a9128ff6c7705c8cb4a78400224": {
+    "title": "How to Build an Airdrop Monitor with AI",
+    "link": "https://dev.to/rogt7/how-to-build-an-airdrop-monitor-with-ai-1m2f",
+    "processed_date": "2026-08-29T22:47:55.176476",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "the explosion of airdrop farming has created a fragmented landscape where thousands of projects launch weekly. manually tracking telegram announcements, discord threads, and twitter feeds is inefficient. by building an ai-powered airdrop monitor, you can automate the filtering of high-potential opportunities while discarding noise. the architecture an intelligent monitor consists of three pillars: data ingestion, llm summarization, and alerting. - data ingestion: use tools like tweepy for twitter ortelethon for telegram to pull raw post content based on keywords like \"testnet,\" \"snapshot,\" or \"incentivized.\" - llm filtering: pass the raw text through an ai api (e.g., gpt-4o or claude 3.5) to determine if the project is a legitimate airdrop, a scam, or irrelevant news. - alerting: push vali"
   }
 }
