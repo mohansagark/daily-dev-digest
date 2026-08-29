@@ -171,5 +171,12 @@
     "processed_date": "2026-08-28T04:29:07.261738",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "most tutorials about calling a language model end at json.parse(response.content) . that line works on your first ten test cases. then you ship, and somewhere around request four hundred the model returns a date it invented, or eight array items when your schema allows five, or a perfectly valid json object with one field quietly missing. i ran into this while building temploracraft, a résumé tool that takes an uploaded document and turns it into structured data the application can edit. the input is genuinely unpredictable: two-column pdfs, tables that aren't really tables, and dates written in about fourteen different formats. the output has to be strict, because every extracted field lands in a form that a person is going to look at. when the model gets a date wrong, the user notices in"
+  },
+  "3867ec9333802e85631873e7317067b0": {
+    "title": "Treat SEO Metadata as an Application Contract in JavaScript SaaS Apps",
+    "link": "https://www.sitepoint.com/treat-seo-metadata-as-an-application-contract-in-javascript-saas-apps/?utm_source=rss",
+    "processed_date": "2026-08-29T02:56:46.245408",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "seo bugs in javascript applications rarely look like normal software bugs. a broken checkout throws an error. a failed api call produces a 500. a missing canonical tag often produces nothing at all. the application loads. the page looks correct. every component test passes. the deployment goes green. meanwhile, several public routes may be shipping: <title>dashboard</title> instead of route-specific titles, pointing canonical tags at the wrong hostname, inheriting a staging noindex , or producing structured data that no longer matches the page. these problems are easy to create because metadata is often treated as decoration around the application rather than part of the application itself. a better approach is to model search metadata like any other piece of production data: route data ↓ "
   }
 }
