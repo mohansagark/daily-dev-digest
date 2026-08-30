@@ -185,5 +185,20 @@
     "processed_date": "2026-08-29T22:47:55.176476",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "the explosion of airdrop farming has created a fragmented landscape where thousands of projects launch weekly. manually tracking telegram announcements, discord threads, and twitter feeds is inefficient. by building an ai-powered airdrop monitor, you can automate the filtering of high-potential opportunities while discarding noise. the architecture an intelligent monitor consists of three pillars: data ingestion, llm summarization, and alerting. - data ingestion: use tools like tweepy for twitter ortelethon for telegram to pull raw post content based on keywords like \"testnet,\" \"snapshot,\" or \"incentivized.\" - llm filtering: pass the raw text through an ai api (e.g., gpt-4o or claude 3.5) to determine if the project is a legitimate airdrop, a scam, or irrelevant news. - alerting: push vali"
+  },
+  "e2da10565e847ac8c781e082c75a1e58": {
+    "title": "Show HN: Manage coding norms across your AI agents",
+    "link": "https://github.com/gsttm/norms",
+    "processed_date": "2026-08-30T22:55:18.380846",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "define your coding rules once, store them in git, and make every coding agent follow them. norms stores repo-level instructions as markdown in .norms/ , resolves them, and generates the rule files each coding agent expects. in practice, you’ll usually manage norms through your coding agent. after installing norms and running norms init in your current repo, just tell your agent to add or update a norm. it will write the norm, sync the generated rule files, and follow the updated instructions from then on. you can also manage norms directly from the cli with norms propose and norms sync . and because norms are just markdown, you can always edit them by hand. each norm has a stable id, optional path scopes, and one clear instruction. for example, .norms/norms/testing/integration.md : --- id:",
+    "skipped": "triage_reject"
+  },
+  "8a5d37ec30e45f7610d0abfdacff423a": {
+    "title": "When the CMS Gives You the Wrong Image: A Frontend Developer’s Decision Framework",
+    "link": "https://www.sitepoint.com/when-the-cms-gives-you-the-wrong-image-a-frontend-developer-s-decision-framework/?utm_source=rss",
+    "processed_date": "2026-08-30T22:55:34.862831",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "sooner or later, every frontend developer receives an image that doesn't fit the job. the hero image is only 700 pixels wide. the product photograph is square, but the component expects a landscape crop. a screenshot arrives as a huge png. a logo is supplied as a tiny jpeg even though the design clearly originated as vector artwork. or a cms that was built years ago starts feeding low-resolution images into a redesign intended for larger, sharper displays. at that point, “optimize the image” isn't a useful enough instruction. developers first need to identify which problem they actually have. a low-resolution source, an oversized file, an unsuitable crop, and inefficient browser delivery are four different problems. treating them as one usually leads to poor image quality, unnecessary band"
   }
 }
