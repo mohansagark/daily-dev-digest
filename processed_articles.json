@@ -207,5 +207,52 @@
     "processed_date": "2026-09-01T00:05:08.338889",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "the creator of the tv show the good place wrote a tie-in book about moral philosophy which includes a chapter called “the luck of the draw,” discussing how the myth of meritocracy leads people to “underestimate the role that luck has played in their lives.” given how god seems to play dice with the universe, there is something compelling in the way art imitates life when websites embrace controlled chaos in their designs. the jury is out on whether extreme versions of this nondeterminism such as generative ui are a helpful usage of unpredictable ux. indeed, when i see the youtube comments reacting to google’s upcoming usage of genui in search, maybe it’s taking the idea too far down a bad path. but there is still something about the idea of a webpage that exists in a state of subtle flux e"
+  },
+  "e049ed800dc51c2f19dca804e232208e": {
+    "title": "Show HN: Compilr.dev Studio – A project brain AI agents write to and people read",
+    "link": "https://studio.compilr.dev/welcome/",
+    "processed_date": "2026-09-01T22:48:15.708375",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "for project & product owners the vision. the objectives. the decisions, the risks, the assumptions. all agreed at some point — none of it connected. so every question turns into archaeology. what studio is a living record of your project where everything is linked: vision, objectives, requirements, work, decisions, risks and assumptions. you settle things in conversation with your ai assistant. studio gives it the tools to write them down and connect them — then answers why you decided something and what a change would break, in seconds. private beta · works with the ai assistant you already use studio objective obj-3 proposed target date none set served by 4 req risks 1 links 9 claim customers never wait on us for something they could do themselves success metric metric 1.1routine support",
+    "skipped": "triage_reject"
+  },
+  "741de230d57c836b3f8003bae3024700": {
+    "title": "OpenClaw 2.0 Releases with Simplified Setup and Collaborative Agents",
+    "link": "https://www.infoq.com/news/2026/09/openclaw-2-release/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=global",
+    "processed_date": "2026-09-01T22:48:15.708725",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "openclaw has released openclaw 2.0, a major update to the open-source personal ai agent that changes its installation process, browser interface, memory, skills, automations, plugins, security, and collaboration features. the release corresponds to version 2026.8.1 and includes contributions from 933 developers across more than 16,000 pull requests. one of the main changes is a simplified setup process. openclaw can now detect resources already available on a user's computer, including chatgpt or claude subscriptions, api keys, and locally installed models. the project has reduced the amount of configuration required during installation, moving additional setup into conversations with the agent after it starts running. the browser application has also been rebuilt as a primary interface ra",
+    "skipped": "triage_reject"
+  },
+  "ab49d17def8f5a38d038ffeac114db2d": {
+    "title": "What Google Cloud announced in AI this month",
+    "link": "https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/",
+    "processed_date": "2026-09-01T22:48:15.708904",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "what google cloud announced in ai this month andrea morange editor, google cloud editor’s note: want to keep up with the latest from google cloud? check back here for a monthly recap of our latest updates, announcements, resources, events, learning opportunities, and more. this month, we focused on making ai highly practical for your business, including its associated costs. this meant tailoring our models for specialized industries – starting with financial services and legal – and helping you keep your budgets under control. let’s dive in! top announcements - finops for the ai era: new flexible billing and cost controls for agents: to help you get better return on ai, we announced expanded billing flexibility and new cost management tools for agent workloads across gemini enterprise and ",
+    "skipped": "triage_reject"
+  },
+  "dd984cccb6adaf3041e87274c8f50db2": {
+    "title": "How to Build an AI File Analysis Agent with Python",
+    "link": "https://www.freecodecamp.org/news/build-an-ai-analysis-agent/",
+    "processed_date": "2026-09-01T22:48:15.710629",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "if you've ever opened a 30-page pdf and thought, “there's absolutely no way i am reading all of this,” you already understand why file-analysis ai agents are useful. imagine uploading a research paper, résumé, csv file, business report, or pdf and simply asking: “what are the most important findings?” instead of manually searching through the document, an ai agent can inspect the file, understand what's inside it, and answer questions about it. in this tutorial, we're going to build exactly that. we'll create a beginner-friendly ai file analysis agent in python that can: accept a file from your computer upload the file to an ai model read the contents of the file understand natural-language questions analyze the file return a useful answer handle different types of questions without us wri",
+    "skipped": "triage_reject"
+  },
+  "c811fc8813528de86b5818cd2c185b02": {
+    "title": "How to Shrink a Language Model Without Making it Too Dumb",
+    "link": "https://blog.bytebytego.com/p/how-to-shrink-a-language-model-without-295",
+    "processed_date": "2026-09-01T22:48:15.712242",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "catch ai cost spikes in real time (not months later) (sponsored) datadog’s free guide shows how to connect ai spend, infrastructure, and model performance into a single view, so you can correlate cost increases to the architecture changes that caused them before they show up on your cloud bill. learn how to: break down ai costs by token, model, provider, and team get alerted the instant inference volume spikes or api spend exceeds budget correlate cost increases directly to architecture changes so root-cause analysis takes minutes a model with 70 billion parameters can take up to 140 gb of space. a good graphics card has 24 gb. a very good one might have 48 gb. as you can see, the gap is quite significant. disk space is pretty cheap, but fast memory is scarce and costly. moreover, the mode",
+    "skipped": "triage_reject"
+  },
+  "b893309714605abc0b0e453bbb36963d": {
+    "title": "Introducing @huggingface/kernels: 200+ WebGPU Kernels for Local AI",
+    "link": "https://huggingface.co/blog/webgpu-kernels",
+    "processed_date": "2026-09-01T22:48:34.518800",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "introducing @huggingface/kernels: 200+ webgpu kernels for local ai today, we are releasing the first layer of that effort: @huggingface/kernels , a minimal library for loading and running optimized webgpu kernels from the hugging face hub, together with an initial collection of 207 kernels at huggingface.co/webgpu-kernels. the collection covers operations used across a wide variety of machine learning architectures and workloads. more importantly, each kernel is published as a complete, versioned package: its interface, shader templates, correctness cases, benchmark cases, and usage instructions all live together on the hub. we are also launching fleet, an in-browser gpu benchmarking and testing suite that runs and scores the kernels on your hardware. beyond the results for your own machin"
   }
 }
