@@ -200,5 +200,12 @@
     "processed_date": "2026-08-30T22:55:34.862831",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "sooner or later, every frontend developer receives an image that doesn't fit the job. the hero image is only 700 pixels wide. the product photograph is square, but the component expects a landscape crop. a screenshot arrives as a huge png. a logo is supplied as a tiny jpeg even though the design clearly originated as vector artwork. or a cms that was built years ago starts feeding low-resolution images into a redesign intended for larger, sharper displays. at that point, “optimize the image” isn't a useful enough instruction. developers first need to identify which problem they actually have. a low-resolution source, an oversized file, an unsuitable crop, and inefficient browser delivery are four different problems. treating them as one usually leads to poor image quality, unnecessary band"
+  },
+  "b40cc1cd2bd3a8678516279a557dd3c1": {
+    "title": "Let’s Use the Emergent CSS random() Function in all the Browsers",
+    "link": "https://css-tricks.com/css-random-function-polyfill/",
+    "processed_date": "2026-09-01T00:05:08.338889",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "the creator of the tv show the good place wrote a tie-in book about moral philosophy which includes a chapter called “the luck of the draw,” discussing how the myth of meritocracy leads people to “underestimate the role that luck has played in their lives.” given how god seems to play dice with the universe, there is something compelling in the way art imitates life when websites embrace controlled chaos in their designs. the jury is out on whether extreme versions of this nondeterminism such as generative ui are a helpful usage of unpredictable ux. indeed, when i see the youtube comments reacting to google’s upcoming usage of genui in search, maybe it’s taking the idea too far down a bad path. but there is still something about the idea of a webpage that exists in a state of subtle flux e"
   }
 }
