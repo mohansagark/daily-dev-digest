@@ -254,5 +254,12 @@
     "processed_date": "2026-09-01T22:48:34.518800",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "introducing @huggingface/kernels: 200+ webgpu kernels for local ai today, we are releasing the first layer of that effort: @huggingface/kernels , a minimal library for loading and running optimized webgpu kernels from the hugging face hub, together with an initial collection of 207 kernels at huggingface.co/webgpu-kernels. the collection covers operations used across a wide variety of machine learning architectures and workloads. more importantly, each kernel is published as a complete, versioned package: its interface, shader templates, correctness cases, benchmark cases, and usage instructions all live together on the hub. we are also launching fleet, an in-browser gpu benchmarking and testing suite that runs and scores the kernels on your hardware. beyond the results for your own machin"
+  },
+  "81866dbfbf495cf6fb3b7dc8bd734210": {
+    "title": "Building an End-to-End Physical AI Software Stack with ROS 2",
+    "link": "https://dev.to/vmodal_ai/building-an-end-to-end-physical-ai-software-stack-with-ros-2-d71",
+    "processed_date": "2026-09-02T22:49:05.947314",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "building an end-to-end physical ai software stack with ros 2 physical ai systems combine robotics, perception, machine learning, planning, and real-time control. the challenge is not simply running an ai model—it is building a software stack that can reliably move information from sensors to decisions and from decisions to actuators. this tutorial presents a practical architecture for an end-to-end physical ai stack using ros 2 as the communication backbone. what we will build a simplified robot pipeline looks like this: sensors ↓ sensor drivers ↓ ros 2 topics ↓ perception ↓ world model / state estimation ↓ planning ↓ control ↓ actuators ros 2 nodes communicate using topics for continuous streams, services for short request/response operations, and actions for longer-running behaviors with"
   }
 }
