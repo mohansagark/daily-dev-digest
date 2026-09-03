@@ -261,5 +261,12 @@
     "processed_date": "2026-09-02T22:49:05.947314",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "building an end-to-end physical ai software stack with ros 2 physical ai systems combine robotics, perception, machine learning, planning, and real-time control. the challenge is not simply running an ai model—it is building a software stack that can reliably move information from sensors to decisions and from decisions to actuators. this tutorial presents a practical architecture for an end-to-end physical ai stack using ros 2 as the communication backbone. what we will build a simplified robot pipeline looks like this: sensors ↓ sensor drivers ↓ ros 2 topics ↓ perception ↓ world model / state estimation ↓ planning ↓ control ↓ actuators ros 2 nodes communicate using topics for continuous streams, services for short request/response operations, and actions for longer-running behaviors with"
+  },
+  "cffb17c385b83bba7efd61140e15dfff": {
+    "title": "Fixing navigator clipboard writeText transient activation Failures in Async JavaScript",
+    "link": "https://www.sitepoint.com/fix-navigator-clipboard-writetext-transient-activation-async-javascript/?utm_source=rss",
+    "processed_date": "2026-09-03T22:47:28.818954",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "copy-to-clipboard buttons silently break when navigator.clipboard.writetext() runs after an asynchronous operation like fetch or settimeout . the call fails with a notallowederror , offering no permission prompt and no obvious explanation. the root cause lies in the browser's transient user activation model, and the fix involves a lesser-known capability of the clipboarditem constructor that accepts a promise-based blob resolution pattern. this article dissects the problem, demonstrates reliable reproduction, and provides two concrete fix patterns, including a reusable utility function that preserves the activation window across async work. the core insight here draws from parsa jiravand's detailed analysis of this failure mode, which highlights how the clipboarditem promise pattern sidest"
   }
 }
