@@ -275,5 +275,12 @@
     "processed_date": "2026-09-04T22:31:53.211448",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "a practical, three-tool guide to the ai-native software development life cycle (sdlc): plan, design, build, test, deploy, maintain, reimagined for agentic coding. in march 2025, a small nonprofit research group called metr published a chart that made many engineering leaders sit up straighter than usual. working backward through six years of model releases, metr measured the length of the software task an ai agent could complete on its own, which they defined as the amount of time a skilled human professional would need for the same task, and found that number has been doubling roughly every seven months since 2019 (metr). that curve isn't about autocomplete getting a little better: it's about agents crossing from \"finishes a function\" to \"finishes a feature\" to, on the current trajectory,"
+  },
+  "517b0e242b5a9252c7a80c98d419e1b8": {
+    "title": "From Prompt Engineering to AI Engineering",
+    "link": "https://dev.to/ikilic/from-prompt-engineering-to-ai-engineering-3onh",
+    "processed_date": "2026-09-05T22:13:01.176182",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "why building reliable ai features requires more than better prompts a few years ago, building an ai feature often looked surprisingly simple. write a prompt. send some text to a model. look at the response. improve the prompt. repeat. eventually, the output gets good enough and the feature ships. that approach still works for many things. it works especially well when the task is simple, the consequences are low, and a human remains responsible for the final result. but production software introduces a different set of questions. what context should the model receive? which data is it allowed to access? which tools can it use? what happens when it chooses the wrong tool? how do we know a model or prompt change didn’t make the system worse? how do we debug a failure that happened only once?"
   }
 }
