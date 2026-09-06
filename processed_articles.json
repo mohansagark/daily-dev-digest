@@ -282,5 +282,12 @@
     "processed_date": "2026-09-05T22:13:01.176182",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "why building reliable ai features requires more than better prompts a few years ago, building an ai feature often looked surprisingly simple. write a prompt. send some text to a model. look at the response. improve the prompt. repeat. eventually, the output gets good enough and the feature ships. that approach still works for many things. it works especially well when the task is simple, the consequences are low, and a human remains responsible for the final result. but production software introduces a different set of questions. what context should the model receive? which data is it allowed to access? which tools can it use? what happens when it chooses the wrong tool? how do we know a model or prompt change didn’t make the system worse? how do we debug a failure that happened only once?"
+  },
+  "3052d335345b781c176f85d2fd7d83d3": {
+    "title": "CSS Custom Highlight Api: JavaScript Implementation Notes",
+    "link": "https://www.sitepoint.com/css-custom-highlight-api-javascript-guide/?utm_source=rss",
+    "processed_date": "2026-09-06T22:17:25.722919",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "syntax highlighting on the web has traditionally meant wrapping every token in a <span> element. the css custom highlight api and javascript offer a fundamentally different approach: styling arbitrary text ranges without inserting a single element into the document. table of contents - why highlight without the dom? - what is the css custom highlight api? - checking browser support - setting up css ::highlight() styles - building a dom-free syntax highlighter step by step - interactive demo: live range inspection and rendering stats - performance considerations and gotchas - practical tips for production use - what comes next why highlight without the dom? syntax highlighting on the web has traditionally meant wrapping every token in a <span> element. a moderately sized code block of 200 l"
   }
 }
