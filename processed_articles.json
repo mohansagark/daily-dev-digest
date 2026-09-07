@@ -289,5 +289,12 @@
     "processed_date": "2026-09-06T22:17:25.722919",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "syntax highlighting on the web has traditionally meant wrapping every token in a <span> element. the css custom highlight api and javascript offer a fundamentally different approach: styling arbitrary text ranges without inserting a single element into the document. table of contents - why highlight without the dom? - what is the css custom highlight api? - checking browser support - setting up css ::highlight() styles - building a dom-free syntax highlighter step by step - interactive demo: live range inspection and rendering stats - performance considerations and gotchas - practical tips for production use - what comes next why highlight without the dom? syntax highlighting on the web has traditionally meant wrapping every token in a <span> element. a moderately sized code block of 200 l"
+  },
+  "4b79b07b2fa2fdf302b197ebc06e424a": {
+    "title": "Semantic Caching for LLM Apps: Direct Hash vs. Embedding Similarity, With Real Latency Numbers",
+    "link": "https://dev.to/kuldeep_paul/semantic-caching-for-llm-apps-direct-hash-vs-embedding-similarity-with-real-latency-numbers-aa9",
+    "processed_date": "2026-09-07T23:01:32.343214",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "tl;dr - semantic caching for llm apps reduces inference costs by 40% to 70% by serving previously computed answers for semantically identical requests. - direct hash caching delivers sub-millisecond retrieval (0.1 ms to 0.8 ms) but misses any query with altered punctuation, casing, or synonymous phrasing. - embedding similarity caching catches paraphrased natural language prompts but introduces 15 ms to 80 ms of embedding and vector index lookup overhead. - production systems achieve the best cost-to-latency profile by cascading both techniques in a two-tier hierarchy: an in-memory direct hash check first, followed by an approximate nearest neighbor vector evaluation. - high-performance gateways like bifrost execute direct hash lookups with 11 microseconds of base routing overhead, prevent"
   }
 }
