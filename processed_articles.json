@@ -296,5 +296,12 @@
     "processed_date": "2026-09-07T23:01:32.343214",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "tl;dr - semantic caching for llm apps reduces inference costs by 40% to 70% by serving previously computed answers for semantically identical requests. - direct hash caching delivers sub-millisecond retrieval (0.1 ms to 0.8 ms) but misses any query with altered punctuation, casing, or synonymous phrasing. - embedding similarity caching catches paraphrased natural language prompts but introduces 15 ms to 80 ms of embedding and vector index lookup overhead. - production systems achieve the best cost-to-latency profile by cascading both techniques in a two-tier hierarchy: an in-memory direct hash check first, followed by an approximate nearest neighbor vector evaluation. - high-performance gateways like bifrost execute direct hash lookups with 11 microseconds of base routing overhead, prevent"
+  },
+  "d222282aa6342bfb46a29b56a7a886fd": {
+    "title": "TypeScript 7 in WebStorm: Faster Coding Assistance for Angular and React, No Migration Required",
+    "link": "https://blog.jetbrains.com/webstorm/2026/09/typescript-7-in-webstorm-faster-coding-assistance-for-angular-and-react-no-migration-required/",
+    "processed_date": "2026-09-08T22:57:22.065564",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "typescript 7 in webstorm: faster coding assistance for angular and react, no migration required typescript 7 is a real game-changer, and its new go-based language engine fundamentally alters how ides integrate with typescript. and what’s more, webstorm 2026.2 ships stable support for it, including for angular and react projects. no migration is required – if your team is locked on an older typescript version for infrastructure reasons, your project constraints stay exactly where they are. what changes is the speed and quality of coding assistance you get in webstorm. this post walks through what typescript 7 support means in practice for angular and react users. under the hood: why the go-based engine changes things typescript 7 replaces the node.js-based language service with a new engine"
   }
 }
