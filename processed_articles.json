@@ -303,5 +303,12 @@
     "processed_date": "2026-09-08T22:57:22.065564",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "typescript 7 in webstorm: faster coding assistance for angular and react, no migration required typescript 7 is a real game-changer, and its new go-based language engine fundamentally alters how ides integrate with typescript. and what’s more, webstorm 2026.2 ships stable support for it, including for angular and react projects. no migration is required – if your team is locked on an older typescript version for infrastructure reasons, your project constraints stay exactly where they are. what changes is the speed and quality of coding assistance you get in webstorm. this post walks through what typescript 7 support means in practice for angular and react users. under the hood: why the go-based engine changes things typescript 7 replaces the node.js-based language service with a new engine"
+  },
+  "25e0d594801473c697e08613c7290971": {
+    "title": "Deploying Microservices Architectures with AWS and Java: A Complete Guide",
+    "link": "https://dev.to/said_olano/deploying-microservices-architectures-with-aws-and-java-a-complete-guide-3dae",
+    "processed_date": "2026-09-09T22:44:53.155293",
+    "strategy_used": "Software architecture and system design",
+    "content_sample": "introduction microservices architectures have become the gold standard for building scalable, maintainable applications. when combined with aws's powerful infrastructure and java's enterprise-grade capabilities, you get a robust platform for modern application development. in this guide, we'll explore the complete journey of deploying microservices on aws using java. architecture overview a typical microservices deployment on aws consists of: - ecs/eks for container orchestration - application load balancer (alb) for traffic distribution - rds/dynamodb for data persistence - sqs/sns for async messaging - cloudwatch for monitoring and logging spring boot microservice template let's start with a basic spring boot microservice: @springbootapplication @restcontroller @requestmapping(\"/api/prod"
   }
 }
