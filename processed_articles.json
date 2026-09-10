@@ -310,5 +310,12 @@
     "processed_date": "2026-09-09T22:44:53.155293",
     "strategy_used": "Software architecture and system design",
     "content_sample": "introduction microservices architectures have become the gold standard for building scalable, maintainable applications. when combined with aws's powerful infrastructure and java's enterprise-grade capabilities, you get a robust platform for modern application development. in this guide, we'll explore the complete journey of deploying microservices on aws using java. architecture overview a typical microservices deployment on aws consists of: - ecs/eks for container orchestration - application load balancer (alb) for traffic distribution - rds/dynamodb for data persistence - sqs/sns for async messaging - cloudwatch for monitoring and logging spring boot microservice template let's start with a basic spring boot microservice: @springbootapplication @restcontroller @requestmapping(\"/api/prod"
+  },
+  "7857757e70e3e1b51c558099137dece2": {
+    "title": "Why $0.99 Support Bot Taxes Are Obsolete in 2026: An Architectural Deep Dive",
+    "link": "https://dev.to/zeqalune/why-099-support-bot-taxes-are-obsolete-in-2026-an-architectural-deep-dive-8ni",
+    "processed_date": "2026-09-10T22:47:41.262548",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "when the generative ai revolution hit enterprise software in 2023, legacy customer support vendors faced a classic innovator's dilemma: how do you price an ai feature when the underlying marginal cost of compute is plummeting toward zero? their answer was the \"bot tax\"—charging customers $0.99 for every single conversation resolved by an ai bot (most notably popularized by intercom's fin ai and copied across the industry). in 2026, charging $0.99 per automated resolution is not just uncompetitive; it is architectural extortion. in this article, i will unpack the actual unit economics of modern retrieval-augmented generation (rag), show why legacy widgets degrade google core web vitals, and explain how deploying rag customer support on cloudflare global edge makes flat-rate €15/month pricin"
   }
 }
