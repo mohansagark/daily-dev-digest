@@ -317,5 +317,12 @@
     "processed_date": "2026-09-10T22:47:41.262548",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "when the generative ai revolution hit enterprise software in 2023, legacy customer support vendors faced a classic innovator's dilemma: how do you price an ai feature when the underlying marginal cost of compute is plummeting toward zero? their answer was the \"bot tax\"—charging customers $0.99 for every single conversation resolved by an ai bot (most notably popularized by intercom's fin ai and copied across the industry). in 2026, charging $0.99 per automated resolution is not just uncompetitive; it is architectural extortion. in this article, i will unpack the actual unit economics of modern retrieval-augmented generation (rag), show why legacy widgets degrade google core web vitals, and explain how deploying rag customer support on cloudflare global edge makes flat-rate €15/month pricin"
+  },
+  "d3589e5bc313f258278faf8f37ed0baf": {
+    "title": "How to Build an AI Chat App Interface With the Vercel AI SDK and Shadcn/ui",
+    "link": "https://www.freecodecamp.org/news/how-to-build-an-ai-chat-app-interface-with-the-ai-sdk/",
+    "processed_date": "2026-09-11T22:46:47.867036",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "every other ai product you open today has the same screen: a message list, a text box at the bottom, and words that stream in one token at a time. it looks simple, but it's not simple to build well. you have to manage streaming state, partial tokens, tool calls, retries, markdown rendering, scroll position, and a dozen small ux details...all while keeping the interface accessible and fast. do it with the wrong tools, and you'll spend more time fighting state bugs than building your actual product. in this tutorial, you'll build a real ai chat interface using two tools that were basically made for each other: the vercel ai sdk for the streaming and model logic, and shadcn/ui for the interface itself. by the end, you'll have a working chat screen that streams responses, renders markdown, and"
   }
 }
