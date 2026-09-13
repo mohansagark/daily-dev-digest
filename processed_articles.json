@@ -324,5 +324,12 @@
     "processed_date": "2026-09-11T22:46:47.867036",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "every other ai product you open today has the same screen: a message list, a text box at the bottom, and words that stream in one token at a time. it looks simple, but it's not simple to build well. you have to manage streaming state, partial tokens, tool calls, retries, markdown rendering, scroll position, and a dozen small ux details...all while keeping the interface accessible and fast. do it with the wrong tools, and you'll spend more time fighting state bugs than building your actual product. in this tutorial, you'll build a real ai chat interface using two tools that were basically made for each other: the vercel ai sdk for the streaming and model logic, and shadcn/ui for the interface itself. by the end, you'll have a working chat screen that streams responses, renders markdown, and"
+  },
+  "dbea0daefe395de0dbc87e6ae6cdb380": {
+    "title": "Tailwind CSS v4 Migration: Decouple Vite and PostCSS Pipelines",
+    "link": "https://www.sitepoint.com/tailwind-css-v4-migration-decouple-vite-postcss/?utm_source=rss",
+    "processed_date": "2026-09-13T22:37:04.067006",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "developers upgrading to tailwind css v4 face a structural shift that goes well beyond new utility classes. the framework's architecture has fundamentally changed: tailwind css v4 ships its own build engine and integrates directly with vite through a dedicated plugin, eliminating the postcss middleware that defined the v3 era. this guide walks through how to surgically decouple vite and postcss pipelines during migration, without breaking production or losing functionality from other postcss plugins in the chain. how to migrate tailwind css v4 by decoupling vite and postcss - audit your current postcss.config.js to inventory every plugin and classify each as tailwind-specific, vite-redundant, or independently required. - install tailwindcss@4 and@tailwindcss/vite , then remove the legacy@ta"
   }
 }
