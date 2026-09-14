@@ -331,5 +331,12 @@
     "processed_date": "2026-09-13T22:37:04.067006",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "developers upgrading to tailwind css v4 face a structural shift that goes well beyond new utility classes. the framework's architecture has fundamentally changed: tailwind css v4 ships its own build engine and integrates directly with vite through a dedicated plugin, eliminating the postcss middleware that defined the v3 era. this guide walks through how to surgically decouple vite and postcss pipelines during migration, without breaking production or losing functionality from other postcss plugins in the chain. how to migrate tailwind css v4 by decoupling vite and postcss - audit your current postcss.config.js to inventory every plugin and classify each as tailwind-specific, vite-redundant, or independently required. - install tailwindcss@4 and@tailwindcss/vite , then remove the legacy@ta"
+  },
+  "bb50201b3fdadf02f1b67b1214c72ab6": {
+    "title": "Modeling LLM Context Costs and Tiered Pricing Beyond 200k Tokens",
+    "link": "https://www.sitepoint.com/modeling-llm-context-costs-tiered-pricing-beyond-200k-tokens/?utm_source=rss",
+    "processed_date": "2026-09-14T23:23:01.836131",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "most engineers building on large language model apis operate under a flawed assumption: that per-token pricing is flat regardless of how many tokens get sent. it is not. llm context cost modeling reveals a nonlinear reality once prompts exceed certain thresholds. google applies tiered gemini pricing across multiple context ranges, and anthropic introduces significant shifts in prompt caching economics at 200k tokens. a 300k-token prompt on google gemini costs up to twice as much per input token as a 100k-token prompt; on anthropic, raw input rates are flat, but caching economics shift materially above 200k tokens. at 1,000 requests per day, a 300k-token workload on gemini 1.5 pro overspends by roughly $125/day compared to what a flat-rate assumption would predict. this article builds a pur"
   }
 }
