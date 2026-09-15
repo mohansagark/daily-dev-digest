@@ -338,5 +338,12 @@
     "processed_date": "2026-09-14T23:23:01.836131",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "most engineers building on large language model apis operate under a flawed assumption: that per-token pricing is flat regardless of how many tokens get sent. it is not. llm context cost modeling reveals a nonlinear reality once prompts exceed certain thresholds. google applies tiered gemini pricing across multiple context ranges, and anthropic introduces significant shifts in prompt caching economics at 200k tokens. a 300k-token prompt on google gemini costs up to twice as much per input token as a 100k-token prompt; on anthropic, raw input rates are flat, but caching economics shift materially above 200k tokens. at 1,000 requests per day, a 300k-token workload on gemini 1.5 pro overspends by roughly $125/day compared to what a flat-rate assumption would predict. this article builds a pur"
+  },
+  "2ba152835689e1a14f5b70aec34e76b4": {
+    "title": "Context Engineering for Production AI Agents in 2026: Beyond Prompt Engineering and Basic RAG",
+    "link": "https://dev.to/jasminshukla/context-engineering-for-production-ai-agents-in-2026-beyond-prompt-engineering-and-basic-rag-5564",
+    "processed_date": "2026-09-15T23:09:07.729993",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "introduction prompt engineering taught teams how to talk to models. context engineering teaches teams how to build systems that give the model the right information, the right tools, and the right constraints at the right time. in 2026, most production failures are not \"the model is dumb.\" they are context failures: - the agent retrieved the wrong document. - the prompt included stale policy text. - the tool list was too broad, so the model chose a dangerous action. - conversation history grew until cost and latency exploded. - retrieved text contained prompt-injection instructions that were treated as trusted system guidance. if you already know how to wire python, fastapi, and mcp into an agent service, the next reliability leap is usually context design. this guide explains what context"
   }
 }
