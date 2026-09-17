@@ -352,5 +352,12 @@
     "processed_date": "2026-09-16T23:14:32.428344",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "i kept trying to lower my agent costs by switching models. gpt-5 for one step. claude opus for planning. gemini flash for classification. maybe qwen for background work. maybe llama for cheap branches. that was not the main problem. the main problem was that my workflows were hauling too much junk into every request. an n8n agent. a make scenario. a langchain worker. a custom retry loop. none of them looked expensive alone. but together they kept rebilling the same bloated context on every step, retry, and branch. that was the leak. if you run llm-powered automations, prompt compaction usually saves more money than another round of model shopping. the expensive part usually isn't the model model pricing is visible, so everyone fixates on it. prompt bloat is worse because it hides in places"
+  },
+  "ce3609ac2ef8761c0cd556098bedca66": {
+    "title": "Enterprise LLM Routing Platforms: Architecture, Benchmarks, and Evaluation Guide (2026)",
+    "link": "https://dev.to/elise_moreau/enterprise-llm-routing-platforms-architecture-benchmarks-and-evaluation-guide-2026-eof",
+    "processed_date": "2026-09-17T23:02:51.539155",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "tl;dr - enterprise llm routing platforms decouple client applications from underlying model providers, dynamically directing traffic based on latency, cost, availability, and task complexity. - bifrost introduces only 11 microseconds of processing overhead at 5,000 requests per second, making it the highest-throughput open-source option for production systems. - production multi-model routing reduces monthly token expenditure by 40% to 75% by directing routine queries to lightweight models while reserving frontier reasoning models for complex tasks. - advanced platforms combine gateway-level policy enforcement with endpoint agents to eliminate shadow ai across developer environments. production ai applications running across multiple model providers encounter frequent rate limits, upstream"
   }
 }
