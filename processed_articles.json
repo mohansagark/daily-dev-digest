@@ -359,5 +359,12 @@
     "processed_date": "2026-09-17T23:02:51.539155",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "tl;dr - enterprise llm routing platforms decouple client applications from underlying model providers, dynamically directing traffic based on latency, cost, availability, and task complexity. - bifrost introduces only 11 microseconds of processing overhead at 5,000 requests per second, making it the highest-throughput open-source option for production systems. - production multi-model routing reduces monthly token expenditure by 40% to 75% by directing routine queries to lightweight models while reserving frontier reasoning models for complex tasks. - advanced platforms combine gateway-level policy enforcement with endpoint agents to eliminate shadow ai across developer environments. production ai applications running across multiple model providers encounter frequent rate limits, upstream"
+  },
+  "fe9bb7f316fe47acd93719c5d869fce2": {
+    "title": "Build a Safer AI Agent Harness with Jev and LangChain",
+    "link": "https://www.sitepoint.com/build-safer-ai-agent-harness-jev-langchain/?utm_source=rss",
+    "processed_date": "2026-09-18T22:48:53.388737",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "ai agents built with langchain can reason, select tools, and act on behalf of users, but they do so without any built-in decision layer governing which model handles a request or whether a dangerous tool call should proceed. building a safer ai agent harness with jev and langchain addresses this gap directly. jev provides a typed, pydantic-modeled decision framework that slots into the langchain agent loop, enabling developers to route requests to cheaper models for trivial tasks and gate sensitive tool calls behind explicit risk approvals. this tutorial walks through building that harness from scratch: a structured system that enforces guardrails without stripping the agent of its autonomy. table of contents - why ai agents need a decision layer - architecture overview - prerequisites and"
   }
 }
