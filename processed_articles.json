@@ -366,5 +366,12 @@
     "processed_date": "2026-09-18T22:48:53.388737",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "ai agents built with langchain can reason, select tools, and act on behalf of users, but they do so without any built-in decision layer governing which model handles a request or whether a dangerous tool call should proceed. building a safer ai agent harness with jev and langchain addresses this gap directly. jev provides a typed, pydantic-modeled decision framework that slots into the langchain agent loop, enabling developers to route requests to cheaper models for trivial tasks and gate sensitive tool calls behind explicit risk approvals. this tutorial walks through building that harness from scratch: a structured system that enforces guardrails without stripping the agent of its autonomy. table of contents - why ai agents need a decision layer - architecture overview - prerequisites and"
+  },
+  "0106eb9a4fd0d29b2ce53cdbd0696c20": {
+    "title": "How to Build a GraphRAG System with Python, Neo4j and ServiceNow",
+    "link": "https://www.freecodecamp.org/news/how-to-build-a-graphrag-system-with-python-neo4j-and-servicenow/",
+    "processed_date": "2026-09-19T22:28:32.827672",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "somewhere in your company's servicenow instance is the answer to the question an engineer asks at two in the morning: if this is broken, what else is about to break? every fact needed to answer it has already been written down, correctly, by somebody doing their job properly. getting it out still takes twenty minutes of opening one record at a time, and at the end you can't be sure the list is complete. this book is about closing that gap, and about measuring whether it really closes. you'll take a free servicenow developer instance, load a company's worth of servers, services, incidents, changes, problems, and knowledge into it, and read it back out with python. next, you'll model that estate as a graph, load it into neo4j, and build eight different ways of choosing which records to put i"
   }
 }
