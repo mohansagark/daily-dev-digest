@@ -373,5 +373,12 @@
     "processed_date": "2026-09-19T22:28:32.827672",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "somewhere in your company's servicenow instance is the answer to the question an engineer asks at two in the morning: if this is broken, what else is about to break? every fact needed to answer it has already been written down, correctly, by somebody doing their job properly. getting it out still takes twenty minutes of opening one record at a time, and at the end you can't be sure the list is complete. this book is about closing that gap, and about measuring whether it really closes. you'll take a free servicenow developer instance, load a company's worth of servers, services, incidents, changes, problems, and knowledge into it, and read it back out with python. next, you'll model that estate as a graph, load it into neo4j, and build eight different ways of choosing which records to put i"
+  },
+  "12c9abc9fc982e90e19082ded4f03da3": {
+    "title": "\"Server Components Aren't Just SSR Again: Rethinking State in the Next.js App Router\"",
+    "link": "https://dev.to/freewayz-dev/server-components-arent-just-ssr-again-rethinking-state-in-the-nextjs-app-router-2b31",
+    "processed_date": "2026-09-20T22:40:45.162858",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "the most common mistake i see with the next.js app router isn't a bug, it's a mental model problem. developers treat server components as a faster version of the old server-side rendering they already know: the server renders html, the client hydrates it, and everything works the way class-based ssr always worked. then they add a usestate to a page and get a confusing error, slap \"use client\" on the top of the file to make it go away, and the mental model never gets corrected. eventually the whole app is client components again, just with extra steps. the actual model: two component trees, not one traditional ssr renders the same component tree on the server and the client; the server output is a head start on a render the client will redo. server components aren't a head start on anything"
   }
 }
