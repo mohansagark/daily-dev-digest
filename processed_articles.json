@@ -380,5 +380,12 @@
     "processed_date": "2026-09-20T22:40:45.162858",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "the most common mistake i see with the next.js app router isn't a bug, it's a mental model problem. developers treat server components as a faster version of the old server-side rendering they already know: the server renders html, the client hydrates it, and everything works the way class-based ssr always worked. then they add a usestate to a page and get a confusing error, slap \"use client\" on the top of the file to make it go away, and the mental model never gets corrected. eventually the whole app is client components again, just with extra steps. the actual model: two component trees, not one traditional ssr renders the same component tree on the server and the client; the server output is a head start on a render the client will redo. server components aren't a head start on anything"
+  },
+  "9948e41f79b2da857bd61f109fb5c7f3": {
+    "title": "Scale your AI workloads faster and more efficiently with GKE Pod snapshots",
+    "link": "https://cloud.google.com/blog/products/containers-kubernetes/gke-pod-snapshots/",
+    "processed_date": "2026-09-21T23:32:25.101271",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "scale your ai workloads faster and more efficiently with gke pod snapshots brandon royal senior product manager david porter staff software engineer when running modern ai workloads, there’s often a conflict between performance and cost. workloads like large language models (llms) load massive files, and may serve thousands of ai agents that need to execute code instantly. if each component is starting “cold” with a full data-load process, all this provisioning takes time, often forcing organizations to overprovision their infrastructure just to meet scaling requirements. to solve this, we introduced google kubernetes engine (gke) pod snapshots, a new feature that lets you save the running state of your workload, including cpu and gpu memory, and restore it on demand. gke pod snapshots red"
   }
 }
