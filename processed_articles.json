@@ -387,5 +387,12 @@
     "processed_date": "2026-09-21T23:32:25.101271",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "scale your ai workloads faster and more efficiently with gke pod snapshots brandon royal senior product manager david porter staff software engineer when running modern ai workloads, there’s often a conflict between performance and cost. workloads like large language models (llms) load massive files, and may serve thousands of ai agents that need to execute code instantly. if each component is starting “cold” with a full data-load process, all this provisioning takes time, often forcing organizations to overprovision their infrastructure just to meet scaling requirements. to solve this, we introduced google kubernetes engine (gke) pod snapshots, a new feature that lets you save the running state of your workload, including cpu and gpu memory, and restore it on demand. gke pod snapshots red"
+  },
+  "913000d360c2a915f68159f94172be6c": {
+    "title": "Architecting Role-Aware Micro-Frontend Portals for Operations",
+    "link": "https://dev.to/mountek/architecting-role-aware-micro-frontend-portals-for-operations-19e4",
+    "processed_date": "2026-09-22T23:14:02.093812",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "modern core banking transformations often focus heavily on backend microservice decomposition while leaving operational user interfaces as monolithic, multi-gigabyte frontends. in large-scale banking operations—where thousands of back-office staff, compliance officers, customer service representatives, and loan underwriters interact daily—monolithic ui portals introduce severe deployment bottlenecks, elevated blast radiuses, and complex governance overhead. when twenty distinct product teams commit code to a single frontend repository, releasing a hotfix for payment clearing requires re-building and re-deploying the ui modules for loan origination, kyc verification, and position keeping. furthermore, enforcing strict role-based access control (rbac) across a single monolithic bundle often "
   }
 }
