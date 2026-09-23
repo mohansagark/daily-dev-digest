@@ -394,5 +394,12 @@
     "processed_date": "2026-09-22T23:14:02.093812",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "modern core banking transformations often focus heavily on backend microservice decomposition while leaving operational user interfaces as monolithic, multi-gigabyte frontends. in large-scale banking operations—where thousands of back-office staff, compliance officers, customer service representatives, and loan underwriters interact daily—monolithic ui portals introduce severe deployment bottlenecks, elevated blast radiuses, and complex governance overhead. when twenty distinct product teams commit code to a single frontend repository, releasing a hotfix for payment clearing requires re-building and re-deploying the ui modules for loan origination, kyc verification, and position keeping. furthermore, enforcing strict role-based access control (rbac) across a single monolithic bundle often "
+  },
+  "16e593683e9ba8d18cac2f5cdbecc451": {
+    "title": "FastAPI Property Contract PDF Generation Repairs Using Print CSS and Embedded Fonts",
+    "link": "https://dev.to/valdemarblack3817/fastapi-property-contract-pdf-generation-repairs-using-print-css-and-embedded-fonts-m48",
+    "processed_date": "2026-09-23T23:06:32.809809",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "tl;dr: treat a property contract pdf as a print artifact, not a screenshot of a web page. freeze the print stylesheet, embed or inline every font, render a fixed fixture, and compare the resulting pages after each template change. for batch-heavy systems, choose a renderer only after measuring the whole worker path: browser startup, font loading, rendering, signing, hashing, and durable audit writes. the decision rule is blunt: if a missing font can change a line break, it can move a signature block to another page. that makes font availability and print css part of the contract-generation boundary. a successful http response is not proof that the document is correct. this architecture decision record covers a fastapi service producing property-management contracts server-side. the target "
   }
 }
