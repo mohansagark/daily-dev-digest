@@ -401,5 +401,12 @@
     "processed_date": "2026-09-23T23:06:32.809809",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "tl;dr: treat a property contract pdf as a print artifact, not a screenshot of a web page. freeze the print stylesheet, embed or inline every font, render a fixed fixture, and compare the resulting pages after each template change. for batch-heavy systems, choose a renderer only after measuring the whole worker path: browser startup, font loading, rendering, signing, hashing, and durable audit writes. the decision rule is blunt: if a missing font can change a line break, it can move a signature block to another page. that makes font availability and print css part of the contract-generation boundary. a successful http response is not proof that the document is correct. this architecture decision record covers a fastapi service producing property-management contracts server-side. the target "
+  },
+  "2ea299f5696d45f1a9afe86b32119914": {
+    "title": "Show HN: Jev-browse – browser sub-tasks for coding agents at ~1/3 the cost",
+    "link": "https://github.com/danielnc/jev-browse",
+    "processed_date": "2026-09-24T23:21:58.718688",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "fast, typed browser sub-tasks for coding agents. jev-browse adds a few helpers to browser-harness so that claude code or codex can hand off a whole website sub-task in one call: \"search lisbon, set these two filters, open casa flora\". each step is decided by typesafe jev, a small model that answers typed questions in a few hundred milliseconds. the agent then gets the outcome, or a typed reason why it stopped. # inside a browser-harness script r = fast_run(\"https://en.wikipedia.org/wiki/main_page\", \"open the wikipedia article on gödel's incompleteness theorems\", run_id=\"demo-1\") print(r.status, r.reason, r.url) # claimed_done none https://en.wikipedia.org/wiki/g%c3%b6del%27s_... jev_close(r.target_id) why. when a coding agent drives a browser itself, each click costs a model turn that re-r"
   }
 }
