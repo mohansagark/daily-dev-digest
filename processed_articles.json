@@ -408,5 +408,12 @@
     "processed_date": "2026-09-24T23:21:58.718688",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "fast, typed browser sub-tasks for coding agents. jev-browse adds a few helpers to browser-harness so that claude code or codex can hand off a whole website sub-task in one call: \"search lisbon, set these two filters, open casa flora\". each step is decided by typesafe jev, a small model that answers typed questions in a few hundred milliseconds. the agent then gets the outcome, or a typed reason why it stopped. # inside a browser-harness script r = fast_run(\"https://en.wikipedia.org/wiki/main_page\", \"open the wikipedia article on gödel's incompleteness theorems\", run_id=\"demo-1\") print(r.status, r.reason, r.url) # claimed_done none https://en.wikipedia.org/wiki/g%c3%b6del%27s_... jev_close(r.target_id) why. when a coding agent drives a browser itself, each click costs a model turn that re-r"
+  },
+  "3214d965d75c2d321df7028b67a51348": {
+    "title": "Anthropic Pushes Its $2 Trillion IPO to November, Meta’s Muse Hits #1, and a $40M Seed for a Model That Doesn’t Talk: The Latest 20VC x SaaStr",
+    "link": "https://www.saastr.com/anthropic-pushes-its-2-trillion-ipo-to-november-metas-muse-hits-1-and-a-40m-seed-for-a-model-that-doesnt-talk-the-latest-20vc-x-saastr/",
+    "processed_date": "2026-09-25T23:28:41.093306",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "with harry stebbings, rory o’driscoll and jason lemkin this week’s 20vc x saastr covered a lot. anthropic moved its ipo back a month. openai’s internal forecast put total burn through 2030 at $278 billion. meta shipped the first consumer ai product that competes head-on with chatgpt and added about $100 billion in market cap in a week. typesafe launched jev, a “system one” model that only returns decisions, on a $40m seed. and the ic voted on factory at $5b, legora at $11b and crusoe at $30.9b. under all of it was one question: what does a vc or lp actually do differently when everyone agrees we may be near the top of the cycle? here are the 10 top learnings. #1. anthropic moves its $2 trillion ipo from october to november, and the reason is its q3 numbers the news: anthropic has pushed it"
   }
 }
