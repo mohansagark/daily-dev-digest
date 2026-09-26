@@ -415,5 +415,12 @@
     "processed_date": "2026-09-25T23:28:41.093306",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "with harry stebbings, rory o’driscoll and jason lemkin this week’s 20vc x saastr covered a lot. anthropic moved its ipo back a month. openai’s internal forecast put total burn through 2030 at $278 billion. meta shipped the first consumer ai product that competes head-on with chatgpt and added about $100 billion in market cap in a week. typesafe launched jev, a “system one” model that only returns decisions, on a $40m seed. and the ic voted on factory at $5b, legora at $11b and crusoe at $30.9b. under all of it was one question: what does a vc or lp actually do differently when everyone agrees we may be near the top of the cycle? here are the 10 top learnings. #1. anthropic moves its $2 trillion ipo from october to november, and the reason is its q3 numbers the news: anthropic has pushed it"
+  },
+  "c02b38f2ba4e21f8f82ee63d81576ffd": {
+    "title": "Everyone Should Publish the Deepest, Most Direct Competitive Evals They Can. Case Study: $100m ARR Gorgias for AI CX",
+    "link": "https://www.saastr.com/everyone-should-publish-the-deepest-most-direct-competitive-evals-they-can-case-study-100m-arr-gorgias-for-ai-cx/",
+    "processed_date": "2026-09-26T23:07:29.360497",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "every ai vendor in b2b says it’s the best, but too few show you the data. we’re all used to seeing “evals” of llms, but not enough post true detailed ai evals of their agents. that’s a mistake. buyers can now test ai agents side by side in an afternoon. agents are starting to build the shortlists, and in some cases, make the vendor decisions (they do for us at saastr ai). so publish the deepest, most direct competitive evals you can. run them on live products, against named competitors, and include the categories where you lose. will there always be some bias? yes. you wrote the rubric, picked the weights, and chose what to measure. say that on the first page. then make everything checkable. $100m arr ai cx leader gorgias just did this the right way in ecommerce cx. we know the company wel"
   }
 }
