@@ -422,5 +422,12 @@
     "processed_date": "2026-09-26T23:07:29.360497",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "every ai vendor in b2b says it’s the best, but too few show you the data. we’re all used to seeing “evals” of llms, but not enough post true detailed ai evals of their agents. that’s a mistake. buyers can now test ai agents side by side in an afternoon. agents are starting to build the shortlists, and in some cases, make the vendor decisions (they do for us at saastr ai). so publish the deepest, most direct competitive evals you can. run them on live products, against named competitors, and include the categories where you lose. will there always be some bias? yes. you wrote the rubric, picked the weights, and chose what to measure. say that on the first page. then make everything checkable. $100m arr ai cx leader gorgias just did this the right way in ecommerce cx. we know the company wel"
+  },
+  "fcc6739e30308b402c09d7b41865a8c4": {
+    "title": "Show HN: ShotCandy – Turn any screenshot into a beautiful share-ready image",
+    "link": "https://github.com/btahir/shotcandy",
+    "processed_date": "2026-09-27T23:20:16.530524",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "shotcandy turns a plain screenshot into a share-ready image or video in seconds. free, open source, and it runs entirely in your browser. no account, no upload. every \"after\" below is a real export from shotcandy's engine, one click from the plain screenshot on the left. - instant. press ⌘ v. your screenshot lands already styled, and every style thumbnail previews your image, not a sample. - private. nothing leaves your browser. there is no server to upload to. - free, for real. no account, no paywall, no locked styles, no watermark. mit licensed. - made for sharing. exports are sized and compressed for the place you are posting, and they can move. 36 one-click styles in seven families (from your shot, fruity, pastel, paper, deep, wallpaper and device). hover to preview, press g for the wh"
   }
 }
