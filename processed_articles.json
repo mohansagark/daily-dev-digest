@@ -429,5 +429,52 @@
     "processed_date": "2026-09-27T23:20:16.530524",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "shotcandy turns a plain screenshot into a share-ready image or video in seconds. free, open source, and it runs entirely in your browser. no account, no upload. every \"after\" below is a real export from shotcandy's engine, one click from the plain screenshot on the left. - instant. press ⌘ v. your screenshot lands already styled, and every style thumbnail previews your image, not a sample. - private. nothing leaves your browser. there is no server to upload to. - free, for real. no account, no paywall, no locked styles, no watermark. mit licensed. - made for sharing. exports are sized and compressed for the place you are posting, and they can move. 36 one-click styles in seven families (from your shot, fruity, pastel, paper, deep, wallpaper and device). hover to preview, press g for the wh"
+  },
+  "6f68f2d1f08646fa297465874147ce4a": {
+    "title": "Architecting Context-Aware LLMs: Decoupling State from Cognition",
+    "link": "https://dev.to/niteshgupta/architecting-context-aware-llms-decoupling-state-from-cognition-bpa",
+    "processed_date": "2026-09-29T00:32:27.836768",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "if you've spent any time building llm-backed applications in production, you quickly run into the \"institutional amnesia\" problem. you build a beautifully orchestrated agent, it performs a complex reasoning task perfectly, and then... it completely forgets everything the moment the context window clears. when you're building financial due diligence systems for institutional investors, \"forgetting\" isn't just an annoyance; it's a critical failure. you can spend thirty minutes meticulously correcting an llm's assumptions about your data, only for it to revert to its baseline generic responses the very next time you open a session. if an analyst resolves a discrepancy on monday (\"the march arr figure was an annualized projection, not live revenue\"), the agent cannot be asking about that exact",
+    "skipped": "triage_reject"
+  },
+  "bc2fa8b972e4cfa1512d53aa9009cd4b": {
+    "title": "ESP32S3 cluster running 1.58-bit (BitNet) Language model",
+    "link": "https://github.com/Low-Zi-Hong/ESP32s3-LLM-Cluster",
+    "processed_date": "2026-09-29T00:32:27.837186",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "a distributed pipeline inference engine on multiple esp32s3 running 1.58-bit (bitnet) language model. this project runs a sliced 0.5b llm across a cluster of 7 esp32s3. one act as master and others are node. the master node runs the tokenizer and embeding and the other attention layer and mlp ran on the nodes. the master and node communicate through high speed spi daisy-chain. ┌─────────────────────────────────────────────────────────┐ │ master node │ │ │ │ [ prompt ] ---> bpe tokenizer │ │ │ │ │ token embedding │ │ (int4, ~14mb in flash) │ │ │ │ │ (spi ch a - tx to node 1) │ └───────────────────────┬─────────────────────────────────┘ │ hidden state vector (fp32) ▼ ┌─────────────────────────────────────────────────────────┐ │ compute node 1 │ │ (spi ch b - rx from master) │ │ │ │ ► layer 0",
+    "skipped": "triage_reject"
+  },
+  "53fd7e3ab374c1b26af3c7f06af0a75e": {
+    "title": "How we found 24 Android vulnerabilities using our open source AI security agent",
+    "link": "https://github.blog/security/how-we-found-24-android-vulnerabilities-using-our-open-source-ai-security-agent/",
+    "processed_date": "2026-09-29T00:32:27.837360",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "with the rise of ai in the security space, our team created the github security lab taskflow agent as a way for security researchers to easily automate, package, and share the ai prompts and workflows that they find effective for their work. in this blog post, i’ll share how i created auditing taskflows to find vulnerabilities in android applications. while new models are getting better at understanding code, custom taskflow prompts let security researchers guide them—splitting research into incremental steps to help the llm find complex vulnerabilities faster, or that it would have missed entirely. using these taskflows, i’ve reported more than 20 vulnerabilities in android applications. you can check out our advisories page to see when new vulnerabilities are disclosed. otherwise, keep r",
+    "skipped": "triage_reject"
+  },
+  "db2edeacf44a50a4c6ccf25fcf91a9f0": {
+    "title": "Why model versioning is not enough for production AI",
+    "link": "https://stackoverflow.blog/2026/09/28/why-model-versioning-is-not-enough-for-production-ai/",
+    "processed_date": "2026-09-29T00:32:27.838030",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "imagine a documentation assistant that starts timing out after a routine retrieval change. the model is the same. the service is healthy. every deployment check passed. but the retriever now sends more context, generation takes longer, and requests pile up behind a busy inference server. reverting the application container does not help because the retrieval configuration lives elsewhere. this is a hypothetical incident, but it exposes a useful design question: what, exactly, did the team deploy? for an ai application, a model version is only part of the answer. inputs, preprocessing, prompts, retrieval, tool contracts, and serving settings can change behavior independently. reliable ai infrastructure needs a release boundary around the components that must work together. mlops then become",
+    "skipped": "triage_reject"
+  },
+  "358bde7a116519c03a0db429bf64040f": {
+    "title": "AI Agents Can Think. Now They Can Pay.",
+    "link": "https://blog.bytebytego.com/p/ai-agents-can-think-now-they-can",
+    "processed_date": "2026-09-29T00:32:27.838503",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "ai sres are here. here's how to prepare your stack. (sponsored) ai sres are here. if your telemetry, alerts, and access controls aren’t ready, expect missed incidents, alert fatigue, and ai-driven investigations that go nowhere. this datadog ebook covers how to prepare your stack for the ai sre future, including a practical self-assessment checklist and real examples from datadog’s own implementation. you’ll learn how to: assess whether your telemetry coverage gives an ai sre enough signal to investigate effectively design alerts and monitors that an ai agent can act on, not just surface to humans set up the access controls and data quality foundations that make ai-driven investigations trustworthy for 30 years, every online business has been built with a simple assumption that your custom",
+    "skipped": "triage_reject"
+  },
+  "43d6b092f50f783c18ddd3cc465c79d7": {
+    "title": "Four months of VoidZero at Cloudflare: making the open-source JavaScript toolchain faster for all humans and agents",
+    "link": "https://blog.cloudflare.com/voidzero-update/",
+    "processed_date": "2026-09-29T00:32:39.241005",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "four months of voidzero at cloudflare: making the open-source javascript toolchain faster for all humans and agents when voidzero joined cloudflare four months ago, we made a commitment to open source, promising that vite, vitest, rolldown, oxc, and vite+ will stay open source, vendor-agnostic, and community-driven.â as part of cloudflareâs birthday week, where cloudflare gives back to the internet, we thought itâd be a good time to check in on how weâve been doing against this commitment. in the four months since voidzero joined cloudflare, weâve shipped more than 80 releases, closed over 1,200 issues, and landed some big performance improvements, including: - oxc react compiler, released in august, compiles react.js apps 10x faster - vitest 5, released in september, is up to 50% faster t"
   }
 }
