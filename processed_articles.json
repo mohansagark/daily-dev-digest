@@ -476,5 +476,12 @@
     "processed_date": "2026-09-29T00:32:39.241005",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "four months of voidzero at cloudflare: making the open-source javascript toolchain faster for all humans and agents when voidzero joined cloudflare four months ago, we made a commitment to open source, promising that vite, vitest, rolldown, oxc, and vite+ will stay open source, vendor-agnostic, and community-driven.â as part of cloudflareâs birthday week, where cloudflare gives back to the internet, we thought itâd be a good time to check in on how weâve been doing against this commitment. in the four months since voidzero joined cloudflare, weâve shipped more than 80 releases, closed over 1,200 issues, and landed some big performance improvements, including: - oxc react compiler, released in august, compiles react.js apps 10x faster - vitest 5, released in september, is up to 50% faster t"
+  },
+  "a737b2f1029b18d8d1c3dad10a9ec214": {
+    "title": "How to Build a Reliable AI Assistant with the Claude API",
+    "link": "https://www.freecodecamp.org/news/how-to-build-a-reliable-ai-assistant-with-the-claude-api/",
+    "processed_date": "2026-09-29T23:57:37.076064",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "large language models can answer questions, summarise documents, write code, and interact with external systems. but building a reliable ai application requires more than sending a prompt and displaying the response. a production-ready application must manage conversation history, provide relevant context, use tools safely, handle different response types, and evaluate whether the generated output is useful. in this tutorial, we’ll build shophelper, a customer-support assistant for an imaginary online shop. by the end, shophelper will be able to: answer general questions in a consistent tone remember what a customer said earlier look up order statuses by calling a function in your code handle claude’s multi-block responses safely process support tickets using workflows evaluate whether pro"
   }
 }
