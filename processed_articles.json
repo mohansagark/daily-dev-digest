@@ -483,5 +483,12 @@
     "processed_date": "2026-09-29T23:57:37.076064",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "large language models can answer questions, summarise documents, write code, and interact with external systems. but building a reliable ai application requires more than sending a prompt and displaying the response. a production-ready application must manage conversation history, provide relevant context, use tools safely, handle different response types, and evaluate whether the generated output is useful. in this tutorial, we’ll build shophelper, a customer-support assistant for an imaginary online shop. by the end, shophelper will be able to: answer general questions in a consistent tone remember what a customer said earlier look up order statuses by calling a function in your code handle claude’s multi-block responses safely process support tickets using workflows evaluate whether pro"
+  },
+  "15160f8703eefbed801e8871c55ddcc1": {
+    "title": "Empower your agents with the Google Cloud CLI remote MCP server",
+    "link": "https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-cli-remote-mcp-server-in-preview/",
+    "processed_date": "2026-10-01T00:08:03.772569",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "empower your agents with the google cloud cli remote mcp server prosper nwankpa senior engineering manager, google cloud adam hwang software engineering manager, google cloud today, we’re expanding our ecosystem of managed remote mcp servers by introducing the google cloud cli remote mcp server in preview. powered by the popular gcloud and bq (bigquery) command-line tools, this new server gives ai agents immediate, broad access to command-line operations for managing google cloud infrastructure and working with advanced bigquery workflows securely and seamlessly. why cli matters for ai agents agents are increasingly performing complex cloud operations, but standardizing how they interact with backend systems remains a challenge. the google cloud cli remote mcp server bridges this gap by pa"
   }
 }
