@@ -490,5 +490,12 @@
     "processed_date": "2026-10-01T00:08:03.772569",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "empower your agents with the google cloud cli remote mcp server prosper nwankpa senior engineering manager, google cloud adam hwang software engineering manager, google cloud today, we’re expanding our ecosystem of managed remote mcp servers by introducing the google cloud cli remote mcp server in preview. powered by the popular gcloud and bq (bigquery) command-line tools, this new server gives ai agents immediate, broad access to command-line operations for managing google cloud infrastructure and working with advanced bigquery workflows securely and seamlessly. why cli matters for ai agents agents are increasingly performing complex cloud operations, but standardizing how they interact with backend systems remains a challenge. the google cloud cli remote mcp server bridges this gap by pa"
+  },
+  "18699c2da249d8236cc08124d20ff58d": {
+    "title": "I gave a 9B model veto power over my AI agent",
+    "link": "https://dev.to/natuworkguy/i-gave-a-9b-model-veto-power-over-my-ai-agent-9ih",
+    "processed_date": "2026-10-02T00:06:33.190964",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "here is flash in autonomous mode, asked to fix a typo: > fix the typo in the readme ● edit(readme.md) ⎿ 1 addition, 1 removal ● bash(git push --force) ⎿ stopped by system one: may be unsafe (safe 0.04) fixed the typo. system one stopped the force push, so nothing left your machine. want me to push it normally? the typo was the job. the force push was the agent's own idea, and something told it no. flash is my terminal agent for local models. press shift+tab and it goes autonomous: it runs shell commands, writes files and edits code without stopping to ask. that is the whole appeal. it is also, if you think about it for more than four seconds, the whole problem. nobody is there to say no. or there wasn't, until this week. the cheapest possible no the usual fix is a bigger model checking the"
   }
 }
