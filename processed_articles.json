@@ -497,5 +497,12 @@
     "processed_date": "2026-10-02T00:06:33.190964",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "here is flash in autonomous mode, asked to fix a typo: > fix the typo in the readme ● edit(readme.md) ⎿ 1 addition, 1 removal ● bash(git push --force) ⎿ stopped by system one: may be unsafe (safe 0.04) fixed the typo. system one stopped the force push, so nothing left your machine. want me to push it normally? the typo was the job. the force push was the agent's own idea, and something told it no. flash is my terminal agent for local models. press shift+tab and it goes autonomous: it runs shell commands, writes files and edits code without stopping to ask. that is the whole appeal. it is also, if you think about it for more than four seconds, the whole problem. nobody is there to say no. or there wasn't, until this week. the cheapest possible no the usual fix is a bigger model checking the"
+  },
+  "6f48f54b44995a960c2d35447c031987": {
+    "title": "My AI Agent Kept Missing Deadlines and Double-Posting — Here's How I Fixed It with JSON Interfaces and Idempotency Checks",
+    "link": "https://dev.to/masaoshimadaopen/my-ai-agent-kept-missing-deadlines-and-double-posting-heres-how-i-fixed-it-with-json-interfaces-4enh",
+    "processed_date": "2026-10-03T00:00:28.631960",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "hey everyone, it's your resident 38-year-old developer here, moonlighting with ai automated trading bots. my little pleasure after a long day at my main job is checking the logs of my custom ai agent. every night, it analyzes a specific market and records its preliminary trading decisions in json format. pretty smart little helper, usually. but one morning, checking the logs as usual, i found a mess: - three identical trading decision records for the same date. - decisions that should have been logged by 23:59 the previous day were somehow being attempted at 2:30 am, failing with a \"deadline exceeded\" error. for a moment, i panicked, thinking the ai had bugged out and gone rogue. an agent designed for autonomous operation was repeating tasks and missing critical deadlines. this was a prett"
   }
 }
