@@ -504,5 +504,12 @@
     "processed_date": "2026-10-03T00:00:28.631960",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "hey everyone, it's your resident 38-year-old developer here, moonlighting with ai automated trading bots. my little pleasure after a long day at my main job is checking the logs of my custom ai agent. every night, it analyzes a specific market and records its preliminary trading decisions in json format. pretty smart little helper, usually. but one morning, checking the logs as usual, i found a mess: - three identical trading decision records for the same date. - decisions that should have been logged by 23:59 the previous day were somehow being attempted at 2:30 am, failing with a \"deadline exceeded\" error. for a moment, i panicked, thinking the ai had bugged out and gone rogue. an agent designed for autonomous operation was repeating tasks and missing critical deadlines. this was a prett"
+  },
+  "3e24be588bcdff75b56150ea459ee277": {
+    "title": "I built an L1 ticket deflector that knows when to stop: LangGraph + human-in-the-loop",
+    "link": "https://dev.to/madebyexpert/i-built-an-l1-ticket-deflector-that-knows-when-to-stop-langgraph-human-in-the-loop-4fd3",
+    "processed_date": "2026-10-03T23:18:24.780864",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "i built an l1 ticket deflector that knows when to stop: langgraph + human-in-the-loop the same tickets arrive at every it service desk: password resets, vpn that won't connect, \"how do i install 7-zip?\", a printer that's offline again. a widely cited industry range puts routine requests at 50–70% of l1 volume — work a script could handle, except nobody trusts a script with the tickets that actually matter. building an agent that answers everything is easy. building one that knows when to hand a ticket to a human is not. i built the second kind and open-sourced it. repo: github.com/zedxter/l1-ticket-deflector (mit) the design decision that shapes everything most \"ai helpdesk\" demos optimize for deflection rate. that's the wrong target. a high deflection rate is trivial if you let the model "
   }
 }
