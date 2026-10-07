@@ -525,5 +525,12 @@
     "processed_date": "2026-10-06T01:26:03.121542",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "32 best react animation libraries and tools for your next project for a react interface with animated menus, changing layouts, and exit transitions, start with motion. for a carefully timed sequence or a scroll-driven story, look at gsap. if the interaction depends on spring values, react spring deserves a closer look. and if you only need a hover fade, css may already cover the job. this guide brings together 32 react animation libraries and related tools, from animation engines to ready-made components, lottie players, 3d renderers, and video frameworks. they solve different problems, so the list is grouped by purpose rather than ranked from first to last. our recommendations are based on official documentation and editorial comparison, not hands-on performance benchmarks. the useful que"
+  },
+  "f5fe67ae50fda90777d75cc39d13378b": {
+    "title": "Next.js 16.4",
+    "link": "https://nextjs.org/blog/next-16-4",
+    "processed_date": "2026-10-07T00:02:33.189987",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "over the 16.x releases, we’ve introduced a new programming model that addresses many of the frustrations you've had with app router from the start: - it brings fast initial loads, even for personalized pages - it gives server-rendered apps instant client navigations - it makes caching opt-in, declarative, and composable this new programming model is called cache components, and it will become the default in next.js 17. prior to this release, we didn’t recommend it universally because there were some cases where it couldn’t achieve the same cost and performance guarantees as with the previous model. this release includes key features that close those gaps. starting with next.js 16.4, we’re excited to recommend cache components as the best choice for every next.js app. as of today, all new a"
   }
 }
