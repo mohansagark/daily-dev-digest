@@ -546,5 +546,12 @@
     "processed_date": "2026-10-09T00:37:43.272500",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "serverless ai orchestration architecture teardown and latency optimization serverless compute paradigms offer horizontal scaling and low idle costs, making them popular targets for deploying generative ai workloads. however, naive implementations run into compounding bottlenecks: stateless execution models struggle with multi-turn context retention, synchronous api gateways crash against variable model latency, and database cold starts degrade end-to-end response times. this technical teardown deconstructs these bottlenecks and presents an event-driven architecture designed for serverless agent orchestration. architecture pipeline [ client request ] │ ▼ [ cloudflare / aws edge gateway ] │ (asynchronous push) ▼ [ message queue: sqs / cf queues ] │ ▼ [ orchestrator worker (stateless) ] ──▶ ["
+  },
+  "de61c24f5941df081d15ea1485d444cb": {
+    "title": "Two new x402 APIs for AI agents: catalog bloat consolidator + single-endpoint quality benchmark (2026-10-09, cycle 121)",
+    "link": "https://dev.to/hal_gobvan_16a285d49bda97/two-new-x402-apis-for-ai-agents-catalog-bloat-consolidator-single-endpoint-quality-benchmark-2m35",
+    "processed_date": "2026-10-10T00:15:33.062619",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "two new paid x402 endpoints just shipped for ai agents that need to build, audit, or improve a paid-api catalog. /api/seller-catalog-bloat ($0.0005) — find the redundant endpoints in your catalog if you've ever shipped 50 paid endpoints and then noticed 8 of them do basically the same thing, this endpoint is for you. feed it your /.well-known/x402 catalog (get ?url= or post the raw json) and it returns: - bloat_indicators — thin_descriptions (count of <60-char descriptions), version_variant_groups (e.g. `/v1` vs `/v2`), high_similarity_pairs (jaccard >0.45 on 3+ char tokens), distinct_price_bands, top_prefix concentration - similar_description_pairs[] — actual pairs of paths that share >45% of their description vocabulary, with the shared tokens listed - consolidation_candidates[] — cluste"
   }
 }
