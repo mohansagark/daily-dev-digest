@@ -567,5 +567,12 @@
     "processed_date": "2026-10-11T23:54:17.120077",
     "strategy_used": "Software architecture and system design",
     "content_sample": "when building modern enterprise microservices, handling high-volume concurrent i/o efficiently is the difference between a resilient, scalable system and a cascading failure that brings down your entire infrastructure. while standard synchronous frameworks struggle under heavy loads, python's asyncio ecosystem—combined with modern asynchronous orms, non-blocking database drivers, and resilient connection pooling—provides robust capabilities for high-throughput backends. in this comprehensive architectural guide, we will dissect production-grade patterns for building non-blocking database queries, managing asynchronous connection pools, implementing resilient outbound http calls with circuit breakers, preventing event loop starvation, and orchestrating distributed tasks under heavy concurre"
+  },
+  "f6da2ff541990d566748838c2313eeca": {
+    "title": "Reverse Engineering with AI: Trace Features Across Electron and Native Apps",
+    "link": "https://www.sitepoint.com/reverse-engineering-with-ai-rea-electron-tracing/?utm_source=rss",
+    "processed_date": "2026-10-13T02:14:51.798984",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "legal notice: reverse engineer only software you own, have written permission to analyze, or that is explicitly licensed for this use. reverse engineering commercial software may violate end-user license agreements and applicable law, including dmca §1201 (us), the computer misuse act (uk), and equivalent statutes elsewhere. this tutorial is not legal advice. reverse engineering with ai works best when the agent has structured tools instead of guesswork. tracing one feature in an electron app means following a button click in the renderer, across an ipc channel, into a main-process handler, and sometimes into a native add-on. that normally means switching between devtools, node inspectors, and a disassembler. rea (reverse engineer anything) is an open-source cli and mcp server that gives a"
   }
 }
