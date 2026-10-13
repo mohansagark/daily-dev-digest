@@ -574,5 +574,36 @@
     "processed_date": "2026-10-13T02:14:51.798984",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "legal notice: reverse engineer only software you own, have written permission to analyze, or that is explicitly licensed for this use. reverse engineering commercial software may violate end-user license agreements and applicable law, including dmca §1201 (us), the computer misuse act (uk), and equivalent statutes elsewhere. this tutorial is not legal advice. reverse engineering with ai works best when the agent has structured tools instead of guesswork. tracing one feature in an electron app means following a button click in the renderer, across an ipc channel, into a main-process handler, and sometimes into a native add-on. that normally means switching between devtools, node inspectors, and a disassembler. rea (reverse engineer anything) is an open-source cli and mcp server that gives a"
+  },
+  "faa26f76fae5547f6beee2e97dfcaa0c": {
+    "title": "Log what your tools put in the context window before blaming the model",
+    "link": "https://dev.to/conorbronsdon/log-what-your-tools-put-in-the-context-window-before-blaming-the-model-1jfm",
+    "processed_date": "2026-10-13T23:51:28.900673",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "ask an agent for one person's sales calls since february 1 and it can come back with calls that person wasn't on, even though the right ones were in its context. the data reaching the model causes that, and a live demo on chain of thought in march 2026 showed how. michel tricot, ceo and co-founder of airbyte, ran the query against the gong api directly. the api couldn't filter calls by user, so the agent paged through every call over roughly a month and a half. he said that path normally takes about three minutes, that it often returns more than 45 calls because the bloated context leaves the agent unable to filter down to the right person, and that it consumed almost 30,000 more tokens than the path through a context store. those are his rough numbers from one demo, not a benchmark, but t",
+    "skipped": "triage_reject"
+  },
+  "e8e1397a1c0e9ffcc3a3ea05464e1b61": {
+    "title": "I am building a Local AI Knowledge System on Refurbished Office PCs",
+    "link": "https://dev.to/iboneumann/i-am-building-a-local-ai-knowledge-system-on-refurbished-office-pcs-mld",
+    "processed_date": "2026-10-13T23:51:28.900886",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "that is the whole story: https://cyberdeck-ai-knowledge-system.org/ and it has to be build not downloaded using ubuntu and python and ollama llms. title: \"i am building a local ai knowledge system on refurbished office pcs\" published: false description: \"a beowulf cluster running ollama and a rag pipeline over my obsidian vault. no cloud, no subscriptions, about $150 of second-hand hardware — and a lot of things that didn't work.\" tags: ai, opensource, homelab, python cover_image: i have a confession: my ai knowledge system runs on computers that were headed for a recycling bin, but made it onto ebay. deepseek told me yours cold tell this story: three dell optiplex machines, bought second-hand in sham shui po for roughly $150 total. no gpu. no cloud account. no monthly subscription. they s",
+    "skipped": "triage_reject"
+  },
+  "a224aaf62e06cc76fe42ccf9461c0dc6": {
+    "title": "PostEra (YC W20) Is Hiring AI Researchers for Drug Discovery",
+    "link": "https://jobs.lever.co/postera/c7d50a36-db0a-4574-bfe4-8700b74a22c0",
+    "processed_date": "2026-10-13T23:51:28.901140",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "machine learning researcher - agentic science postera is building an ai-first biotech. we use proton, our ai platform for medicinal chemistry, to accelerate the discovery of new medicines for patients. postera is advancing an internal pipeline focused on women's health and fertility, and has used proton to nominate multiple clinical candidates across pmos and fertility. postera also advances small molecule programs through partnerships with pharma. we've closed over $1b in ai partnerships including 4 multi-year agreements with pfizer and amgen. postera is also leading an antiviral drug discovery center for pandemic preparedness, funded by one of the largest grants in nih history. postera's organizational structure - we believe time spent navigating complex hierarchies in organizations is b",
+    "skipped": "triage_reject"
+  },
+  "6daca854e74dcd8db7d9716bd940453a": {
+    "title": "TanStack Query vs SWR: How to Choose in Next.js App Router",
+    "link": "https://www.sitepoint.com/tanstack-query-vs-swr-nextjs-app-router/?utm_source=rss",
+    "processed_date": "2026-10-13T23:51:48.945649",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "tanstack query vs swr comparison most comparisons between tanstack query and swr were written for the pages router era, where every page relied on getserversideprops or getstaticprops and client-side fetching libraries carried the full weight of data management. the next.js app router, with its server component defaults, fundamentally changes that calculus. this guide provides a scenario-based decision framework for choosing between tanstack query and swr in app router projects, rather than rehashing feature checklists. table of contents - server components vs. client components: the data-fetching split - tanstack query vs swr at a glance - scenario-to-approach decision table - paired code examples: three critical patterns - setting up providers in the app router - performance, dx, and eco"
   }
 }
