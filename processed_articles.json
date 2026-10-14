@@ -605,5 +605,12 @@
     "processed_date": "2026-10-13T23:51:48.945649",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "tanstack query vs swr comparison most comparisons between tanstack query and swr were written for the pages router era, where every page relied on getserversideprops or getstaticprops and client-side fetching libraries carried the full weight of data management. the next.js app router, with its server component defaults, fundamentally changes that calculus. this guide provides a scenario-based decision framework for choosing between tanstack query and swr in app router projects, rather than rehashing feature checklists. table of contents - server components vs. client components: the data-fetching split - tanstack query vs swr at a glance - scenario-to-approach decision table - paired code examples: three critical patterns - setting up providers in the app router - performance, dx, and eco"
+  },
+  "e26211601637e8501169015f1c6ed03b": {
+    "title": "Show HN: Fantastic Canvas",
+    "link": "https://github.com/aisixteen/fantastic",
+    "processed_date": "2026-10-14T23:26:11.087543",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "a medium that unifies humans and ais into a single workspace. fantastic is a kernel of agents. a model, a program, a file tree, a shell, a browser canvas and the human at the keyboard are all agents in one tree, addressed by id and reached the same way: one call, send . compute, inference and memory are interchangeable — a step written as code and the same step written as an llm call plug into the wiring identically. there is no client library. the protocol is the api: every agent answers {\"type\":\"reflect\"} with what it is, and docs says how to call it. given only those self-descriptions, an ai wires the system itself — that is the bar the model-driven test suite holds it to. every interaction is one batch send — a list of items, each {target, payload} , answered in order with {pid, status"
   }
 }
