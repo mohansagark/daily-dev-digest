@@ -612,5 +612,12 @@
     "processed_date": "2026-10-14T23:26:11.087543",
     "strategy_used": "AI industry news and model releases",
     "content_sample": "a medium that unifies humans and ais into a single workspace. fantastic is a kernel of agents. a model, a program, a file tree, a shell, a browser canvas and the human at the keyboard are all agents in one tree, addressed by id and reached the same way: one call, send . compute, inference and memory are interchangeable — a step written as code and the same step written as an llm call plug into the wiring identically. there is no client library. the protocol is the api: every agent answers {\"type\":\"reflect\"} with what it is, and docs says how to call it. given only those self-descriptions, an ai wires the system itself — that is the bar the model-driven test suite holds it to. every interaction is one batch send — a list of items, each {target, payload} , answered in order with {pid, status"
+  },
+  "1faabb7413f1d517354570785c6167bf": {
+    "title": "AI Docstring Generators Compared: Which One Actually Works?",
+    "link": "https://dev.to/the_movie_9b1357e8c99cfaa/ai-docstring-generators-compared-which-one-actually-works-2fp1",
+    "processed_date": "2026-10-15T23:16:14.131827",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "every python developer has opened a file, found a function called process() with three arguments and no docstring, and quietly despised whoever wrote it. in 2026 that person is usually an ai agent. here's the thing nobody warned us about: documentation debt didn't disappear when the coding assistants arrived. it changed shape. code now ships faster than ever — and it ships undocumented faster than ever, because agents write functions the same way i write grocery lists. so i spent the last few weeks running the current generation of ai docstring generators through the same gauntlet: a 60-module flask api i inherited, a mid-size fastapi service with clean type hints, and a scrappy little cli tool with almost none. same test functions, same three docstring styles (google, numpy, sphinx), same"
   }
 }
