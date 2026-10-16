@@ -619,5 +619,12 @@
     "processed_date": "2026-10-15T23:16:14.131827",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "every python developer has opened a file, found a function called process() with three arguments and no docstring, and quietly despised whoever wrote it. in 2026 that person is usually an ai agent. here's the thing nobody warned us about: documentation debt didn't disappear when the coding assistants arrived. it changed shape. code now ships faster than ever — and it ships undocumented faster than ever, because agents write functions the same way i write grocery lists. so i spent the last few weeks running the current generation of ai docstring generators through the same gauntlet: a 60-module flask api i inherited, a mid-size fastapi service with clean type hints, and a scrappy little cli tool with almost none. same test functions, same three docstring styles (google, numpy, sphinx), same"
+  },
+  "bc3b2ce8ba2f2615f6970beeeac92e69": {
+    "title": "Sub-100ms Patient Intake & Clinical Triage: Slashing 98% of Routing LLM Calls in Healthcare Systems",
+    "link": "https://dev.to/jayeshtankariya/sub-100ms-patient-intake-clinical-triage-slashing-98-of-routing-llm-calls-in-healthcare-systems-2f0c",
+    "processed_date": "2026-10-16T23:01:51.080731",
+    "strategy_used": "AI industry news and model releases",
+    "content_sample": "sub-100ms patient intake & clinical triage: slashing 98% of routing llm calls in healthcare systems part 4 of the \"jev-first routing for langgraph\" series. read part 1: your agent harness is paying llm prices for classifier decisions | read part 2: manufacturing safety routing | read part 3: supply chain hazard triage. executive summary for healthcare cios, cmios & engineering leaders - the problem: modern health systems, telehealth providers, and ehr platforms (epic, cerner) process millions of patient intake forms, nurse triage notes, and portal symptom messages annually. multi-agent clinical intake systems typically route these encounters using a frontier llm (gpt-4o, claude 3.5 sonnet, gemini 1.5 pro). this creates unpredictable latency (800ms to 30s+), vulnerability to rate-limiting o"
   }
 }
