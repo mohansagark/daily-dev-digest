@@ -633,5 +633,12 @@
     "processed_date": "2026-10-17T22:35:53.840384",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "this is a submission for the hacktoberfest open-source ai challenge week 2: side hustle what i built every independent freelancer—whether a video editor, web developer, or designer—has faced the dreaded client message: \"bhai, ek chota sa change aur kar do free me\" (can you just add these two extra features for free?) scope creep and vague whatsapp agreements cost freelancers thousands of dollars in unpaid labor every year. most freelancers don't use legal contracts because lawyers are expensive, templates are rigid, and clients often chat informally in mixed languages (like hinglish—hindi + english). i built 🛡️ freelanceshield os, an open-weight ai micro-saas that turns messy, informal whatsapp/dm client notes into a complete 4-in-1 business protection suite in 1.5 seconds: - 📄 ironclad sc"
+  },
+  "b62a3f3e2fb66760c8fd6b582700c486": {
+    "title": "Making a JavaScript-drawn page readable to crawlers: pre-rendering at build time and auto-noindex for thin pages",
+    "link": "https://dev.to/sungprofile/making-a-javascript-drawn-page-readable-to-crawlers-pre-rendering-at-build-time-and-auto-noindex-1fo4",
+    "processed_date": "2026-10-18T22:35:16.194401",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "i have a korean information site that is plain static html, rebuilt by a python script every hour and pushed to github pages. some screens (an issues ranking, calculators, a recommendation form) are drawn by javascript from a json file. for a human that's fine. for a crawler that doesn't run my scripts, the page was almost empty. i measured the text a crawler can read on one of those js-drawn pages: 687 characters before, 13,605 after pre-rendering. this post is how, plus the two clean-ups that came with it. all code is from the real build script, trimmed. 1. pre-render the same data the js would draw the page used to contain only this: <section id=\"issues\"><noscript>javascript is required.</noscript></section> the build already loads news/data.json for the front end, so the python side no"
   }
 }
