@@ -640,5 +640,12 @@
     "processed_date": "2026-10-18T22:35:16.194401",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "i have a korean information site that is plain static html, rebuilt by a python script every hour and pushed to github pages. some screens (an issues ranking, calculators, a recommendation form) are drawn by javascript from a json file. for a human that's fine. for a crawler that doesn't run my scripts, the page was almost empty. i measured the text a crawler can read on one of those js-drawn pages: 687 characters before, 13,605 after pre-rendering. this post is how, plus the two clean-ups that came with it. all code is from the real build script, trimmed. 1. pre-render the same data the js would draw the page used to contain only this: <section id=\"issues\"><noscript>javascript is required.</noscript></section> the build already loads news/data.json for the front end, so the python side no"
+  },
+  "00fdcf57a3ab0398ceff42ef2234c462": {
+    "title": "What Is an AI Agent? How to Build One from Scratch in Python",
+    "link": "https://dev.to/geekcoding101/what-is-an-ai-agent-how-to-build-one-from-scratch-in-python-48ce",
+    "processed_date": "2026-10-19T23:56:19.896171",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "originally published at geekcoding101. \"agent\" is everywhere. what does it actually mean? every product launch in 2026 seems to include the word agent: coding agents, browser agents, research agents, \"agentic workflows\". in my agentic frameworks guide i compared the big frameworks for building them. but before you pick a framework, it's worth understanding what an agent really is, because the core idea fits in about 50 lines of python. in this post we'll define it, look at the loop that powers every agent, and build one from scratch. 🚀 what is an ai agent? an ai agent is a system where a large language model decides its own next steps and takes actions through tools in a loop, until a goal is reached. compare three levels: a good rule of thumb: if you can draw the flowchart in advance, bui"
   }
 }
