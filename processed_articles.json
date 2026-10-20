@@ -647,5 +647,20 @@
     "processed_date": "2026-10-19T23:56:19.896171",
     "strategy_used": "AI systems, agents, and applied ML for working engineers",
     "content_sample": "originally published at geekcoding101. \"agent\" is everywhere. what does it actually mean? every product launch in 2026 seems to include the word agent: coding agents, browser agents, research agents, \"agentic workflows\". in my agentic frameworks guide i compared the big frameworks for building them. but before you pick a framework, it's worth understanding what an agent really is, because the core idea fits in about 50 lines of python. in this post we'll define it, look at the loop that powers every agent, and build one from scratch. 🚀 what is an ai agent? an ai agent is a system where a large language model decides its own next steps and takes actions through tools in a loop, until a goal is reached. compare three levels: a good rule of thumb: if you can draw the flowchart in advance, bui"
+  },
+  "a902da1f59ba6f080877135cb344bd8a": {
+    "title": "NVIDIA Cosmos3-H-Dreams: Bringing Clinical Surgery to Life Through Generative Simulation",
+    "link": "https://huggingface.co/blog/nvidia/cosmos3-h-dreams",
+    "processed_date": "2026-10-20T23:21:17.752593",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "nvidia cosmos3-h-dreams: bringing clinical surgery to life through generative simulation our first cosmos-h-dreams release, built on cosmos-predict2.5, brought interactive generative simulation to dvrk tabletop suturing, a foundational proving ground for surgical robotics. as world foundation model (wfm), cosmos-h-dreams demonstrated an alternative to numerical simulation: rather than explicitly modeling scene geometry, tissue deformation, and physical interactions, it learned visual dynamics directly from synchronized video and robot kinematics, yielding interactive tabletop task simulation with high realism. today, cosmos3-h-dreams advances this capability by learning from video and robot kinematics recording during clinical procedures on the cmr surgical versius platform. to our knowled",
+    "skipped": "triage_reject"
+  },
+  "e994ad1ca7c1e4314046751288c531c8": {
+    "title": "Next.js ISR Transient Errors: Prevent notFound from Caching 404s",
+    "link": "https://www.sitepoint.com/nextjs-isr-transient-error-notfound/?utm_source=rss",
+    "processed_date": "2026-10-20T23:21:30.463105",
+    "strategy_used": "Frontend and JavaScript engineering",
+    "content_sample": "prerequisites: this article targets next.js 14 (app router). for next.js 15+, see the params awaiting note in each code snippet. requires node.js 18.18+. fetch caching defaults changed in next.js 15; the isr throw-to-preserve behavior described here is consistent across 13.4 through 14.x. run the local simulation test described in the testing section to confirm behavior on your target version. a single transient database or cms outage during next.js isr background revalidation can silently replace a perfectly valid cached page with a persistent 404. this is not a theoretical risk. developers using next.js isr with notfound() have reported this exact failure mode, where a temporary infrastructure hiccup causes seo damage and user-facing downtime that persists long after the underlying servi"
   }
 }
