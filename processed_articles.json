@@ -662,5 +662,12 @@
     "processed_date": "2026-10-20T23:21:30.463105",
     "strategy_used": "Frontend and JavaScript engineering",
     "content_sample": "prerequisites: this article targets next.js 14 (app router). for next.js 15+, see the params awaiting note in each code snippet. requires node.js 18.18+. fetch caching defaults changed in next.js 15; the isr throw-to-preserve behavior described here is consistent across 13.4 through 14.x. run the local simulation test described in the testing section to confirm behavior on your target version. a single transient database or cms outage during next.js isr background revalidation can silently replace a perfectly valid cached page with a persistent 404. this is not a theoretical risk. developers using next.js isr with notfound() have reported this exact failure mode, where a temporary infrastructure hiccup causes seo damage and user-facing downtime that persists long after the underlying servi"
+  },
+  "fafd332846253a6fa2d113953e069c1c": {
+    "title": "ZenteiQ scales batch inference 4x with GKE Inference Gateway powered by llm-d",
+    "link": "https://cloud.google.com/blog/products/containers-kubernetes/zenteiq-scales-physical-ai-inference-4x-with-gke-and-llm-d/",
+    "processed_date": "2026-10-21T23:36:08.564974",
+    "strategy_used": "AI systems, agents, and applied ML for working engineers",
+    "content_sample": "zenteiq scales batch inference 4x with gke inference gateway powered by llm-d prof. sashikumaar ganesan founder, zenteiq fisayo feyisetan product manager, google kubernetes engine today we hear from zenteiq, an artificial intelligence startup spun out of the indian institute of science (iisc) and selected under the indiaai mission to build sovereign scientific foundation models from the ground up. to pre-train models that understand physical laws, governing equations, and numerical solvers, zenteiq designed and built a large-scale batch synthetic data-generation pipeline that runs across multiple model families and feeds verified datasets into training runs. google kubernetes engine (gke) and gke inference gateway gave zenteiq the inference-routing layer within its pipeline to scale aggreg"
   }
 }
